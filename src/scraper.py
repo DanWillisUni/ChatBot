@@ -10,6 +10,7 @@ from selenium.webdriver.support import expected_conditions as ec
 s = Service('../resources/chromedriver')
 driver = webdriver.Chrome(service=s)
 driver.get("https://www.thetrainline.com")
+trainline_page = driver.current_window_handle
 
 
 def scrape_for_cheapets_ticket():
@@ -18,13 +19,13 @@ def scrape_for_cheapets_ticket():
 
 t.sleep(0.5)    # sleep to allow page to load in
 # accept cookies on the page
-accept_cookies = driver.find_element(By.ID, 'onetrust-accept-btn-handler').click()
+driver.find_element(By.ID, 'onetrust-accept-btn-handler').click()
 
 # what is the starting station
-from_station = driver.find_element(By.ID, 'from.search').send_keys('Milton Keynes Central')
+driver.find_element(By.ID, 'from.search').send_keys('Milton Keynes Central')
 
 # what is the destination
-to_station = driver.find_element(By.ID, 'to.search').send_keys('Norwich')
+driver.find_element(By.ID, 'to.search').send_keys('Norwich')
 
 
 one_way = driver.find_element(By.ID, 'single')
@@ -49,7 +50,7 @@ out_leave_or_arrive.select_by_value('arriveBefore') # test
 
 # select the hour of time
 out_hour = Select(driver.find_element(By.XPATH, '/html/body/div[2]/div/div[2]/main/div[2]/div[4]/div/div/div[1]/section/form/div[3]/fieldset[1]/div[4]/div[1]/select'))
-out_hour.select_by_value('18')
+out_hour.select_by_value('22')
 
 # select minutes of time
 out_min = Select(driver.find_element(By.XPATH, '/html/body/div[2]/div/div[2]/main/div[2]/div[4]/div/div/div[1]/section/form/div[3]/fieldset[1]/div[4]/div[2]/select'))
@@ -80,24 +81,29 @@ in_min = Select(driver.find_element(By.XPATH, '/html/body/div[2]/div/div[2]/main
 in_min.select_by_value('45')
 
 # enter number of adults and children in journey
-passengers = driver.find_element(By.ID, 'passenger-summary-btn').click()
+driver.find_element(By.ID, 'passenger-summary-btn').click()
 adults = Select(driver.find_element(By.XPATH, '/html/body/div[2]/div/div[2]/main/div[2]/div[4]/div/div/div[1]/section/form/div[4]/div/div/div/div[1]/div/div/select'))
 adults.select_by_value('3')
 children = Select(driver.find_element(By.XPATH, '/html/body/div[2]/div/div[2]/main/div[2]/div[4]/div/div/div[1]/section/form/div[4]/div/div/div/div[2]/div[1]/div/select'))
 children.select_by_value('2')
-passengers_submit = driver.find_element(By.XPATH, '/html/body/div[2]/div/div[2]/main/div[2]/div[4]/div/div/div[1]/section/form/div[4]/div/div/button').click()
+driver.find_element(By.XPATH, '/html/body/div[2]/div/div[2]/main/div[2]/div[4]/div/div/div[1]/section/form/div[4]/div/div/button').click()
 
 
 t.sleep(0.5)  # sleep to make sure all data has been entered
-get_tickets = driver.find_element(By.XPATH, '/html/body/div[2]/div/div[2]/main/div[2]/div[4]/div/div/div[1]/section/form/div[5]/button').click()   # submit travel details to find cheapest price
+driver.find_element(By.XPATH, '/html/body/div[2]/div/div[2]/main/div[2]/div[4]/div/div/div[1]/section/form/div[5]/button').click()   # submit travel details to find cheapest price
 
-# accept pop up
-t.sleep(0.5)
-elem = WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.XPATH, "/html/body/div[10]/div/div/div/div[2]")))
-popup = driver.find_element(By.XPATH, '/html/body/div[10]/div/div/div/div[2]/div[2]/button[1]').click()
-#driver.switch_to.alert.accept() #closes alert window using accept
-t.sleep(100000)
-driver.close()
+
+# accept popup
+t.sleep(3)
+# print(driver.page_source.encode("utf-8"))
+driver.find_element(By.CLASS_NAME, '_hsf37jx').click()
+
+cheapest_ticket = driver.find_element(By.CSS_SELECTOR, "[aria-label='the cheapest fare']").text
+print(cheapest_ticket)
+print(driver.current_url)
+
+t.sleep(500)
+driver.quit()
 
 """
 Testing
