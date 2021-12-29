@@ -11,16 +11,21 @@ namespace InsertTableData.Services
     {
         private readonly ILogger<MainService> _logger;
         private readonly CSVReaderService<InputFile> _csvReader;
+        private readonly CSVReaderService<Station> _stationCsvReader;
         private DB _db;
-        public MainService(ILogger<MainService> logger, CSVReaderService<InputFile> csvReader,BasicConfiguration bc)
+        public MainService(ILogger<MainService> logger, CSVReaderService<InputFile> csvReader, CSVReaderService<Station> stationCsvReader ,BasicConfiguration bc)
         {
             _logger = logger;
             _csvReader = csvReader;
+            _stationCsvReader = stationCsvReader;
             _db = new DB(bc.connString);
         }
         public void root()
         {
-            for(int year = 2017; year <= 2018; year++)
+            List<Station> stations = _stationCsvReader.readFromFile($"../../../DATA", $"stations");
+            _db.insetStations(stations);
+            _logger.LogInformation("Done stations");
+            for (int year = 2017; year <= 2018; year++)
             {
                 for (int month = 1; month <= 12; month++)
                 {
@@ -28,7 +33,7 @@ namespace InsertTableData.Services
                     _db.insertData(input);
                     _logger.LogInformation($"Done {month}/{year}");
                 }
-            }
+            }            
         }
     }
 }

@@ -26,6 +26,19 @@ namespace InsertTableData.Services
             }
             connection.Close();
         }
+        public void insetStations(List<Station> input)
+        {
+            connection.Open();
+            foreach (Station s in input)
+            {
+                string query = "INSERT [dbo].[Stations] ([name], [longname_name_alias], [alpha3], [tiploc], [column5]) Values (" + s.ToString() + ")";
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+            }
+            connection.Close();
+        }
 
         public List<List<string>> RunCommand(string sqlCommand, int fieldNumber)
         {

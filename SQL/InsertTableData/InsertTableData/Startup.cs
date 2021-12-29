@@ -63,6 +63,7 @@ namespace InsertTableData
 
             _serviceCollection.AddSingleton<MainService>();
             _serviceCollection.AddTransient<CSVReaderService<InputFile>>();
+            _serviceCollection.AddTransient<CSVReaderService<Station>>();
 
             _serviceProvider = _serviceCollection.BuildServiceProvider(true);
         }
