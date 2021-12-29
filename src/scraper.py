@@ -102,11 +102,11 @@ t.sleep(0.5)  # sleep to make sure all data has been entered
 driver.find_element(By.XPATH, '/html/body/div[2]/div/div[2]/main/div[2]/div[4]/div/div/div[1]/section/form/div['
                               '5]/button').click()   # submit travel details to find cheapest price
 
-
-# accept popup
 WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.CSS_SELECTOR, "[aria-label='the cheapest fare']")))
+# accept popup
 # driver.find_element(By.CLASS_NAME, '_hsf37jx').click()  # if popup
 
+WebDriverWait(driver, 10).until(ec.presence_of_element_located((By.CSS_SELECTOR, "[aria-label='the cheapest fare']")))
 # find cheapest ticket label to print cheapest ticket and page url
 cheapest_ticket = driver.find_element(By.CSS_SELECTOR, "[aria-label='the cheapest fare']").text
 print(cheapest_ticket)
