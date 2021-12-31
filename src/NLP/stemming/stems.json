@@ -1,0 +1,75 @@
+{
+  "single_ticket": [
+    "one way",
+    "single"
+  ],
+
+  "return_ticket": [
+    "return",
+    "returning"
+  ],
+
+  "booking_tickets": [
+    "book",
+    "booking",
+    "single",
+    "return",
+    "ticket",
+    "tickets"
+  ],
+
+  "prediction": [
+    "delay",
+    "late",
+    "predict",
+    "prediction"
+  ],
+
+  "from_station": [
+    "from",
+    "leaving",
+    "leave",
+    "depart",
+    "departing"
+  ],
+
+  "to_station": [
+    "to",
+    "arriving",
+    "arrive",
+    "depart",
+    "departing"
+  ],
+
+  "leaving_at": [
+    "at",
+    "before",
+    "after"
+  ],
+
+  "arrive_by": [
+    "arrive",
+    "by",
+    "get"
+  ],
+
+  "dates": [
+    "today",
+    "tomorrow",
+    "week"
+  ],
+
+  "months": [
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "november",
+    "december"
+  ]
+}
