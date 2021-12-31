@@ -1,7 +1,6 @@
 import pyodbc
-import Stations
 
-def runQuery(query,connStr):
+def runQuery(connStr,query):
     r = []
     cnxn = pyodbc.connect(r'Driver={SQL Server};' + connStr)
     cursor = cnxn.cursor()
