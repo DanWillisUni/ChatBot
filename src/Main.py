@@ -1,4 +1,3 @@
-import Stations.findStations as fs
-stationsFound = fs.searchStations("SOTON")
-for s in stationsFound:
-    print(s.toString())
+import PartTwo.Bayes as b
+print(b.getProbabilityOfLate("SOTON","WATRLMN",10))
+
