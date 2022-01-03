@@ -14,7 +14,6 @@ def knn(data, query, k, d_fn):
 
     return k_nearest_distances_and_indices, mean(k_nearest_labels)
 
-
 def mean(labels):
     return sum(labels) / len(labels)
 
@@ -27,14 +26,17 @@ def euclidean_distance(point1, point2):
 def getKNNRegression(fromStationTPL,toStationTPL,delay):
     connStr = appSettings.getConnStr()
     all = sph.getLatenessOfBoth(connStr, fromStationTPL, toStationTPL)
-    reg_data = []
-    for i in all:
-        lineList = []
-        lineList.append(int(i.split(",")[0]))
-        lineList.append(int(i.split(",")[1]))
-        reg_data.append(lineList)
-    reg_query = [delay]
-    reg_k_nearest_neighbors, reg_prediction = knn(
-        reg_data, reg_query, k=1000, d_fn=euclidean_distance
-    )
-    return reg_prediction
+    if len(all) == 0:
+        return delay
+    else:
+        reg_data = []
+        for i in all:
+            lineList = []
+            lineList.append(int(i.split(",")[0]))
+            lineList.append(int(i.split(",")[1]))
+            reg_data.append(lineList)
+        reg_query = [delay]
+        reg_k_nearest_neighbors, reg_prediction = knn(
+            reg_data, reg_query, k=5, d_fn=euclidean_distance
+        )
+        return reg_prediction
