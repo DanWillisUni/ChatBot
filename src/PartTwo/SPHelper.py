@@ -13,3 +13,8 @@ def getLatenessFromStations(connStr,fromStation,toStation,rangeStart,rangeEnd):
     query = "EXEC GetLatenessFromStations @FromStation = '" + fromStation +"',@ToStation = '"+toStation+"',@LateByRangeStart = "+str(rangeStart)+",@LateByRangeEnd = " + str(rangeEnd)
     result = DB.runQuery(connStr, query)
     return result
+
+def getLatenessOfBoth(connStr, fromStation, toStation):
+    query = "EXEC GetLatenessOfBoth @FROM = '" + fromStation + "',@TO = '" + toStation + "'"
+    result = DB.runQuery(connStr, query)
+    return result
