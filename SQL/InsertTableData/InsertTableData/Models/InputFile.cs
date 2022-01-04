@@ -34,7 +34,11 @@ namespace InsertTableData.Models
 
         public override string ToString()
         {
-            return $"'{rid}','{tpl}','{pta}','{ptd}','{wta}','{wtp}','{wtd}','{arr_et}','{arr_wet}','{arr_atRemoved}','{pass_et}','{pass_wet}','{pass_atRemoved}','{dep_et}','{dep_wet}','{dep_atRemoved}','{arr_at}','{pass_at}','{dep_at}','{cr_code}','{lr_code}'";
+            return $"'{rid}','{tpl}',{getNulls(pta)},{getNulls(ptd)},{getNulls(wta)},{getNulls(wtp)},{getNulls(wtd)},{getNulls(arr_et)},{getNulls(arr_wet)},'{arr_atRemoved}',{getNulls(pass_et)},{getNulls(pass_wet)},'{pass_atRemoved}',{getNulls(dep_et)},{getNulls(dep_wet)},'{dep_atRemoved}',{getNulls(arr_at)},{getNulls(pass_at)},{getNulls(dep_at)},'{cr_code}','{lr_code}'";
+        }
+        private string getNulls(string input)
+        {
+            return input == "" || input == null ? "null" : "'" + input + "'";
         }
     }
 }
