@@ -23,7 +23,7 @@ def euclidean_distance(point1, point2):
         sum_squared_distance += math.pow(point1[i] - point2[i], 2)
     return math.sqrt(sum_squared_distance)
 
-def getKNNRegression(fromStationTPL,toStationTPL,delay):
+def getKNNRegression(fromStationTPL,toStationTPL,delay,k):
     connStr = appSettings.getConnStr()
     all = sph.getLatenessOfBoth(connStr, fromStationTPL, toStationTPL)
     if len(all) == 0:
@@ -37,6 +37,6 @@ def getKNNRegression(fromStationTPL,toStationTPL,delay):
             reg_data.append(lineList)
         reg_query = [delay]
         reg_k_nearest_neighbors, reg_prediction = knn(
-            reg_data, reg_query, k=5, d_fn=euclidean_distance
+            reg_data, reg_query, k=k, d_fn=euclidean_distance
         )
         return reg_prediction
