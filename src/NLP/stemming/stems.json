@@ -30,7 +30,10 @@
     "leaving",
     "leave",
     "depart",
-    "departing"
+    "departing",
+    "starting",
+    "beginning",
+    "origin"
   ],
 
   "to_station": [
@@ -38,7 +41,9 @@
     "arriving",
     "arrive",
     "depart",
-    "departing"
+    "departing",
+    "ending",
+    "destination"
   ],
 
   "leaving_at": [
