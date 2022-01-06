@@ -86,7 +86,7 @@ class NeuralNetwork:
                     cumulative_error = cumulative_error + error
                 cumulative_errors.append(cumulative_error)
 
-        
+
         return cumulative_errors
 
     def getIndex(self,A,B):
@@ -116,12 +116,12 @@ class NeuralNetwork:
                 for item in self.comparingStations:
                     f.write("%s\n" % item)
 
-    def getNNData(self):
+    def getNNData(self,maxDataSize):
         connStr = appSettings.getConnStr()
         self.getStationCompare()
         query = 'SELECT distinct rid from nrch_livst_a51'
         rids = db.runQuery(connStr, query)
-        rids = rids[:100]#restricted because else it is a 30min data load
+        rids = rids[:maxDataSize]#restricted because else it is a 30min data load
         inputs = np.empty(shape=[0,2],dtype=int)
         targets = np.empty(shape=[0],dtype=int)
         for rid in rids:

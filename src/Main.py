@@ -24,22 +24,23 @@ def getK():
     plt.ylabel("Errors")
     plt.savefig("searchingForK.png")
 
-def trainNN():
+def trainNN(maxDataSize,iterations):
     neural_network = nn.NeuralNetwork(0.1)
-    inputs, targets = neural_network.getNNData()
+    inputs, targets = neural_network.getNNData(maxDataSize)
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
     print("Finish Data load=", current_time)
-    training_error = neural_network.train(inputs,targets,100000)#~5000 iter per min
+    training_error = neural_network.train(inputs,targets,iterations)#~5000 iter per min
     plt.plot(training_error)
     plt.xlabel("Iterations (hundreds)")
     plt.ylabel("Error for all training instances")
-    plt.savefig("cumulative_error.png")
+    now = datetime.now()
+    plt.savefig("../resources/PartTwo/NNGraphs/" + now.strftime("%Y%m%d_%H%M%S_") + str(maxDataSize)+ ".png")
 
 now = datetime.now()
 current_time = now.strftime("%H:%M:%S")
 print("Start Time =", current_time)
-trainNN()
+trainNN(100,1000)
 now = datetime.now()
 current_time = now.strftime("%H:%M:%S")
 print("End Time =", current_time)
