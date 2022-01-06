@@ -27,16 +27,19 @@ def getK():
 def trainNN():
     neural_network = nn.NeuralNetwork(0.1)
     inputs, targets = neural_network.getNNData()
-    training_error = neural_network.train(inputs,targets,10000)
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print("Finish Data load=", current_time)
+    training_error = neural_network.train(inputs,targets,100000)#~5000 iter per min
     plt.plot(training_error)
-    plt.xlabel("Iterations")
+    plt.xlabel("Iterations (hundreds)")
     plt.ylabel("Error for all training instances")
     plt.savefig("cumulative_error.png")
 
 now = datetime.now()
 current_time = now.strftime("%H:%M:%S")
-print("Current Time =", current_time)
+print("Start Time =", current_time)
 trainNN()
 now = datetime.now()
 current_time = now.strftime("%H:%M:%S")
-print("Current Time =", current_time)
+print("End Time =", current_time)

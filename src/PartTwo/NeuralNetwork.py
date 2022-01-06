@@ -17,7 +17,7 @@ class NeuralNetwork:
         self.comparingStations = [None] * 5929
 
     def _sigmoid(self, x):
-        print(x)
+        #print(x)
         return 1 / (1 + np.exp(-x))
 
     def _sigmoid_deriv(self, x):
@@ -58,7 +58,7 @@ class NeuralNetwork:
         cumulative_errors = []
         for current_iteration in range(iterations):
             # Pick a data instance at random
-            random_data_index = random.randint(0, len(input_vectors))
+            random_data_index = random.randint(0, len(input_vectors) - 1)
             input_vector = input_vectors[random_data_index]
             target = targets[random_data_index]
 
@@ -69,8 +69,11 @@ class NeuralNetwork:
 
             self._update_parameters(derror_dbias, derror_dweights)
 
+            if (current_iteration % int(iterations/100)) == 0:
+                print(str(int(float(current_iteration/iterations) * 100)) + "%")
             # Measure the cumulative error for all the instances
             if current_iteration % 100 == 0:
+                #print(str(current_iteration) + "/" + str(iterations))
                 cumulative_error = 0
                 # Loop through all the instances to measure the error
                 for data_instance_index in range(len(input_vectors)):
@@ -83,6 +86,7 @@ class NeuralNetwork:
                     cumulative_error = cumulative_error + error
                 cumulative_errors.append(cumulative_error)
 
+        
         return cumulative_errors
 
     def getIndex(self,A,B):
@@ -117,7 +121,7 @@ class NeuralNetwork:
         self.getStationCompare()
         query = 'SELECT distinct rid from nrch_livst_a51'
         rids = db.runQuery(connStr, query)
-        rids = rids[:100]
+        rids = rids[:100]#restricted because else it is a 30min data load
         inputs = np.empty(shape=[0,2],dtype=int)
         targets = np.empty(shape=[0],dtype=int)
         for rid in rids:
