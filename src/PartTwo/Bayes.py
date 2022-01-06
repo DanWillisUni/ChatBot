@@ -1,6 +1,6 @@
-import PartTwo.SPHelper as sph
+import PartTwo.Helpers.SPHelper as sph
 import appSettings
-import PartTwo.ProbabilityHelper as ph
+import PartTwo.Helpers.ProbabilityHelper as ph
 
 # calculate P(A|B) given P(A), P(B|A), P(B|not A)
 def bayes_theorem(p_a, p_b_given_a, p_b_given_not_a):

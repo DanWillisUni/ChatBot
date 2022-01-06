@@ -1,9 +1,8 @@
 import random
 
-import PartTwo.SPHelper as sph
+import PartTwo.Helpers.SPHelper as sph
 import appSettings
-import PartTwo.KNearestNeighbours as knn
-import PartTwo.DB as db
+import PartTwo.Helpers.DB as db
 
 def getAllStations():
     r = []
@@ -50,24 +49,3 @@ def simResult(fromStation,toStation,delay):
             if randIndex < 0:
                 return int((i.split(",")[0]))
     return delay
-
-def getNNData():
-    connStr = appSettings.getConnStr()
-    query = 'SELECT distinct rid from nrch_livst_a51'
-    rids = db.runQuery(connStr, query)
-    rids = rids[:100]
-    inputs = []
-    targets = []
-    for rid in rids:
-        rid = rid.replace(" ', ","")[1:]
-        ridData = sph.getLatenessFromRID(connStr,rid)
-        for a in range(len(ridData)):
-            nameA = ridData[a].split(",")[0].replace(" ","").replace("'","")
-            delayA = int(ridData[a].split(",")[1])
-            for b in range(a + 1,len(ridData)):
-                nameB = ridData[b].split(",")[0].replace(" ","").replace("'","")
-                delayB = int(ridData[b].split(",")[1])
-                input = [nameA,nameB,delayA]
-                inputs.append(input)
-                targets.append(delayB)
-    return inputs,targets

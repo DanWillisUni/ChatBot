@@ -1,6 +1,6 @@
 from collections import Counter
 import math
-import PartTwo.SPHelper as sph
+import PartTwo.Helpers.SPHelper as sph
 import appSettings
 
 def knn(data, query, k, d_fn):

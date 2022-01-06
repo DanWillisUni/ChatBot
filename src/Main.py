@@ -1,25 +1,42 @@
-import PartTwo.Fitness as fit
+import PartTwo.Helpers.Fitness as fit
 import PartTwo.NeuralNetwork as nn
 import PartTwo.KNearestNeighbours as knn
+
+import matplotlib.pyplot as plt
+from datetime import datetime
 
 def getK():
     for k in range(1,100):
         SE = 0
-        for i in range(-5,16):
-            for a in range(0,50):
+        for delay in range(-5,16):
+            for i in range(0,50):
                 twoStations = fit.getTwoRandomStations()
                 nameA = twoStations[0]
                 nameB = twoStations[1]
-                simR = fit.simResult(nameA,nameB,i)
-                knnR = knn.getKNNRegression(nameA, nameB, i,k)
-                SE += abs(simR-knnR) ** 2
-                #print("Delayed at " + nameA + " for " + str(i) + ", estimated lateness to " + nameB + " is " + str())
+                simR = fit.simResult(nameA,nameB,delay)
+                knnR = knn.getKNNRegression(nameA, nameB, delay,k)
+                SE += (simR-knnR) ** 2
+                #print("Delayed at " + nameA + " for " + str(delay) + ", estimated lateness to " + nameB + " is " + str(KnnR) + " simlated is " + str(simR))
         print(str(k) + ", " + str(SE))
 
+    plt.plot(SE)
+    plt.xlabel("K")
+    plt.ylabel("Errors")
+    plt.savefig("searchingForK.png")
 
 def trainNN():
-    inputs, targets = fit.getNNData()
     neural_network = nn.NeuralNetwork(0.1)
-    neural_network.train(inputs,targets,1)
+    inputs, targets = neural_network.getNNData()
+    training_error = neural_network.train(inputs,targets,10000)
+    plt.plot(training_error)
+    plt.xlabel("Iterations")
+    plt.ylabel("Error for all training instances")
+    plt.savefig("cumulative_error.png")
 
+now = datetime.now()
+current_time = now.strftime("%H:%M:%S")
+print("Current Time =", current_time)
 trainNN()
+now = datetime.now()
+current_time = now.strftime("%H:%M:%S")
+print("Current Time =", current_time)

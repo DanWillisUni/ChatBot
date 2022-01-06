@@ -1,5 +1,11 @@
+import math
+import random
 import numpy as np
-import PartTwo.SPHelper as sph
+from os.path import exists
+
+import PartTwo.Helpers.SPHelper as sph
+import PartTwo.Helpers.DB as db
+import PartTwo.Helpers.Fitness as fit
 import appSettings
 
 class NeuralNetwork:
@@ -7,22 +13,23 @@ class NeuralNetwork:
         self.weights = np.array([np.random.randn(), np.random.randn()])
         self.bias = np.random.randn()
         self.learning_rate = learning_rate
+        self.stationDic = {}
+        self.comparingStations = [None] * 5929
 
     def _sigmoid(self, x):
+        print(x)
         return 1 / (1 + np.exp(-x))
 
     def _sigmoid_deriv(self, x):
         return self._sigmoid(x) * (1 - self._sigmoid(x))
 
-    def predict(self, input):
-        input_vector = convertInput(input)
+    def predict(self, input_vector):
         layer_1 = np.dot(input_vector, self.weights) + self.bias
         layer_2 = self._sigmoid(layer_1)
         prediction = layer_2
         return prediction
 
-    def _compute_gradients(self, input, target):
-        input_vector = convertInput(input)
+    def _compute_gradients(self, input_vector, target):
         layer_1 = np.dot(input_vector, self.weights) + self.bias
         layer_2 = self._sigmoid(layer_1)
         prediction = layer_2
@@ -36,7 +43,7 @@ class NeuralNetwork:
             derror_dprediction * dprediction_dlayer1 * dlayer1_dbias
         )
         derror_dweights = (
-            derror_dprediction * dprediction_dlayer1 * dlayer1_dweights
+                (derror_dprediction * dprediction_dlayer1) * dlayer1_dweights
         )
 
         return derror_dbias, derror_dweights
@@ -51,8 +58,7 @@ class NeuralNetwork:
         cumulative_errors = []
         for current_iteration in range(iterations):
             # Pick a data instance at random
-            random_data_index = np.random.randint(len(input_vectors))
-
+            random_data_index = random.randint(0, len(input_vectors))
             input_vector = input_vectors[random_data_index]
             target = targets[random_data_index]
 
@@ -79,5 +85,51 @@ class NeuralNetwork:
 
         return cumulative_errors
 
-def convertInput(input):#input is list [fromStation,toStation,delay]
-    return [input[2],int(sph.compareStations(appSettings.getConnStr(),input[0],input[1]))]
+    def getIndex(self,A,B):
+        return (self.stationDic[A] * 77) + self.stationDic[B]
+
+    def getStationCompare(self):
+        allStations = fit.getAllStations()
+        self.stationDic = {}
+        for i in range(len(allStations)):
+            self.stationDic[allStations[i]] = i
+
+        if exists('comparingStations.txt'):
+            f = open('comparingStations.txt', "r")
+            content = f.read()
+            self.comparingStations = content.splitlines()
+            f.close()
+        else:
+            for a in range(len(allStations)):
+                nameA = allStations[a]
+                for b in range(a + 1, len(allStations)):
+                    nameB = allStations[b]
+                    normalDistance = sph.compareStations(appSettings.getConnStr(), nameA, nameB)
+                    if normalDistance != 'None':
+                        self.comparingStations[self.getIndex(nameA, nameB)] = int(normalDistance)
+                        self.comparingStations[self.getIndex(nameB, nameA)] = 0 - int(normalDistance)
+            with open('comparingStations.txt', 'w') as f:
+                for item in self.comparingStations:
+                    f.write("%s\n" % item)
+
+    def getNNData(self):
+        connStr = appSettings.getConnStr()
+        self.getStationCompare()
+        query = 'SELECT distinct rid from nrch_livst_a51'
+        rids = db.runQuery(connStr, query)
+        rids = rids[:100]
+        inputs = np.empty(shape=[0,2],dtype=int)
+        targets = np.empty(shape=[0],dtype=int)
+        for rid in rids:
+            rid = rid.replace(" ', ","")[1:]
+            ridData = sph.getLatenessFromRID(connStr,rid)
+            for a in range(len(ridData)):
+                nameA = ridData[a].split(",")[0].replace(" ","").replace("'","")
+                delayA = int(ridData[a].split(",")[1])
+                for b in range(a + 1,len(ridData)):
+                    nameB = ridData[b].split(",")[0].replace(" ","").replace("'","")
+                    delayB = int(ridData[b].split(",")[1])
+                    input = np.array([delayA, int(self.comparingStations[self.getIndex(nameA,nameB)])])
+                    inputs = np.vstack((inputs,input))
+                    targets = np.append(targets,delayB)
+        return inputs,targets
