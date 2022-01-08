@@ -7,6 +7,8 @@ import time
 
 import PartTwo.Helpers.Fitness as fit
 import appSettings
+import PartTwo.Helpers.SPHelper as sph
+import PartTwo.Helpers.ProbabilityHelper as ph
 
 class NeuralNetwork:
     def __init__(self, learningRate):
@@ -95,18 +97,21 @@ class NeuralNetwork:
 
     def startTraining(self,maxDataSize,iterations):
         start = time.time()
-        inputs, targets = fit.getNNData(maxDataSize)
+        inputs, targets = getNNData(maxDataSize,False)
         setup = time.time()
-        trainingError = self.train(inputs, targets, iterations)  # ~5000 iter per min
+        trainingError = self.train(inputs, targets, iterations)
         end = time.time()
         print(str(len(targets)) + " datapoints")
-        #plotting graph
-        plt.plot(trainingError)
-        plt.xlabel("Iterations (thousands)")
-        plt.ylabel("Mean square error in all training instances")
-        now = datetime.now()
-        plt.savefig("../resources/PartTwo/NNGraphs/" + now.strftime("%Y%m%d_%H%M%S_") + str(maxDataSize) + ".png")
-        plt.close()
+        for i in range(0,len(trainingError),100):
+            #plotting graph
+            plt.plot(trainingError[i:i+100])
+            plt.yscale('linear')
+            plt.grid(True)
+            plt.xlabel("Iterations (thousands)")
+            plt.ylabel("Mean square error in all training instances")
+            now = datetime.now()
+            plt.savefig("../resources/PartTwo/NNGraphs/" + now.strftime("%Y%m%d_%H%M%S_") + str(maxDataSize) + "_" + str(int((i + 100)/100)) +".png")
+            plt.close()
         #printing the times
         dlts = time.gmtime(setup - start)
         dl = time.strftime("%H:%M:%S", dlts)
@@ -114,7 +119,72 @@ class NeuralNetwork:
         ets = time.gmtime(end - start)
         et = time.strftime("%H:%M:%S", ets)
         print("Elapsed: " + et)
+
     def predictNice(self,delay,nameA,nameB):
         comparingStations,stationDic = fit.getStationCompare()
         input = np.array([delay, int(comparingStations[fit.getStationCompareIndex(stationDic, nameA, nameB)])])
         return self.predict(input)
+
+def getStationCompareIndex(stationDic, A, B):
+    return (stationDic[A] * 77) + stationDic[B]
+
+def getStationCompare():
+    allStations = fit.getAllStations()
+    stationDic = {}
+    for i in range(len(allStations)):
+        stationDic[allStations[i]] = i
+
+    if exists(appSettings.getStationComparePath()):
+        f = open(appSettings.getStationComparePath(), "r")
+        content = f.read()
+        comparingStations = content.splitlines()
+        f.close()
+    else:
+        comparingStations = [None] * 5929
+        for a in range(len(allStations)):
+            nameA = allStations[a]
+            for b in range(a + 1, len(allStations)):
+                nameB = allStations[b]
+                normalDistance = sph.compareStations(appSettings.getConnStr(), nameA, nameB)
+                if normalDistance != 'None':
+                    comparingStations[getStationCompareIndex(stationDic,nameA, nameB)] = int(normalDistance)
+                    comparingStations[getStationCompareIndex(stationDic,nameB, nameA)] = 0 - int(normalDistance)
+        with open(appSettings.getStationComparePath(), 'w') as f:
+            for item in comparingStations:
+                f.write("%s\n" % item)
+    return comparingStations,stationDic
+
+def getNNData(maxDataSize,removeOutliers):
+    connStr = appSettings.getConnStr()
+    comparingStations, stationDic = getStationCompare()
+    rids = fit.getRidData(maxDataSize)
+    inputs = np.empty(shape=[0,2],dtype=int)
+    targets = np.empty(shape=[0],dtype=int)
+    testForOutliers = []
+    for rid in rids:
+        rid = rid.replace(" ', ","")[1:]
+        ridData = sph.getLatenessFromRID(connStr,rid)
+        for a in range(len(ridData)):
+            nameA = ridData[a].split(",")[0].replace(" ","").replace("'","")
+            delayA = int(ridData[a].split(",")[1])
+            for b in range(a + 1,len(ridData)):
+                nameB = ridData[b].split(",")[0].replace(" ","").replace("'","")
+                delayB = int(ridData[b].split(",")[1])
+                if (removeOutliers and abs(delayB-delayA) < 15) or not removeOutliers:
+                    input = np.array([delayA, int(comparingStations[getStationCompareIndex(stationDic,nameA, nameB)])])
+                    inputs = np.vstack((inputs,input))
+                    targets = np.append(targets,delayB)
+
+                    testForOutliers.append(abs(delayA - delayB))
+    if removeOutliers:
+        indexsToRemove = ph.getOutliersIndex(testForOutliers)
+        for indexToRemove in indexsToRemove:
+            #print("Removing: " + str(inputs[indexToRemove]) + " " + str(targets[indexToRemove]))
+            inputs = np.delete(inputs,indexToRemove)
+            targets = np.delete(targets,indexToRemove)
+    return inputs,targets
+
+def trainNN(maxDataSize,iterations):
+    neuralNetwork = NeuralNetwork(0.1)
+    neuralNetwork.startTraining(maxDataSize,iterations)
+    return neuralNetwork
