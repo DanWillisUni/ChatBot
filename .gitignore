@@ -334,5 +334,5 @@ ASALocalRun/
 .mfractor/
 
 #For Python
-.idea
-.png
+*.idea
+*.png
