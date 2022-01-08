@@ -24,7 +24,6 @@ class NeuralNetwork:
             self.weights = np.array([np.random.randn(), np.random.randn()])
             self.bias = np.random.randn()
         self.learningRate = learningRate
-        self.comparingStations = [None] * 5929
 
     def sigmoid(self, x):
         return 1 / (1 + np.exp(-x))
@@ -34,15 +33,15 @@ class NeuralNetwork:
 
     def predict(self, inputVector):
         layerOne = np.dot(inputVector, self.weights) + self.bias #dot product of inputs and weight plus bias
-        layerTwo = self.sigmoid(layerOne) # sigmoid layer 1 is the prediction
-        prediction = layerTwo
+        #layerTwo = self.sigmoid(layerOne) # sigmoid layer 1 is the prediction
+        prediction = layerOne
         return prediction
 
     def calGradients(self, inputVector, target):
         #calculating prediction
         layerOne = np.dot(inputVector, self.weights) + self.bias
-        layerTwo = self.sigmoid(layerOne)
-        prediction = layerTwo
+        #layerTwo = self.sigmoid(layerOne)
+        prediction = layerOne
 
         diffPredictionTarget = 2 * (prediction - target)
         layerOneDerivative = self.sigmoidDerivative(layerOne)
@@ -97,7 +96,7 @@ class NeuralNetwork:
 
     def startTraining(self,maxDataSize,iterations):
         start = time.time()
-        inputs, targets = getNNData(maxDataSize,False)
+        inputs, targets = getNNData(maxDataSize,True)
         setup = time.time()
         trainingError = self.train(inputs, targets, iterations)
         end = time.time()
@@ -121,8 +120,8 @@ class NeuralNetwork:
         print("Elapsed: " + et)
 
     def predictNice(self,delay,nameA,nameB):
-        comparingStations,stationDic = fit.getStationCompare()
-        input = np.array([delay, int(comparingStations[fit.getStationCompareIndex(stationDic, nameA, nameB)])])
+        comparingStations,stationDic = getStationCompare()
+        input = np.array([delay, int(comparingStations[getStationCompareIndex(stationDic, nameA, nameB)])])
         return self.predict(input)
 
 def getStationCompareIndex(stationDic, A, B):
@@ -158,7 +157,7 @@ def getNNData(maxDataSize,removeOutliers):
     connStr = appSettings.getConnStr()
     comparingStations, stationDic = getStationCompare()
     rids = fit.getRidData(maxDataSize)
-    inputs = np.empty(shape=[0,2],dtype=int)
+    inputs = np.empty(shape=[0],dtype=int)
     targets = np.empty(shape=[0],dtype=int)
     testForOutliers = []
     for rid in rids:
@@ -172,16 +171,17 @@ def getNNData(maxDataSize,removeOutliers):
                 delayB = int(ridData[b].split(",")[1])
                 if (removeOutliers and abs(delayB-delayA) < 15) or not removeOutliers:
                     input = np.array([delayA, int(comparingStations[getStationCompareIndex(stationDic,nameA, nameB)])])
-                    inputs = np.vstack((inputs,input))
+                    inputs = np.append(inputs,input)
                     targets = np.append(targets,delayB)
-
                     testForOutliers.append(abs(delayA - delayB))
     if removeOutliers:
         indexsToRemove = ph.getOutliersIndex(testForOutliers)
         for indexToRemove in indexsToRemove:
             #print("Removing: " + str(inputs[indexToRemove]) + " " + str(targets[indexToRemove]))
-            inputs = np.delete(inputs,indexToRemove)
+            inputs = np.delete(inputs,indexToRemove * 2)
+            inputs = np.delete(inputs, (indexToRemove * 2) + 1)
             targets = np.delete(targets,indexToRemove)
+    inputs = inputs.reshape((-1,2))
     return inputs,targets
 
 def trainNN(maxDataSize,iterations):

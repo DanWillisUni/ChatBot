@@ -5,7 +5,7 @@ import PartTwo.KNearestNeighbours as knn
 def compareNNAndKNN(iterationCount):
     neuralNetwork = nn.NeuralNetwork(0.1)
     nearestNeighbor = knn.KNearestNeighbour(5)
-    data,targets = knn.getKNNData(1000,True)
+    data,targets = knn.getKNNData(100,True)
     SEKNN = 0
     SENN = 0
     for i in range(iterationCount):
@@ -14,6 +14,7 @@ def compareNNAndKNN(iterationCount):
         nnR = neuralNetwork.predictNice(dataPoint[0],dataPoint[1],dataPoint[2])
         SEKNN += (target - knnR) ** 2
         SENN += (target - nnR) ** 2
+        #print(nnR)
         if i % (iterationCount/10) == 0:
             print(str(int((100*i)/iterationCount)) + "%")
     print("NN: " + str(SENN/iterationCount))
@@ -22,14 +23,8 @@ def compareNNAndKNN(iterationCount):
 
 #knn.getK(1000,100,1000)
 
-#nn.trainNN(100,200000)
+#nn.trainNN(1000,500000)
 
-inputArr,targetArr = knn.getKNNData(100,True)
-print(len(targetArr))
-inputArr,targetArr = knn.getKNNData(100,False)
-print(len(targetArr))
-
-inputs, targets = nn.getNNData(100,True)
-print(len(targets))
-inputs, targets = nn.getNNData(100,False)
-print(len(targets))
+compareNNAndKNN(100)
+nn.trainNN(100,100000)
+compareNNAndKNN(100)

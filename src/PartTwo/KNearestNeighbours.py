@@ -10,25 +10,25 @@ class KNearestNeighbour:
     def __init__(self,k):
         self.k = k
 
-    def knn(self,data, query, d_fn):
-        neighbor_distances_and_indices = []
+    def knn(self, data, query, distanceFunction):
+        neighborDistancesAndIndices = []
         for index, d in enumerate(data):
-            distance = d_fn(d[:-1], query)
-            neighbor_distances_and_indices.append((distance, index))# Add the distance and the index of the data to an ordered collection
-        sorted_neighbor_distances_and_indices = sorted(neighbor_distances_and_indices)# Sort the ordered collection of distances and indices from smallest to largest (in ascending order) by the distances
-        k_nearest_distances_and_indices = sorted_neighbor_distances_and_indices[:self.k]# Pick the first K entries from the sorted collection
-        k_nearest_labels = [data[i][-1] for distance, i in k_nearest_distances_and_indices]#Get the labels of the selected K entries
+            distance = distanceFunction(d[:-1], query)
+            neighborDistancesAndIndices.append((distance, index))# Add the distance and the index of the data to an ordered collection
+        sortedNeighborDistancesAndIndices = sorted(neighborDistancesAndIndices)# Sort the ordered collection of distances and indices from smallest to largest (in ascending order) by the distances
+        kNearestDistancesAndIndices = sortedNeighborDistancesAndIndices[:self.k]# Pick the first K entries from the sorted collection
+        kNearestLabels = [data[i][-1] for distance, i in kNearestDistancesAndIndices]#Get the labels of the selected K entries
 
-        return k_nearest_distances_and_indices, self.mean(k_nearest_labels)
+        return kNearestDistancesAndIndices, self.mean(kNearestLabels)
 
     def mean(self,labels):
         return sum(labels) / len(labels)
 
     def euclidean_distance(self,point1, point2):
-        sum_squared_distance = 0
+        sumSquaredDistance = 0
         for i in range(len(point1)):
-            sum_squared_distance += math.pow(point1[i] - point2[i], 2)
-        return math.sqrt(sum_squared_distance)
+            sumSquaredDistance += math.pow(point1[i] - point2[i], 2)
+        return math.sqrt(sumSquaredDistance)
 
     def predict(self,datapoint):
         return self.predictNice(datapoint[1],datapoint[2],datapoint[0])
@@ -47,7 +47,7 @@ class KNearestNeighbour:
                 reg_data.append(lineList)
             reg_query = [delay]
             reg_k_nearest_neighbors, reg_prediction = self.knn(
-                reg_data, reg_query, d_fn=self.euclidean_distance
+                reg_data, reg_query, distanceFunction=self.euclidean_distance
             )
             return reg_prediction
 
@@ -77,7 +77,7 @@ def getKNNData(maxCount,removeOutliers):
     return inputArr,targetArr
 
 def getK(maxDataSize,maxK,iterations):
-    data,targets = getKNNData(maxDataSize,False)
+    data,targets = getKNNData(maxDataSize,True)
     mse = []
     for k in range(1,maxK + 1):
         SE = 0
@@ -93,5 +93,5 @@ def getK(maxDataSize,maxK,iterations):
     plt.plot(mse)
     plt.xlabel("K")
     plt.ylabel("Errors")
-    plt.savefig("../resources/PartTwo/NNGraphs/searchingForK.png")
+    plt.savefig("../resources/PartTwo/KNNGraphs/searchingForK.png")
     plt.close()
