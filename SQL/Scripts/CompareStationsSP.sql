@@ -14,8 +14,8 @@ ALTER PROCEDURE CompareStations
 AS
 BEGIN
 	SET NOCOUNT ON;
-
-	WITH CTE as (SELECT TOP(1000) rid,tpl,
+	--currently does not account for trains that run into the next day
+	WITH CTE as (SELECT rid,tpl,
 	(CASE 
 		WHEN pta IS NOT NULL THEN pta 
 		WHEN ptd IS NOT NULL AND pta IS NULL THEN ptd 
@@ -42,7 +42,12 @@ where
 		)
 	and (tpl = @A or tpl = @B))
 	
-SELECT AVG(DATEDIFF(MINUTE,c1.time,c2.time)) FROM CTE c1
+SELECT AVG(
+	CASE
+		WHEN (SUBSTRING(c1.time,0,3) > SUBSTRING(c2.time,0,3)) and DATEDIFF(MINUTE,c1.time,c2.time) <-1000 THEN 1440+DATEDIFF(MINUTE,c1.time,c2.time)
+		WHEN (SUBSTRING(c1.time,0,3) < SUBSTRING(c2.time,0,3)) and DATEDIFF(MINUTE,c1.time,c2.time) >1000 THEN -1440+DATEDIFF(MINUTE,c1.time,c2.time)
+		WHEN DATEDIFF(MINUTE,c1.time,c2.time) >-1000 and DATEDIFF(MINUTE,c1.time,c2.time) <1000 then DATEDIFF(MINUTE,c1.time,c2.time)
+	END) FROM CTE c1
 INNER JOIN CTE c2 on c1.rid = c2.rid 
 	where c1.tpl = @A
 	and c2.tpl = @B
