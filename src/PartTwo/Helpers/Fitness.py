@@ -38,7 +38,7 @@ def getTwoRandomStations():
     return [bName, aName]
 
 def simResult(data,targets):
-    index = random.randint(0,len(data))
+    index = random.randint(0,len(data) -1)
     dataPoint = data[index]
     target = targets[index]
     return dataPoint,target

@@ -4,8 +4,12 @@ def getConnStr():
     # connStr = "Server=DANS-LATITUDE\SQLEXPRESS;Database=AIChatBot;Trusted_Connection=yes;" Brandons
     return connStr
 
-def getCurrentSavePath():
-    return "../resources/PartTwo/currentSave.txt"
+def getNNCurrentSavePath():
+    return "../resources/PartTwo/currentSave"
 def getStationComparePath():
     return "../resources/PartTwo/comparingStations.txt"
+def getPathToKNNFigures():
+    return "../resources/PartTwo/KNNGraphs/"
+def getPathToNNFigures():
+    return "../resources/PartTwo/NNGraphs/"
 

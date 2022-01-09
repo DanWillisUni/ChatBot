@@ -1,9 +1,11 @@
+import math
 import random
 import numpy as np
 from os.path import exists
 import matplotlib.pyplot as plt
 from datetime import datetime
 import time
+import json
 
 import PartTwo.Helpers.Fitness as fit
 import appSettings
@@ -11,75 +13,98 @@ import PartTwo.Helpers.SPHelper as sph
 import PartTwo.Helpers.ProbabilityHelper as ph
 
 class NeuralNetwork:
-    def __init__(self, learningRate):
-        self.learningRate = learningRate
-        if exists(appSettings.getCurrentSavePath()):
-            f = open(appSettings.getCurrentSavePath(), "r")
-            content = f.read()
-            contList = content.splitlines()
-            self.weights = np.array(eval(contList[0].replace("[ ","[").replace(" ]","]")))
-            self.bias = np.float(contList[1])
-            f.close()
+    def __init__(self,layers):
+        self.layers = layers
+        l = ""
+        for layer in self.layers:
+            l += "_" + str(layer)
+        if exists(appSettings.getNNCurrentSavePath() + l + ".txt"):
+            self.params = {}
+            with open(appSettings.getNNCurrentSavePath() + l + ".txt","r") as f:
+                content = f.read()
+                contSplit = content.split(";")
+                for KVP in contSplit:
+                    if ":" in KVP:
+                        vStr = (KVP.split(":")[1].replace("\n ",",").replace(" ",",")).replace("[,","[").replace(",,",",")
+                        while ",," in vStr:
+                            vStr = vStr.replace(",,",",")
+                        arr = np.array(eval(vStr))
+                        self.params[KVP.split(":")[0].replace("\n", "")] = arr
+
         else:
-            self.weights = np.array([np.random.randn(), np.random.randn()])
-            self.bias = np.random.randn()
-        self.learningRate = learningRate
+            self.initWeightsAndBias(layers)
+        #for k, v in self.params.items():
+        #    print(str(k) + ":" + np.array_str(v) + ";")
 
-    def sigmoid(self, x):
-        return 1 / (1 + np.exp(-x))
+    def initWeightsAndBias(self, layerSizes):
+        self.params = {}
+        for i in range(1, len(layerSizes)):
+            self.params['W' + str(i)] = np.random.randn(layerSizes[i], layerSizes[i - 1]) * 0.01
+            self.params['B' + str(i)] = np.random.randn(layerSizes[i], 1) * 0.01
 
-    def sigmoidDerivative(self, x):
-        return self.sigmoid(x) * (1 - self.sigmoid(x))
+    def predict(self, input):
+        values = self.forwardPropagation(input)
+        predictions = values['A' + str(len(values) // 2)].T
+        sum = 0.0
+        for i in predictions:
+            sum += i
+        return (sum/len(predictions))[0]
 
-    def predict(self, inputVector):
-        layerOne = np.dot(inputVector, self.weights) + self.bias #dot product of inputs and weight plus bias
-        #layerTwo = self.sigmoid(layerOne) # sigmoid layer 1 is the prediction
-        prediction = layerOne
-        return prediction
+    def forwardPropagation(self, inputVectors):
+        layers = len(self.params) // 2
+        values = {}
+        for i in range(1, layers + 1):
+            if i == 1:
+                values['Z' + str(i)] = np.dot(self.params['W' + str(i)], inputVectors) + self.params['B' + str(i)]
+                values['A' + str(i)] = relu(values['Z' + str(i)])
+            else:
+                values['Z' + str(i)] = np.dot(self.params['W' + str(i)], values['A' + str(i - 1)]) + self.params['B' + str(i)]
+                if i == layers:
+                    values['A' + str(i)] = values['Z' + str(i)]
+                else:
+                    values['A' + str(i)] = relu(values['Z' + str(i)])
+        return values
 
-    def calGradients(self, inputVector, target):
-        #calculating prediction
-        layerOne = np.dot(inputVector, self.weights) + self.bias
-        #layerTwo = self.sigmoid(layerOne)
-        prediction = layerOne
+    def backwardPropagation(self, values, inputVectors, targets):
+        layers = len(self.params) // 2
+        m = len(targets)
+        gradients = {}
+        for i in range(layers, 0, -1):
+            if i == layers:
+                dA = 1 / m * (values['A' + str(i)] - targets)
+                dZ = dA
+            else:
+                dA = np.dot(self.params['W' + str(i + 1)].T, dZ)
+                dZ = np.multiply(dA, np.where(values['A' + str(i)] >= 0, 1, 0))
+            if i == 1:
+                gradients['W' + str(i)] = 1 / m * np.dot(dZ, inputVectors.T)
+                gradients['B' + str(i)] = 1 / m * np.sum(dZ, axis=1, keepdims=True)
+            else:
+                gradients['W' + str(i)] = 1 / m * np.dot(dZ, values['A' + str(i - 1)].T)
+                gradients['B' + str(i)] = 1 / m * np.sum(dZ, axis=1, keepdims=True)
+        return gradients
 
-        diffPredictionTarget = 2 * (prediction - target)
-        layerOneDerivative = self.sigmoidDerivative(layerOne)
-        layerOneBias = 1
-        weights = (0 * self.weights) + (1 * inputVector)
+    def update(self, grads, learningRate):
+        layers = len(self.params) // 2
+        newParams = {}
+        for i in range(1, layers + 1):
+            newParams['W' + str(i)] = self.params['W' + str(i)] - learningRate * grads['W' + str(i)]
+            newParams['B' + str(i)] = self.params['B' + str(i)] - learningRate * grads['B' + str(i)]
+        self.params = newParams
 
-        errorBias = (
-            diffPredictionTarget * layerOneDerivative * layerOneBias
-        )
-        errorWeights = (
-                (diffPredictionTarget * layerOneDerivative) * weights
-        )
-
-        return errorBias, errorWeights
-
-    def update(self, errorBias, errorWeight):
-        self.bias = self.bias - (errorBias * self.learningRate)
-        self.weights = self.weights - (
-                errorWeight * self.learningRate
-        )
 
     def train(self, inputVectors, targets, iterations):
-        meanSquareErrors = []
+        rootMeanSquareErrors = []
         for currentIteration in range(iterations):
-            # Pick a data instance at random
-            randomIndex = random.randint(0, len(inputVectors) - 1)
-            inputVector = inputVectors[randomIndex]
-            target = targets[randomIndex]
-            # Compute the gradients and update the weights
-            errorBias, errorWeights = self.calGradients(
-                inputVector, target
-            )
-            self.update(errorBias, errorWeights)
+            values = self.forwardPropagation(inputVectors.T)
+            grads = self.backwardPropagation(values, inputVectors.T, targets.T)
+            self.update(grads, 1)
+
             #printing percentage of training completion
             if (currentIteration % int(iterations/10)) == 0:
+                #print('Cost at iteration ' + str(currentIteration + 1) + ' = ' + str(cost))
                 print(str(int(float(currentIteration/iterations) * 100)) + "%")
             if currentIteration % 1000 == 0:
-                #print(str(current_iteration) + "/" + str(iterations))
                 sumSquaredError = 0.0
                 # Loop through all the instances to measure the error
                 for dataIndex in range(len(inputVectors)):
@@ -88,11 +113,17 @@ class NeuralNetwork:
                     prediction = self.predict(dataPoint)
                     squareError = (prediction - target) ** 2
                     sumSquaredError = sumSquaredError + squareError
-                meanSquareErrors.append(sumSquaredError/len(targets))
-        with open(appSettings.getCurrentSavePath(), 'w') as f:
-            f.write("[{w1},{w2}]\n".format(w1=self.weights[0],w2=self.weights[1]))
-            f.write("%s\n" % self.bias)
-        return meanSquareErrors
+                rootMeanSquareErrors.append(math.sqrt(sumSquaredError/len(targets)))
+        self.saveToFile()
+        return rootMeanSquareErrors
+
+    def saveToFile(self):
+        l = ""
+        for layer in self.layers:
+            l += "_" + str(layer)
+        with open(appSettings.getNNCurrentSavePath() + l + ".txt", 'w') as f:
+            for k, v in self.params.items():
+                f.write(str(k) + ":" + np.array_str(v) + ";\n")
 
     def startTraining(self,maxDataSize,iterations):
         start = time.time()
@@ -106,10 +137,9 @@ class NeuralNetwork:
             plt.plot(trainingError[i:i+100])
             plt.yscale('linear')
             plt.grid(True)
-            plt.xlabel("Iterations (thousands)")
+            plt.xlabel("Iterations (hundreds)")
             plt.ylabel("Mean square error in all training instances")
-            now = datetime.now()
-            plt.savefig("../resources/PartTwo/NNGraphs/" + now.strftime("%Y%m%d_%H%M%S_") + str(maxDataSize) + "_" + str(int((i + 100)/100)) +".png")
+            plt.savefig(appSettings.getPathToNNFigures() + datetime.now().strftime("%Y%m%d_%H%M%S_") + str(maxDataSize) + "_" + str(int((i + 100)/100)) +".png")
             plt.close()
         #printing the times
         dlts = time.gmtime(setup - start)
@@ -125,7 +155,7 @@ class NeuralNetwork:
         return self.predict(input)
 
 def getStationCompareIndex(stationDic, A, B):
-    return (stationDic[A] * 77) + stationDic[B]
+    return (stationDic[A] * len(stationDic)) + stationDic[B]
 
 def getStationCompare():
     allStations = fit.getAllStations()
@@ -185,6 +215,14 @@ def getNNData(maxDataSize,removeOutliers):
     return inputs,targets
 
 def trainNN(maxDataSize,iterations):
-    neuralNetwork = NeuralNetwork(0.1)
+    neuralNetwork = getNN()
     neuralNetwork.startTraining(maxDataSize,iterations)
-    return neuralNetwork
+    #return neuralNetwork
+
+def getNN():
+    return NeuralNetwork([2, 3, 3, 1])
+
+#ReLU is defined as g(x) = max(0,x). It is 0 when x is negative and equal to x when positive. Due to it’s lower saturation region, it is highly trainable and decreases the cost function far more quickly than sigmoid.
+def relu(z):  # takes a numpy array as input and returns activated array
+    a = np.maximum(0, z)
+    return a

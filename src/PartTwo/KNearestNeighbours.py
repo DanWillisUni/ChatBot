@@ -1,5 +1,7 @@
+from datetime import datetime
 import math
 import matplotlib.pyplot as plt
+import csv
 
 import PartTwo.Helpers.SPHelper as sph
 import appSettings
@@ -77,21 +79,34 @@ def getKNNData(maxCount,removeOutliers):
     return inputArr,targetArr
 
 def getK(maxDataSize,maxK,iterations):
-    data,targets = getKNNData(maxDataSize,True)
-    mse = []
-    for k in range(1,maxK + 1):
-        SE = 0
-        NearestNeighbor = KNearestNeighbour(k)
-        for i in range(0,iterations):
-            dataPoint,target = fit.simResult(data, targets)
-            knnR =  NearestNeighbor.predict(dataPoint)
-            SE += (target-knnR) ** 2
-            #print("Delayed at " + nameA + " for " + str(delay) + ", estimated lateness to " + nameB + " is " + str(KnnR) + " simlated is " + str(simR))
-        print(str(k) + ", " + str(SE))
-        mse.append(SE/iterations)
+    data,targets = getKNNData(maxDataSize,False)
+    seArr = [0] * maxK
+    for i in range(0, iterations):
+        dataPoint, target = fit.simResult(data, targets)
+        for k in range(1,maxK + 1):
+            NearestNeighbor = KNearestNeighbour(k)
+            knnR = NearestNeighbor.predict(dataPoint)
+            seArr[k - 1] += (target-knnR) ** 2
+        if (i % int(iterations / 10)) == 0:
+            print(str(int(float(i / iterations) * 100)) + "%")
+    #recording results
+    now = datetime.now()
 
-    plt.plot(mse)
+    with open(appSettings.getPathToKNNFigures() + "KResults" + now.strftime("_%Y%m%d_%H%M%S") + ".csv",
+              'w') as f:  # open the file in the write mode
+        #writer = csv.writer(f, delimiter=',')  # create the csv writer
+        #writer.writerows(kResults)  # write a row to the csv file
+        for k in range(0, maxK):
+            seArr[k] = seArr[k] / iterations  # set the value to the mean squared value
+            print(str(k + 1) + ", " + str(seArr[k] / iterations))
+            f.write(str(k + 1) + "," + str(seArr[k] / iterations) + "\n")
+
+    #plotting graph
+    plt.plot(seArr)
     plt.xlabel("K")
     plt.ylabel("Errors")
-    plt.savefig("../resources/PartTwo/KNNGraphs/searchingForK.png")
+    plt.savefig(appSettings.getPathToKNNFigures() + "searchingForK" + now.strftime("_%Y%m%d_%H%M%S") + ".png")
     plt.close()
+
+def getKNN():
+    return KNearestNeighbour(5)
