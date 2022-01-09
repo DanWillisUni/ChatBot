@@ -336,3 +336,4 @@ ASALocalRun/
 #For Python
 *.idea
 *.png
+*KNNGraphs/*.csv
