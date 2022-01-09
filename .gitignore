@@ -336,4 +336,4 @@ ASALocalRun/
 #For Python
 *.idea
 *.png
-KNNGraphs/*
+KResults_*
