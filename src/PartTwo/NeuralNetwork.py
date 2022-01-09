@@ -1,11 +1,9 @@
 import math
-import random
 import numpy as np
 from os.path import exists
 import matplotlib.pyplot as plt
 from datetime import datetime
 import time
-import json
 
 import PartTwo.Helpers.Fitness as fit
 import appSettings
@@ -13,47 +11,71 @@ import PartTwo.Helpers.SPHelper as sph
 import PartTwo.Helpers.ProbabilityHelper as ph
 
 class NeuralNetwork:
+    '''
+    Neural Network class creating the NN obj
+    '''
     def __init__(self,layers):
-        self.layers = layers
+        '''
+        Initilises Neural network object
+
+        Searches for a file with the same layer configuration and loads that if it exists
+        Else it randomises wieghts and bias
+
+        :param layers:
+        Array of integers to signal how many nodes are in each layer
+        Input layer must have 2 and output must have 1
+
+        '''
+        self.layerSizes = layers
         l = ""
-        for layer in self.layers:
-            l += "_" + str(layer)
-        if exists(appSettings.getNNCurrentSavePath() + l + ".txt"):
-            self.params = {}
-            with open(appSettings.getNNCurrentSavePath() + l + ".txt","r") as f:
+        for layer in self.layerSizes:
+            l += "_" + str(layer)#builds the string of layer sizes
+        if exists(appSettings.getNNCurrentSavePath() + l + ".txt"):#checks if the file with appropriate layers exists
+            self.params = {}#set the param dictionary to a new dictionary
+            with open(appSettings.getNNCurrentSavePath() + l + ".txt","r") as f:#open the file
                 content = f.read()
-                contSplit = content.split(";")
+                contSplit = content.split(";")#split into the key value pairs
                 for KVP in contSplit:
-                    if ":" in KVP:
-                        vStr = (KVP.split(":")[1].replace("\n ",",").replace(" ",",")).replace("[,","[").replace(",,",",")
-                        while ",," in vStr:
-                            vStr = vStr.replace(",,",",")
-                        arr = np.array(eval(vStr))
-                        self.params[KVP.split(":")[0].replace("\n", "")] = arr
-
+                    if ":" in KVP:#if it contains a key value pair
+                        vStr = (KVP.split(":")[1].replace("\n ",",").replace(" ",",")).replace("[,","[")#format the value string
+                        while ",," in vStr:#numpty arrays when put into strings can add many spaces so this while loop removes them
+                            vStr = vStr.replace(",,",",")#replace the double commas with a single
+                        arr = np.array(eval(vStr))#create a numpty array from the string value
+                        self.params[KVP.split(":")[0].replace("\n", "")] = arr#add a new pair to the dictionary
         else:
-            self.initWeightsAndBias(layers)
-        #for k, v in self.params.items():
-        #    print(str(k) + ":" + np.array_str(v) + ";")
-
-    def initWeightsAndBias(self, layerSizes):
-        self.params = {}
-        for i in range(1, len(layerSizes)):
-            self.params['W' + str(i)] = np.random.randn(layerSizes[i], layerSizes[i - 1]) * 0.01
-            self.params['B' + str(i)] = np.random.randn(layerSizes[i], 1) * 0.01
+            for i in range(1, len(self.layerSizes)):#for each layer excluding input
+                self.params['W' + str(i)] = np.random.randn(self.layerSizes[i], self.layerSizes[i - 1]) * 0.01 #initilise weights
+                self.params['B' + str(i)] = np.random.randn(self.layerSizes[i], 1) * 0.01 #initilise biases
 
     def predict(self, input):
-        values = self.forwardPropagation(input)
-        predictions = values['A' + str(len(values) // 2)].T
+        '''
+        Predicts the delay of a train using the neural network
+
+        :param input:
+        Array of data for the 2 input nodes
+
+        :return:
+        The amount the train will be late to the Second station
+        '''
+        values = self.forwardPropagation(input)#get the values of each layer
+        predictions = values['A' + str(len(values) // 2)].T#get the array that is passed to output
         sum = 0.0
-        for i in predictions:
+        for i in predictions:#sum the predictions
             sum += i
-        return (sum/len(predictions))[0]
+        return (sum/len(predictions))[0]#return the average of the predictions
 
     def forwardPropagation(self, inputVectors):
-        layers = len(self.params) // 2
+        '''
+        Get the values of all the outputs
+
+        :param inputVectors:
+
+
+        :return:
+        '''
+        layers = len(self.layerSizes) - 1
         values = {}
-        for i in range(1, layers + 1):
+        for i in range(1, layers + 1):#for each layer except the input
             if i == 1:
                 values['Z' + str(i)] = np.dot(self.params['W' + str(i)], inputVectors) + self.params['B' + str(i)]
                 values['A' + str(i)] = relu(values['Z' + str(i)])
@@ -137,8 +159,8 @@ class NeuralNetwork:
             plt.plot(trainingError[i:i+100])
             plt.yscale('linear')
             plt.grid(True)
-            plt.xlabel("Iterations (hundreds)")
-            plt.ylabel("Mean square error in all training instances")
+            plt.xlabel("Iterations (thousands)")
+            plt.ylabel("Root Mean square error in all training instances")
             plt.savefig(appSettings.getPathToNNFigures() + datetime.now().strftime("%Y%m%d_%H%M%S_") + str(maxDataSize) + "_" + str(int((i + 100)/100)) +".png")
             plt.close()
         #printing the times

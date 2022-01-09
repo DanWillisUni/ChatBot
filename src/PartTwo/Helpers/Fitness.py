@@ -50,7 +50,3 @@ def getRidData(maxCount):
     if len(rids) > maxCount:
         rids = rids[:maxCount]  # limit for testing purposes else it takes 4 hours just to load the data
     return rids
-
-
-
-
