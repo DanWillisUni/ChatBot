@@ -1,4 +1,8 @@
 import math
+import matplotlib.pyplot as plt
+from datetime import datetime
+
+import numpy as np
 
 import PartTwo.Helpers.Fitness as fit
 import PartTwo.NeuralNetwork as nn
@@ -26,16 +30,27 @@ def compareWithTrain(iterationCount):
     results = []
     for i in range(iterationCount):
         NN, KNN = compareNNAndKNN(100)
-        nn.trainNN(1000, 10000)
+        nn.trainNN(1000, 100000)
         results.append([NN,KNN])
+        '''if (i % int(iterationCount / 10)) == 0:
+            print("COMP" + str(int(float(i / iterationCount) * 100)) + "%")'''
+
     NN, KNN = compareNNAndKNN(100)
     results.append([NN, KNN])
-
+    toPlot = []
     for i in results:
-        #print("NN: " + str(i[0]))
-        #print("KNN: " + str(i[1]))
-        print("VS: " + str(i[0]/i[1]))#if this is less than 1 then the NN is better than KNN
+        print("VS: " + str(i[1]/i[0]))#the higher the number the better the NN is
+        toPlot.append(i[1]/i[0])
 
-knn.getK(1000,100,1000)
+    # plotting graph
+    plt.plot(toPlot)
+    plt.yscale('linear')
+    plt.grid(True)
+    plt.xlabel("Iterations of NN training (10 thousand)")
+    plt.ylabel("Root Mean square error of KNN over NN")
+    plt.savefig("Comparison" + + datetime.now().strftime("_%Y%m%d_%H%M%S") + ".png")
+    plt.close()
 
-compareWithTrain(100)
+#knn.getK(1000,100,1000) # ~12 hours
+
+#compareWithTrain(3)#one hour per iteration

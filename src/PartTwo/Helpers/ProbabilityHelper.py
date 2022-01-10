@@ -15,7 +15,7 @@ def getQ(arr,qMultiplyer):
     l = len(arr)
     firstIndex = l * qMultiplyer
     if firstIndex % 1 == 0:
-        return arr[firstIndex]
+        return arr[int(firstIndex)]
     elif firstIndex % 1 == 0.5:
         return (arr[math.floor(firstIndex)] + arr[math.ceil(firstIndex)])/2
     else:
@@ -28,13 +28,8 @@ def getIQR(arr):
     return q3-q1
 
 def getOutliersIndex(arr):
-    r = []
-    org = copy.deepcopy(arr)
     arr.sort()
     q1 = getQ(arr, 0.25)
     q3 = getQ(arr, 0.75)
     iqr = q3-q1
-    for i in range(math.floor(len(arr) * 0.75),len(arr)):
-        if arr[i] > q3+(1.5*iqr):
-            r.append(org.index(arr[i]))
-    return r
+    return (q3+(1.5*iqr))

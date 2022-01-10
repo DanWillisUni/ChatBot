@@ -71,11 +71,21 @@ def getKNNData(maxCount,removeOutliers):
                 inputArr.append([delayA,nameA,nameB])
                 targetArr.append(delayB)
                 testForOutliers.append(abs(delayA-delayB))
-    if removeOutliers:
-        indexsToRemove = ph.getOutliersIndex(testForOutliers)
-        for indexToRemove in indexsToRemove:
-            del inputArr[indexToRemove]
-            del targetArr[indexToRemove]
+    if removeOutliers:  # if the outliers are to be removed
+        maxAllowedDifference = ph.getOutliersIndex(
+            testForOutliers)  # get the max allowed difference before its an outlier
+        indexsToRemove = []
+        for i in range(len(targetArr)):  # for all the indexes
+            if abs(inputArr[i][0] - targetArr[i]) > maxAllowedDifference:
+                indexsToRemove.append(i)
+        indexsToRemove.sort()#sort the indexes
+        count = 0
+        for indexToRemove in indexsToRemove:#for all the indexes
+            #print("Removing: " + str(inputArr[indexToRemove - count]) + " " + str(targetArr[indexToRemove - count]))
+            del inputArr[indexToRemove - count]
+            del targetArr[indexToRemove - count]
+            count += 1
+
     return inputArr,targetArr
 
 def getK(maxDataSize,maxK,iterations):
@@ -91,22 +101,18 @@ def getK(maxDataSize,maxK,iterations):
             print(str(int(float(i / iterations) * 100)) + "%")
     #recording results
     now = datetime.now()
-
     with open(appSettings.getPathToKNNFigures() + "KResults" + now.strftime("_%Y%m%d_%H%M%S") + ".csv",
               'w') as f:  # open the file in the write mode
-        #writer = csv.writer(f, delimiter=',')  # create the csv writer
-        #writer.writerows(kResults)  # write a row to the csv file
         for k in range(0, maxK):
-            seArr[k] = seArr[k] / iterations  # set the value to the mean squared value
-            print(str(k + 1) + ", " + str(seArr[k] / iterations))
-            f.write(str(k + 1) + "," + str(seArr[k] / iterations) + "\n")
+            seArr[k] = math.sqrt(seArr[k] / iterations)  # set the value to the mean squared value
+            f.write(str(k + 1) + "," + str(seArr[k]) + "\n")#write to the file
 
     #plotting graph
     plt.plot(seArr)
     plt.xlabel("K")
-    plt.ylabel("Errors")
+    plt.ylabel("Root Mean Squared Errors")
     plt.savefig(appSettings.getPathToKNNFigures() + "searchingForK" + now.strftime("_%Y%m%d_%H%M%S") + ".png")
     plt.close()
 
 def getKNN():
-    return KNearestNeighbour(5)
+    return KNearestNeighbour(9)#chose 9 because top is 9 and 8 and 10 are 3rd,4th
