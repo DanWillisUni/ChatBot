@@ -27,30 +27,31 @@ def compareNNAndKNN(iterationCount):
     return math.sqrt(SENN / iterationCount),math.sqrt(SEKNN / iterationCount)
 
 def compareWithTrain(iterationCount):
-    results = []
+    nnPlot = []
+    knnPlot = []
     for i in range(iterationCount):
-        NN, KNN = compareNNAndKNN(100)
+        NN, KNN = compareNNAndKNN(1000)
         nn.trainNN(1000, 100000)
-        results.append([NN,KNN])
-        '''if (i % int(iterationCount / 10)) == 0:
-            print("COMP" + str(int(float(i / iterationCount) * 100)) + "%")'''
+        nnPlot.append(NN)
+        knnPlot.append(KNN)
+        if (i % int(iterationCount / 10)) == 0:
+            print("COMP" + str(int(float(i / iterationCount) * 100)) + "%")
 
-    NN, KNN = compareNNAndKNN(100)
-    results.append([NN, KNN])
-    toPlot = []
-    for i in results:
-        print("VS: " + str(i[1]/i[0]))#the higher the number the better the NN is
-        toPlot.append(i[1]/i[0])
+    NN, KNN = compareNNAndKNN(1000)
+    nnPlot.append(NN)
+    knnPlot.append(KNN)
 
     # plotting graph
-    plt.plot(toPlot)
+    plt.plot(nnPlot, label="Neural Network")
+    plt.plot(knnPlot, label="K Nearest Neighbor")
     plt.yscale('linear')
     plt.grid(True)
-    plt.xlabel("Iterations of NN training (10 thousand)")
+    plt.legend(loc="upper left")
+    plt.xlabel("Iterations of NN training (100 thousand)")
     plt.ylabel("Root Mean square error of KNN over NN")
-    plt.savefig("Comparison" + + datetime.now().strftime("_%Y%m%d_%H%M%S") + ".png")
+    plt.savefig("Comparison" + datetime.now().strftime("_%Y%m%d_%H%M%S") + ".png")
     plt.close()
 
 #knn.getK(1000,100,1000) # ~12 hours
 
-#compareWithTrain(3)#one hour per iteration
+#compareWithTrain(20)#one hour per iteration

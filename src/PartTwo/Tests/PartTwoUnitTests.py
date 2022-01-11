@@ -10,7 +10,7 @@ class MyTestCase(unittest.TestCase):
             [0.4,0.7,0.3,0.6086956521739131],
             [0.1818181,0.6923076,0.6086956,0.20175428971863218]]
         for i in toTest:
-            result = b.bayes_theorem(i[0],i[1],i[2])
+            result = b.bayesTheorem(i[0], i[1], i[2])
             self.assertEqual(i[3],result)
     def test_ProbabilityHelper(self):
         self.assertEqual(True,True)
