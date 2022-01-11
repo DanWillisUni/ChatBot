@@ -22,7 +22,7 @@ def load_stations():
 
 station_map = load_stations()
 
-
+# use fuzzywuzzy to find closest match to inputted station
 def get_matching_stations(station_text):
     return process.extract(station_text, station_map.keys())
 
@@ -133,7 +133,13 @@ if __name__ == "__main__":
     queries = [
         "What is the cheapest return ticket for four adults and 2 children from Milton Keynes Central to Norwich, arriving at 13:00 on 15/1/2022",
         
-        "I'd like to book a single ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 on 14/02/20 "
+        "I'd like to book a single ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 on 14/02/20 ",
+
+        "What will the delay be at Southampton if the train was delayed 5 minutes from Weymouth?",
+
+        "What will the delay be at Southampton if the train was delayed by an hour from Weymouth?",
+
+        "What is the predicted delay at Southampton if my train was 3 minutes late from Weymouth?"
     ]
     #displacy.serve(nlp(queries[1]), style="dep", port=16000)
 
@@ -141,7 +147,4 @@ if __name__ == "__main__":
         response = parse_query(query)
         print(response)
 
-
-    #print(get_matching_stations("milton keynes"))
-
-
+# print(get_matching_stations("milton keynes"))
