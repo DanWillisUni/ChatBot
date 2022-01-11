@@ -19,21 +19,20 @@
 
   "to_station": [
     "to",
-    "arrive",
     "destination"
   ],
 
   "leaving": [
-    "at",
     "before",
     "after",
     "depart",
-    "leaving"
+    "leave"
   ],
 
   "arrive": [
     "arrive",
-    "by"
+    "by",
+    "for"
   ],
 
   "dates": [
@@ -54,5 +53,11 @@
     "september",
     "november",
     "december"
+  ],
+
+  "time": [
+    "second",
+    "minute",
+    "hour"
   ]
 }
