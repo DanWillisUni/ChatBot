@@ -1,9 +1,13 @@
 from fuzzywuzzy import process
-from datetime import datetime
+from datetime import datetime, timedelta
 import spacy
 from spacy import displacy
+import json
+
 
 nlp = spacy.load('en_core_web_sm')
+with open("stemming/stems.json", "r") as read_file:
+    stems = json.load(read_file)
 
 
 def load_stations():
@@ -59,8 +63,11 @@ def extract_journey_time(token):
 units = [
         "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
         "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
-        "sixteen", "seventeen", "eighteen", "nineteen",
+        "sixteen", "seventeen", "eighteen", "nineteen", "twenty", "twenty-one",
+        "twenty-two", 'twenty-three', 'twenty-four', 'twenty-five', 'twenty-six',
+        'twenty-seven', 'twenty-eight', 'twenty-nine', 'thirty'
         ]
+
 
 def extract_persons(token):
     ntoken = token.doc[token.i - 1]
@@ -72,32 +79,69 @@ def extract_persons(token):
     return 1
 
 
-nlp = spacy.load('en_core_web_sm')
+#def extract_delay(token):
 
-# query = "What is the cheapest ticket for a return from Milton Keynes Central to Norwich, arriving by 13:00 on 15/1/2021"
-query = "What is the cheapest ticket for four adults and 2 children from Milton Keynes Central to Norwich, " \
-        "arriving by 13:00 on 15/1/2021 "
+def cheapest_ticket_query(query):
+    doc = nlp(query)
+    response = {'query type': 'unknown', 'from': None, 'to': None, 'arrive': True, 'time': datetime.now(), 'type': 'single', 'adult': 1, 'child': 0, 'return_time': None}
 
-doc = nlp(query)
-response = {'from': None, 'to': None, 'arrive': True, 'time': datetime.now(), 'type': 'single', 'adult': 1, 'child': 0}
-
-for token in doc:
-    if token.pos_ == 'VERB':
-        if token.lemma_ == 'depart':
-            response['arrive'] = False
-        response['time'] = extract_journey_time(token)
-    elif token.pos_ == 'NOUN':
-        if token.text.lower() == 'return':
+    for token in doc:
+        if stems.get("booking_tickets").count(token.lemma_) > 0:
+            response["query type"] = "cheapest"
+        elif token.pos_ == 'VERB':
+            if stems.get("leaving").count(token.lemma_) > 0:
+                response['arrive'] = False
+            response['time'] = extract_journey_time(token)
+        elif token.lemma_.lower() == 'return':
             response['type'] = 'return'
         elif token.lemma_ == 'adult':
             response['adult'] = extract_persons(token)
         elif token.lemma_ == 'child':
             response['child'] = extract_persons(token)
-    elif token.pos_ == 'ADP':
-        if token.lemma_ == 'from':
-            response['from'] = extract_station_name(token)
-        elif token.lemma_ == 'to':
-            response['to'] = extract_station_name(token)
+        elif token.pos_ == 'ADP':
+            if stems.get("from_station").count(token.lemma_) > 0:
+                response['from'] = extract_station_name(token)
+            elif stems.get("to_station").count(token.lemma_) > 0:
+                response['to'] = extract_station_name(token)
+    return response
 
-print(response)
-displacy.serve(doc, style="dep", port=20000)
+
+def prediction_query(query):
+    doc = nlp(query)
+    response = {'query type': 'unknown', 'from': None, 'to': None, 'delay': None}
+
+    for token in doc:
+        if stems.get("prediction").count(token.lemma_) > 0:
+            response["query type"] = 'prediction'
+        elif token.pos_ == 'ADP':
+            if stems.get("from_station").count(token.lemma_) > 0:
+                response['from'] = extract_station_name(token)
+            elif token.lemma_ == 'at':
+                response['to'] = extract_station_name(token)
+        #elif token.pos_ == 'NUM':
+    return response
+
+
+def parse_query(query):
+    response = cheapest_ticket_query(query)
+    if response['query type'] == 'unknown':
+        response = prediction_query(query)
+    return response
+
+
+if __name__ == "__main__":
+    queries = [
+        "What is the cheapest return ticket for four adults and 2 children from Milton Keynes Central to Norwich, arriving at 13:00 on 15/1/2022",
+        
+        "I'd like to book a single ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 on 14/02/20 "
+    ]
+    #displacy.serve(nlp(queries[1]), style="dep", port=16000)
+
+    for query in queries:
+        response = parse_query(query)
+        print(response)
+
+
+    #print(get_matching_stations("milton keynes"))
+
+
