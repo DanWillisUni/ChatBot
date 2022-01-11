@@ -65,11 +65,11 @@ units = [
         "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
         "sixteen", "seventeen", "eighteen", "nineteen", "twenty", "twenty-one",
         "twenty-two", 'twenty-three', 'twenty-four', 'twenty-five', 'twenty-six',
-        'twenty-seven', 'twenty-eight', 'twenty-nine', 'thirty'
+        'twenty-seven', 'twenty-eight', 'twenty-nine', 'thirty',
         ]
 
 
-def extract_persons(token):
+def extract_NUM(token):
     ntoken = token.doc[token.i - 1]
     if ntoken.dep_ == 'nummod':
         try:
@@ -79,8 +79,6 @@ def extract_persons(token):
     return 1
 
 
-#def extract_delay(token):
-
 def cheapest_ticket_query(query):
     doc = nlp(query)
     response = {'query type': 'unknown', 'from': None, 'to': None, 'arrive': True, 'time': datetime.now(), 'type': 'single', 'adult': 1, 'child': 0, 'return_time': None}
@@ -89,15 +87,16 @@ def cheapest_ticket_query(query):
         if stems.get("booking_tickets").count(token.lemma_) > 0:
             response["query type"] = "cheapest"
         elif token.pos_ == 'VERB':
-            if stems.get("leaving").count(token.lemma_) > 0:
+            if stems.get("leaving").count(token.lemma_) > 0 or stems.get("leaving").count(token.lemma_) > 0:
                 response['arrive'] = False
             response['time'] = extract_journey_time(token)
         elif token.lemma_.lower() == 'return':
             response['type'] = 'return'
+            response['return_time'] = extract_journey_time(token)
         elif token.lemma_ == 'adult':
-            response['adult'] = extract_persons(token)
+            response['adult'] = extract_NUM(token)
         elif token.lemma_ == 'child':
-            response['child'] = extract_persons(token)
+            response['child'] = extract_NUM(token)
         elif token.pos_ == 'ADP':
             if stems.get("from_station").count(token.lemma_) > 0:
                 response['from'] = extract_station_name(token)
@@ -118,7 +117,12 @@ def prediction_query(query):
                 response['from'] = extract_station_name(token)
             elif token.lemma_ == 'at':
                 response['to'] = extract_station_name(token)
-        #elif token.pos_ == 'NUM':
+        elif stems.get("time").count(token.lemma_) > 0:
+            if token.lemma_ == "hour":
+                time_mins = extract_NUM(token) * 60
+                response['delay'] = time_mins
+            else:
+                response['delay'] = extract_NUM(token)
     return response
 
 
@@ -131,20 +135,21 @@ def parse_query(query):
 
 if __name__ == "__main__":
     queries = [
-        "What is the cheapest return ticket for four adults and 2 children from Milton Keynes Central to Norwich, arriving at 13:00 on 15/1/2022",
+        "What is the cheapest single ticket for four adults and 2 children from Milton Keynes Central to Norwich, arriving at 13:00 on 15/1/2022",
         
-        "I'd like to book a single ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 on 14/02/20 ",
+        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 on 14/02/20",
 
         "What will the delay be at Southampton if the train was delayed 5 minutes from Weymouth?",
 
-        "What will the delay be at Southampton if the train was delayed by an hour from Weymouth?",
+        "What will the delay be at Southampton if the train was delayed by 4 hours from Weymouth?",
 
-        "What is the predicted delay at Southampton if my train was 3 minutes late from Weymouth?"
+        "What is the predicted delay at Southampton if my train was 3 minutes late from Weymouth?",
+
+        "What is the cheapest single ticket for six adults and one child from Milton Keynes Central to Norwich, arriving for 11:00 on 30/1/2022"
     ]
-    #displacy.serve(nlp(queries[1]), style="dep", port=16000)
+    #displacy.serve(nlp(queries[2]), style="dep", port=16000)
+
 
     for query in queries:
         response = parse_query(query)
         print(response)
-
-# print(get_matching_stations("milton keynes"))

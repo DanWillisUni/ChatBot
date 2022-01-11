@@ -157,7 +157,6 @@ class TheTrainLine:
         return float(cheapest_ticket[1:]), self.driver.current_url
 
 
-
 if __name__ == '__main__':
     trainline = TheTrainLine()
 

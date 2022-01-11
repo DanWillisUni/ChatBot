@@ -1,6 +1,6 @@
 # ChatBot
 
-#Setting up the database
+##Setting up the database
 1. Download SQL EXPRESS or some other local SQL server host
 2. Create a new database ours is called "AIChatBot"
 3. Clone or download our REPO 
@@ -9,9 +9,16 @@
 6. Edit the connectionString in the appsettings.json  file
 7. Run the console app (this should take about 15mins to insert all the data)
 
-#Downloading and importing SpaCy
+##Downloading and importing SpaCy
+Use the following commands in terminal
 1. import spacy
 2. python -m spacy download en
 
-#Download chromedriver
-1. 
+##Download chromedriver
+Install chromedriver to resources folder
+1. Open https://sites.google.com/chromium.org/driver/downloads
+2. Download chromedriver with the appropriate version of chrome used on your machine
+3. Move chromedriver into the resources folder
+4. Make sure chromedriver is executable 'ls -l ChatBot/resrouces/chromedriver'
+5. If not executable 'chmod +x ChatBot/resources/chromedriver'
+6. OSX may need further entitlements
