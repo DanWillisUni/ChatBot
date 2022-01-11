@@ -4,6 +4,7 @@ from datetime import datetime
 
 import numpy as np
 
+import PartTwo.Bayes
 import PartTwo.Helpers.Fitness as fit
 import PartTwo.NeuralNetwork as nn
 import PartTwo.KNearestNeighbours as knn

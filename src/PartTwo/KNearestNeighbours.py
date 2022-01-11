@@ -141,7 +141,7 @@ def getKNNData(maxCount, removeOutliers):
                 targetArr.append(delayB)  #add data to the target array
                 testForOutliers.append(abs(delayA - delayB))  #add the differnce to the outlier test array
     if removeOutliers:  # if the outliers are to be removed
-        maxAllowedDifference = ph.getOutliersIndex(testForOutliers)  # get the max allowed difference before its an outlier
+        maxAllowedDifference = ph.getOutliersMin(testForOutliers)  # get the max allowed difference before its an outlier
         indexsToRemove = []
         for i in range(len(targetArr)):  # for all the indexes
             if abs(inputArr[i][0] - targetArr[i]) > maxAllowedDifference:

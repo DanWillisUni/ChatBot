@@ -347,7 +347,7 @@ def getNNData(maxDataSize, removeOutliers):
                 testForOutliers.append(
                     abs(delayA - delayB))  # add the difference between delay to station A and delay to station B into the array
     if removeOutliers:  # if the outliers are to be removed
-        maxAllowedDifference = ph.getOutliersIndex(
+        maxAllowedDifference = ph.getOutliersMin(
             testForOutliers)  # get the max allowed difference before its an outlier
         indexsToRemove = []
         for i in range(len(targets)):  # for all the indexes
