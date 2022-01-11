@@ -172,6 +172,6 @@ if __name__ == '__main__':
     print(f"Cheapest ticket: £{cost}")
     print(f"Buy ticket: {url}")
 
-    cost, url = trainline.get_ticket()
+    #cost, url = trainline.get_ticket()
 
     del trainline

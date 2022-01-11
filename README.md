@@ -13,3 +13,5 @@
 1. import spacy
 2. python -m spacy download en
 
+#Download chromedriver
+1. 
