@@ -1,5 +1,18 @@
-DECLARE @FromStation varchar(7) = 'SOTON', 
-	@ToStation varchar(7) = 'WATRLMN';
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+-- =============================================
+-- Author:		Dan
+-- Create date: 
+-- Description:	
+-- =============================================
+ALTER PROCEDURE GetLatenessFromRID
+	-- Add the parameters for the stored procedure here
+	@rid VARCHAR(16) = ''
+AS
+BEGIN
+	SET NOCOUNT ON;
 
 WITH RAW_CTE as (
 		SELECT rid,tpl,
@@ -17,22 +30,14 @@ WITH RAW_CTE as (
 			END) as dep
 		FROM [nrch_livst_a51]
 		where ((pta IS NOT NULL and arr_at IS NOT NULL)OR(ptd IS NOT NULL and dep_at IS NOT NULL))
-		and (tpl = @FromStation or tpl = @ToStation)
+		and (rid = @rid)
 	)
-,allData AS (
-SELECT x.rid,tpl,
-	(CASE
-		WHEN arr IS NOT NULL AND dep IS NULL THEN arr
-		WHEN arr IS NULL AND dep IS NOT NULL THEN dep
-		WHEN arr IS NOT NULL AND dep IS NOT NULL THEN (arr + dep)/2
-	END) as lateBy
-FROM RAW_CTE
-INNER JOIN (SELECT rid FROM RAW_CTE
-	GROUP BY rid
-	HAVING COUNT(*) > 1) x ON x.rid = RAW_CTE.rid
-)
-
-SELECT TOP(100) c1.lateBy as fromLateBy,c2.lateBy as toLateBy
-FROM allData c1
-JOIN allData c2 ON c1.rid = c2.rid
-WHERE c1.tpl = @FromStation and c2.tpl = @ToStation
+	SELECT tpl,
+			(CASE
+				WHEN arr IS NOT NULL AND dep IS NULL THEN arr
+				WHEN arr IS NULL AND dep IS NOT NULL THEN dep
+				WHEN arr IS NOT NULL AND dep IS NOT NULL THEN (arr + dep)/2
+			END) as lateBy
+		FROM RAW_CTE		
+END
+GO
