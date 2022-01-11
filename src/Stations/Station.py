@@ -5,5 +5,6 @@ class Station:
     self.alpha3 = arr[2]
     self.tiploc = arr[3]
     self.tpl = arr[4]
-  def toString(self):
+
+  def __str__(self):
     return self.name + "; " + self.longName + "; " + self.alpha3 + "; " + self.tiploc + "; " + self.tpl + ";"

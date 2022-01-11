@@ -8,3 +8,8 @@
 5. Navigate to the SQL\InsertTableData directory and open the solution
 6. Edit the connectionString in the appsettings.json  file
 7. Run the console app (this should take about 15mins to insert all the data)
+
+#Downloading and importing SpaCy
+1. import spacy
+2. python -m spacy download en
+
