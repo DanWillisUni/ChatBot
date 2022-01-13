@@ -336,8 +336,8 @@ ASALocalRun/
 
 #For Python
 *.idea
-/KNNGrpahs/
-resources/PartTwo/NNGrpahs/
+/resources/PartTwo/KNNGrpahs/
+/resources/PartTwo/NNGrpahs/
 #KResults_*
 
 #chromedriver
