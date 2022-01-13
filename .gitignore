@@ -336,8 +336,9 @@ ASALocalRun/
 
 #For Python
 *.idea
-resources/*.png
-KResults_*
+KNNGrpahs/*
+NNGrpahs/*
+#KResults_*
 
 #chromedriver
 chromedriver
