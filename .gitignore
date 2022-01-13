@@ -347,5 +347,5 @@ chromedriver
 *.bbl
 *.blg
 *.gz
-!Report/Resources
+!/Resources/
 
