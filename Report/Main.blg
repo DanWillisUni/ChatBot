@@ -1,0 +1,50 @@
+This is BibTeX, Version 0.99d (TeX Live 2021/W32TeX)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: Main.aux
+The style file: agsm.bst
+Database file #1: example_refs.bib
+Warning--entry type for "AI2018CW" isn't style-file defined
+--line 1 of file example_refs.bib
+Warning--empty publisher in NLTK
+You've used 2 entries,
+            2909 wiz_defined-function locations,
+            648 strings with 4932 characters,
+and the built_in function-call counts, 5005 in all, are:
+= -- 781
+> -- 71
+< -- 0
++ -- 355
+- -- 21
+* -- 397
+:= -- 1081
+add.period$ -- 2
+call.type$ -- 2
+change.case$ -- 27
+chr.to.int$ -- 2
+cite$ -- 3
+duplicate$ -- 27
+empty$ -- 56
+format.name$ -- 29
+if$ -- 884
+int.to.chr$ -- 5
+int.to.str$ -- 0
+missing$ -- 2
+newline$ -- 9
+num.names$ -- 20
+pop$ -- 19
+preamble$ -- 1
+purify$ -- 30
+quote$ -- 0
+skip$ -- 21
+stack$ -- 0
+substring$ -- 1057
+swap$ -- 2
+text.length$ -- 28
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 6
+warning$ -- 1
+while$ -- 42
+width$ -- 0
+write$ -- 24
+(There were 2 warnings)
