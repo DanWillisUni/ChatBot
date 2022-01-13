@@ -159,19 +159,26 @@ class TheTrainLine:
 
 if __name__ == '__main__':
     trainline = TheTrainLine()
+
     #   trainline.getTicket('milton keynes central', 'norwich', datetime.now())
     cost, url = trainline.get_ticket('milton keynes central', 'norwich', datetime.now(),
                                      inbound_time=datetime.now() + timedelta(days=2),
                                      ticket_type=Ticket.RETURN)
+    trainline = TheTrainLine()
     print(f"Cheapest ticket: £{cost}")
     print(f"Buy ticket: {url}")
 
     cost, url = trainline.get_ticket('milton keynes central', 'london euston', datetime.now(),
                                      inbound_time=datetime.now() + timedelta(days=2),
                                      ticket_type=Ticket.RETURN)
+
+    trainline = TheTrainLine()
     print(f"Cheapest ticket: £{cost}")
     print(f"Buy ticket: {url}")
 
-    cost, url = trainline.get_ticket()
+    cost, url = trainline.get_ticket("Norwich", "Southampton", adults=2, children=0, outward_time_type=Ticket.DEPART_AFTER,
+                                     outward_time=datetime.now() + timedelta(days=4), ticket_type=Ticket.SINGLE)
+    print(f"Cheapest ticket: £{cost}")
+    print(f"Buy ticket: {url}")
 
     del trainline
