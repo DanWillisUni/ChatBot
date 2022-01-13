@@ -343,9 +343,9 @@ KResults_*
 chromedriver
 
 #For Report
-.aux
-.bbl
-.blg
-.gz
-!/Report/Resources
+*.aux
+*.bbl
+*.blg
+*.gz
+!Report/Resources
 
