@@ -336,8 +336,9 @@ ASALocalRun/
 
 #For Python
 *.idea
-*.png
-KResults_*
+/resources/PartTwo/KNNGraphs/
+/resources/PartTwo/NNGraphs/
+#KResults_*
 
 #chromedriver
 chromedriver
@@ -347,5 +348,4 @@ chromedriver
 *.bbl
 *.blg
 *.gz
-!/Resources/
 
