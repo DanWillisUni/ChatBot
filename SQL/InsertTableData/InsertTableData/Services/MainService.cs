@@ -22,9 +22,9 @@ namespace InsertTableData.Services
         }
         public void root()
         {
-            List<Station> stations = _stationCsvReader.readFromFile($"../../../DATA", $"stations");
-            _db.insetStations(stations);
-            _logger.LogInformation("Done stations");
+            //List<Station> stations = _stationCsvReader.readFromFile($"../../../DATA", $"stations");
+            //_db.insetStations(stations);
+            //_logger.LogInformation("Done stations");
             for (int year = 2017; year <= 2018; year++)
             {
                 for (int month = 1; month <= 12; month++)

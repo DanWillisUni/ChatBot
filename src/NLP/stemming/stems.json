@@ -1,0 +1,63 @@
+{
+  "booking_tickets": [
+    "book",
+    "ticket",
+    "cheap"
+  ],
+
+  "prediction": [
+    "delay",
+    "late",
+    "predict"
+  ],
+
+  "from_station": [
+    "from",
+    "leave",
+    "origin"
+  ],
+
+  "to_station": [
+    "to",
+    "destination"
+  ],
+
+  "leaving": [
+    "before",
+    "after",
+    "depart",
+    "leave"
+  ],
+
+  "arrive": [
+    "arrive",
+    "by",
+    "for"
+  ],
+
+  "dates": [
+    "today",
+    "tomorrow",
+    "week"
+  ],
+
+  "months": [
+    "january",
+    "february",
+    "march",
+    "april",
+    "may",
+    "june",
+    "july",
+    "august",
+    "september",
+    "november",
+    "december"
+  ],
+
+  "time": [
+    "second",
+    "minute",
+    "hour"
+  ]
+}

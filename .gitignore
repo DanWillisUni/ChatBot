@@ -335,10 +335,16 @@ ASALocalRun/
 
 
 #For Python
-.idea
+*.idea
+*.png
+KResults_*
+
+#chromedriver
+chromedriver
 
 #For Report
 .aux
 .bbl
 .blg
 .gz
+
