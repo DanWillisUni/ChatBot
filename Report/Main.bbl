@@ -1,0 +1,11 @@
+\begin{thebibliography}{xx}
+
+\harvarditem{Bird \harvardand\ Klein}{2009}{NLTK}
+Bird, Steven, E.~L. \harvardand\ Klein, E.  \harvardyearleft
+  2009\harvardyearright , {\em Natural Language Processing with Python}.
+
+\harvarditem{Wang}{2018}{AI2018CW}
+Wang, W.  \harvardyearleft 2018\harvardyearright , `Artificial intelligence
+  modules (cmp6040, 7028) coursework specification'.
+
+\end{thebibliography}
