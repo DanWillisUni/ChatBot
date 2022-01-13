@@ -6,6 +6,8 @@
 \usepackage[margin=2cm]{geometry}
 \usepackage{pgfgantt}
 
+\usepackage{csvsimple}
+
 %opening
 \title{Developing an Intelligent Chatbot: the First Interim Report}
 \author{Group xx: Daniel Willis, Charlotte Anderson and Brandon Gous}
@@ -34,7 +36,7 @@
 	
 	List as many as you can identify. 
 	
-	\subsection{Work Plan}
+	\subsection{Work Plan}	
 	
 	\begin{figure}{Project Gantt chart \label{pplan}}
 			\begin{ganttchart}[x unit=0.35cm, y unit chart = 1.0cm, y unit title=0.5cm, title height=1.0, vgrid, title label font=\scriptsize,
@@ -103,8 +105,7 @@
 	\subsection{Development Framework}
 	
 	
-	\section{Design of the Chatbot}
-	
+	\section{Design of the Chatbot}	
 	
 	\subsection{The Architecture of the chatbot}
 	You may draw a functional diagram if you like.  
@@ -119,6 +120,79 @@
 	\subsection{Inferring Engine}
 	
 	\subsection{Delay Prediction Models}
+	
+	For our prediction models we implemented three. A Bayesian model that calculated the probability of the train being late to the second station given that the train is delayed to the first station. A neural network that uses the delay and the normal time it takes between the stations to predict how late the train will be. And K nearest neighbour which predicts how late the train will be to the second station.
+	
+	\subsubsection{Bayesian}
+	
+	Bayesian Theorm is that the probability of event A happened given that B happened can be calculated by the probability of event B happening given that event A happened multiplied by the probability of event A happening all divided by the probability of event B happening.	
+	\[P(A|B) = (P(B|A) * P(A))/P(B)\]
+	
+	Additionally this can be expanded so that the probability of event B happening doesn't need to be known. The probability of event B happening is equal to the probability of event B happening given event A happened multiplied by the probability of event A occurring plus the probability of event B happening given that event A does not multiplied by the probability that event A does not happen.
+	
+	\[P(B) = P(B|A) * P(A) + P(B|'A) * P('A)\]
+	
+	This means that you can calculate the probability of event A happening given that B happened from the probability of event A happening, the probability of  event B happening given event A happened and the probability of event B happening given that event A didnt happen.
+	\[P(A|B) = (P(B|A) * P(A))/(P(B|A) * P(A) + P(B|'A) * (1 - P(A)))\]	
+	
+	I applied this to the prediction of trains being late by making A the event of the train being late to the second station and B the event of the train being late by delay or more to the first station.
+	
+	To get these probabilities I used stored procedures to extract the frequencies from the database.
+	
+	Firstly the probability of A (the train being late to the second station). This was easy enough to calculate I simply extracted the frequency count of all times it arrived at the second station. Totalled up the number of times the train was late and divided by the total pieces of data I had.
+	
+	Secondly I calculated the probability of B given A. To do this I extracted the frequencies of delays at the first station if the train arrived late to the second station. From here I summed all the frequencies that the train was late to the first station by atleast the delay.
+	
+	Next I calculated the probability of B given not A. To do this I extracted the frequencies of delays at the first station if the train arrived on-time or early to the second station. From here I summed all the frequencies that the train was late to the first station by at least the delay.	
+	
+	\subsubsection{Neural Network}
+	\subsubsection{K Nearest Neighbors}		
+	
+	For the K nearest neighbour model we have to use load of data extracted from the database for each query. To do this I used a stored procedure to get the amount that all the trains was late to both stations specified. 
+	
+	The amount the train was late to the first station is then compared to the amount of delay that the user had at the first station using a distance function, in my case picked euclidean.
+	
+	These distances are then sorted and you get the mean of the delay at the second station for the closest K nodes in the dataset. This is simple algorithm but heavily dependant on finding the correct K value.
+	
+	To find the best K value a set up a test to run one thousand iterations of selecting random data points from the data. Then for each piece of data I would create a KNN object with a different value of K ranging 1 to 100 (inclusive). Get a prediction from each object and compare it to the target outcome. From this I calculated the root mean square error for each value of K over the iterations.
+	
+	The results plotted on a graph is in figure \ref{Img:KSearch} and the top ranking results are included in the table in figure \ref{Img:KSearchRaw}.	
+	The shape of the graph is exactly what I expected to see with very few neighbours having a very high RMSE and then having a dip where the ideal K value is with the RMSE gradually increasing again as the more neighbours are used.
+	
+	\begin{figure}[!htb]
+		\begin{center}
+			\includegraphics[width=1.2\textwidth]{Resources/PartTwo/searchingForK_20220110_065714.png}
+			\caption{Searching for the correct K value}
+			\label{Img:KSearch}
+		\end{center}
+	\end{figure}
+	
+	\begin{figure}[!htb]
+		\begin{center}
+				\csvautotabular{Resources/PartTwo/KResults_Sorted.csv}
+			\caption{Sorted RMSE of K values}
+			\label{Img:KSearchRaw}
+		\end{center}
+	\end{figure}
+
+	From these results I concluded that 9 was the best value for K not only because it ranks at the top but because 10 and 8 rank 3rd and 4th in the list. However any value from 5 - 15 would be very accurate still.
+	
+	\subsubsection{Comparison}
+	I didn't think that the Bayesian model was very good it is more of a classification model not a regression therefore not particularly useful.
+	
+	\begin{figure}[!htb]
+		\begin{center}
+			\includegraphics[width=1.2\textwidth]{Resources/PartTwo/Comparison_20220112_152958.png}
+			\caption{Comparison of neural network and K nearest neighbour}
+			\label{Img:NNKNNComp}
+		\end{center}
+	\end{figure}
+	
+	In figure \ref{Img:NNKNNComp} below I compare the neural network and k nearest neighbours over two million iterations of training the neural network.
+	
+	This was accomplished by randomly selecting a thousand data sets, running these datasets through both the models and comparing the predictions to the targets. Then train the neural network on the same dataset for a hundred thousand iterations and repeat.
+	
+	As you can see the K nearest neighbour algorithm is consistently better than the neural network despite the improvements made so we decided to use that.		
 	
 	\subsection{Conversation Control}
 	
