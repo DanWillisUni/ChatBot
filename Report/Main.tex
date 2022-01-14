@@ -189,7 +189,7 @@
 	\[dW1 = \frac{1}{m} * (dA.W1^T) \]
 	\[db1 = \frac{1}{m} * \sum dA \]
 	
-	Where T is the true value, $*$ is multiplication, $x.y$ is dot product of the matrices $x$ and $y$ and $x^T$ is the transpose of matrix $x$. We do not need gradients with respect to the input layer neurons because we are not going to change them.
+	Where T is the true value, $m$ is the number of datapoints, $*$ is multiplication, $x.y$ is dot product of the matrices $x$ and $y$ and $x^T$ is the transpose of matrix $x$. We do not need gradients with respect to the input layer neurons because we are not going to change them.
 
 	Now using these gradients calculated we can modify our weights and bias getting us closer to the true result.
 	
@@ -231,7 +231,18 @@
 	
 	\subsubsection{Neural Network}
 	
-	%Dan write stuff here
+	 The best way to implement all the weights and values being stored was through dictionarys with string keys eg: "W1" with multidimensional arrays as the value. 
+	 
+	 This meant that I could implement a solution which has the capacity to expand the number of layers and neurons per layer easily with simple for loops, making the solution highly customizable.
+	 
+	 To keep track of how well the network was learning I would test every single datapoint through it every 1000 iterations and get the root mean squared error for them all. This was then plotted on a graph.
+	 
+	 \begin{figure}[!htb]
+	 	\centering
+	 		\includegraphics{Resources/PartTwo/LearningGraphs/20220111_184633_1000_1.png}
+	 		\caption{Comparison of neural network and K nearest neighbour}
+	 		\label{Img:NNTrainA}
+	 \end{figure}
 	
 	\subsubsection{K Nearest Neighbour}
 	To find the best K value a set up a test to run one thousand iterations of selecting random data points from the data. Then for each piece of data I would create a KNN object with a different value of K ranging 1 to 100 (inclusive). Get a prediction from each object and compare it to the target outcome. From this I calculated the root mean square error for each value of K over the iterations.

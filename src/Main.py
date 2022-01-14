@@ -30,9 +30,12 @@ def compareNNAndKNN(iterationCount):
 def compareWithTrain(iterationCount):
     nnPlot = []
     knnPlot = []
+    trainingError = []
     for i in range(iterationCount):
         NN, KNN = compareNNAndKNN(1000)
-        nn.trainNN(1000, 100000)
+        toAdd = nn.trainNN(1000, 100000)
+        for i in toAdd:
+            trainingError.append(toAdd)
         nnPlot.append(NN)
         knnPlot.append(KNN)
         if (i % int(iterationCount / 10)) == 0:
@@ -53,6 +56,14 @@ def compareWithTrain(iterationCount):
     plt.savefig("Comparison" + datetime.now().strftime("_%Y%m%d_%H%M%S") + ".png")
     plt.close()
 
+    plt.plot(trainingError)
+    plt.yscale('linear')
+    plt.grid(True)
+    plt.xlabel("Iterations (thousands)")
+    plt.ylabel("Root Mean square error in all training instances")
+    plt.savefig("FullTrainingData_" + datetime.now().strftime("%Y%m%d_%H%M%S_") + ".png")
+    plt.close()
+
 #knn.getK(1000,100,1000) # ~12 hours
 
-#compareWithTrain(20)#one hour per iteration
+compareWithTrain(20)#one hour per iteration
