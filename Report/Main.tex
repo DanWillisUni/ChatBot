@@ -7,6 +7,8 @@
 \usepackage{pgfgantt}
 
 \usepackage{csvsimple}
+\usepackage{caption}
+\usepackage{subcaption}
 
 %opening
 \title{Developing an Intelligent Chatbot: the First Interim Report}
@@ -121,78 +123,83 @@
 	
 	\subsection{Delay Prediction Models}
 	
-	For our prediction models we implemented three. A Bayesian model that calculated the probability of the train being late to the second station given that the train is delayed to the first station. A neural network that uses the delay and the normal time it takes between the stations to predict how late the train will be. And K nearest neighbour which predicts how late the train will be to the second station.
+	For our prediction models we plan to use three. A Bayesian model that calculated the probability of the train being late to the second station given that the train is delayed to the first station. A neural network that uses the delay and the normal time it takes between the stations to predict how late the train will be. And K nearest neighbour which predicts how late the train will be to the second station.
 	
 	\subsubsection{Bayesian}
 	
 	Bayesian Theorm is that the probability of event A happened given that B happened can be calculated by the probability of event B happening given that event A happened multiplied by the probability of event A happening all divided by the probability of event B happening.	
-	\[P(A|B) = (P(B|A) * P(A))/P(B)\]
+	\[P(A|B) = \frac{P(B|A) * P(A)}{P(B)}\]
 	
 	Additionally this can be expanded so that the probability of event B happening doesn't need to be known. The probability of event B happening is equal to the probability of event B happening given event A happened multiplied by the probability of event A occurring plus the probability of event B happening given that event A does not multiplied by the probability that event A does not happen.
 	
 	\[P(B) = P(B|A) * P(A) + P(B|'A) * P('A)\]
 	
 	This means that you can calculate the probability of event A happening given that B happened from the probability of event A happening, the probability of  event B happening given event A happened and the probability of event B happening given that event A didnt happen.
-	\[P(A|B) = (P(B|A) * P(A))/(P(B|A) * P(A) + P(B|'A) * (1 - P(A)))\]	
+	\[P(A|B) = \frac{P(B|A) * P(A)}{P(B|A) * P(A) + P(B|'A) * (1 - P(A))} \]	
 	
 	I applied this to the prediction of trains being late by making A the event of the train being late to the second station and B the event of the train being late by delay or more to the first station.
 	
-	To get these probabilities I used stored procedures to extract the frequencies from the database.
-	
-	Firstly the probability of A (the train being late to the second station). This was easy enough to calculate I simply extracted the frequency count of all times it arrived at the second station. Totalled up the number of times the train was late and divided by the total pieces of data I had.
-	
-	Secondly I calculated the probability of B given A. To do this I extracted the frequencies of delays at the first station if the train arrived late to the second station. From here I summed all the frequencies that the train was late to the first station by atleast the delay.
-	
-	Next I calculated the probability of B given not A. To do this I extracted the frequencies of delays at the first station if the train arrived on-time or early to the second station. From here I summed all the frequencies that the train was late to the first station by at least the delay.	
-	
 	\subsubsection{Neural Network}
+	
+	A neural network is a collection of layers of neurons, each neuron holds a value known as activation of that neuron. There can be an unlimited number of layers and neurons and they can be used to solve very complex problems such as object recognition.
+	
+	Each neuron is connected to all the neurons of the previous layer through numbers called weights (referred to as W) and a bias (referred to as b). The weights are organized in the form of a matrix of shape (no of units in current layer, no of units in previous layer). This means that to calculate a neuron on the next layer you need all the previous values.
+	
+	If this is applied to our problem we chose to have two input nodes of the delay at the first station and the normal time taken between the stations and obviously the output node for the prediction. This is shown in figure \ref{Img:NNDiagram} it shows all the neurons in the simple neural network we designed to solve the problem with two hidden layers of three neurons each.
+	
+	\begin{figure}[!htb]
+		\begin{center}
+			\includegraphics[width=1\textwidth]{Resources/PartTwo/NNDiagram.png}
+			\caption{Diagram showing the neural network}
+			\label{Img:NNDiagram}
+		\end{center}
+	\end{figure}
+	
+	This basically means that W\textsubscript{ij} refers to the weight of the connection from i’th neuron in current layer to j’th neuron in previous layer. The biases are organized in the shape of (no of units in current layer, 1) so B\textsubscript{i} corresponds to the bias of the i’th neuron in current layer. 
+	
+	Each neurons value can be calculated by:
+	\[A1 = g(f(X1,X2)) = g(W1_{11}*X1 + W1_{12}*X2 + b1_{1})\]
+	\[A2 = g(f(X1,X2)) = g(W1_{21}*X1 + W1_{22}*X2 + b1_{2})\]
+	\[A3 = g(f(X1,X2)) = g(W1_{31}*X1 + W1_{32}*X2 + b1_{3})\]
+	
+	\[B1 = g(f(A1,A2,A3)) = g(W2_{11}*A1 + W2_{12}*A2 + W2_{13}*A3 + b2_{1})\]
+	\[B2 = g(f(A1,A2,A3)) = g(W2_{21}*A1 + W2_{22}*A2 + W2_{23}*A3 + b2_{2})\]
+	\[B3 = g(f(A1,A2,A3)) = g(W2_{31}*A1 + W2_{32}*A2 + W2_{33}*A3 + b2_{3})\]
+	
+	\[Y = f(B1,B2,B3) = W3_{11}*B1 + W3_{12}*B2 + W3_{13}*B3 + b3_{1}\]
+	
+	Where $g(x)$ is the activation function. Being as this is a regression problem and not classification I will use $g(x) = max(0,x)$ more commonly called the ReLU. This returns 0 when x is negative and x when positive. Due to it’s lower saturation region, it is highly trainable. These equations can be vectorised using the dot product of the matrices:
+	
+	\[A = g(W1.X + b1)\]
+	\[B = g(W2.A + b2)\]
+	\[Y = W3.B + b3\]
+	
+	However for the neural network to become more accurate it has to learn by adjusting the weights an bias to bring the output closer to the target. This is done using a back propagation algorithm to calculate the gradients. These are the vectorized equations:
+	
+	\[dY = \frac{1}{m} * (Y-T) \]
+	
+	\[dW3 = \frac{1}{m} * (dY.W3^T) \]
+	\[db3 = \frac{1}{m} * \sum dY \]
+	\[dB = W3^T.dY\]
+	
+	\[dW2 = \frac{1}{m} * (dB.W2^T) \]
+	\[db2 = \frac{1}{m} * \sum dB \]
+	\[dA = W2^T.dB * g'(W2.A+b2)\]
+	
+	\[dW1 = \frac{1}{m} * (dA.W1^T) \]
+	\[db1 = \frac{1}{m} * \sum dA \]
+	
+	Where T is the true value, $*$ is multiplication, $x.y$ is dot product of the matrices $x$ and $y$ and $x^T$ is the transpose of matrix $x$. We do not need gradients with respect to the input layer neurons because we are not going to change them.
+
+	Now using these gradients calculated we can modify our weights and bias getting us closer to the true result.
+	
 	\subsubsection{K Nearest Neighbors}		
 	
 	For the K nearest neighbour model we have to use load of data extracted from the database for each query. To do this I used a stored procedure to get the amount that all the trains was late to both stations specified. 
 	
 	The amount the train was late to the first station is then compared to the amount of delay that the user had at the first station using a distance function, in my case picked euclidean.
 	
-	These distances are then sorted and you get the mean of the delay at the second station for the closest K nodes in the dataset. This is simple algorithm but heavily dependant on finding the correct K value.
-	
-	To find the best K value a set up a test to run one thousand iterations of selecting random data points from the data. Then for each piece of data I would create a KNN object with a different value of K ranging 1 to 100 (inclusive). Get a prediction from each object and compare it to the target outcome. From this I calculated the root mean square error for each value of K over the iterations.
-	
-	The results plotted on a graph is in figure \ref{Img:KSearch} and the top ranking results are included in the table in figure \ref{Img:KSearchRaw}.	
-	The shape of the graph is exactly what I expected to see with very few neighbours having a very high RMSE and then having a dip where the ideal K value is with the RMSE gradually increasing again as the more neighbours are used.
-	
-	\begin{figure}[!htb]
-		\begin{center}
-			\includegraphics[width=1.2\textwidth]{Resources/PartTwo/searchingForK_20220110_065714.png}
-			\caption{Searching for the correct K value}
-			\label{Img:KSearch}
-		\end{center}
-	\end{figure}
-	
-	\begin{figure}[!htb]
-		\begin{center}
-				\csvautotabular{Resources/PartTwo/KResults_Sorted.csv}
-			\caption{Sorted RMSE of K values}
-			\label{Img:KSearchRaw}
-		\end{center}
-	\end{figure}
-
-	From these results I concluded that 9 was the best value for K not only because it ranks at the top but because 10 and 8 rank 3rd and 4th in the list. However any value from 5 - 15 would be very accurate still.
-	
-	\subsubsection{Comparison}
-	I didn't think that the Bayesian model was very good it is more of a classification model not a regression therefore not particularly useful.
-	
-	\begin{figure}[!htb]
-		\begin{center}
-			\includegraphics[width=1.2\textwidth]{Resources/PartTwo/Comparison_20220112_152958.png}
-			\caption{Comparison of neural network and K nearest neighbour}
-			\label{Img:NNKNNComp}
-		\end{center}
-	\end{figure}
-	
-	In figure \ref{Img:NNKNNComp} below I compare the neural network and k nearest neighbours over two million iterations of training the neural network.
-	
-	This was accomplished by randomly selecting a thousand data sets, running these datasets through both the models and comparing the predictions to the targets. Then train the neural network on the same dataset for a hundred thousand iterations and repeat.
-	
-	As you can see the K nearest neighbour algorithm is consistently better than the neural network despite the improvements made so we decided to use that.		
+	These distances are then sorted and you get the mean of the delay at the second station for the closest K nodes in the dataset. This is simple algorithm but heavily dependant on finding the correct K value.	
 	
 	\subsection{Conversation Control}
 	
@@ -211,6 +218,61 @@
 	
 	\section{Implementation}
 	
+	\subsection{Predictive Models}
+	
+	\subsubsection{Bayes}
+	To get these probabilities can use stored procedures to extract the frequencies from the database.
+	
+	Firstly the probability of A (the train being late to the second station). This was easy enough to calculate I simply extracted the frequency count of all times it arrived at the second station. Totalled up the number of times the train was late and divided by the total pieces of data I had.
+	
+	Secondly I calculated the probability of B given A. To do this I extracted the frequencies of delays at the first station if the train arrived late to the second station. From here I summed all the frequencies that the train was late to the first station by at least the delay.
+	
+	Next I calculated the probability of B given not A. To do this I extracted the frequencies of delays at the first station if the train arrived on-time or early to the second station. From here I summed all the frequencies that the train was late to the first station by at least the delay.	
+	
+	\subsubsection{Neural Network}
+	
+	%Dan write stuff here
+	
+	\subsubsection{K Nearest Neighbour}
+	To find the best K value a set up a test to run one thousand iterations of selecting random data points from the data. Then for each piece of data I would create a KNN object with a different value of K ranging 1 to 100 (inclusive). Get a prediction from each object and compare it to the target outcome. From this I calculated the root mean square error for each value of K over the iterations.
+	
+	The results plotted on a graph is in figure \ref{Img:KSearch} and the top ranking results are included in the table in figure \ref{Img:KSearchRaw}.	
+	The shape of the graph is exactly what I expected to see with very few neighbours having a very high RMSE and then having a dip where the ideal K value is with the RMSE gradually increasing again as the more neighbours are used.
+	
+	\begin{figure}[!htb]
+		\centering
+		\begin{minipage}{.8\textwidth}
+			\centering
+			\includegraphics[width=.8\linewidth]{Resources/PartTwo/searchingForK_20220110_065714.png}
+			\captionof{figure}{Searching for the correct K value}
+			\label{Img:KSearch}
+		\end{minipage}%
+		\begin{minipage}{.2\textwidth}
+			\centering
+			\csvautotabular{Resources/PartTwo/KResults_Sorted.csv}
+			\captionof{figure}{Sorted RMSE of K values}
+			\label{Img:KSearchRaw}
+		\end{minipage}
+	\end{figure}
+	
+	From these results I concluded that 9 was the best value for K not only because it ranks at the top but because 10 and 8 rank 3rd and 4th in the list. However any value from 5 - 15 would be very accurate still.
+	\subsubsection{Comparison}
+	I didn't think that the Bayesian model was very good it is more of a classification model not a regression therefore not particularly useful.
+	
+	\begin{figure}[!htb]
+		\begin{center}
+			\includegraphics{Resources/PartTwo/Comparison_20220112_152958.png}
+			\caption{Comparison of neural network and K nearest neighbour}
+			\label{Img:NNKNNComp}
+		\end{center}
+	\end{figure}
+	
+	In figure \ref{Img:NNKNNComp} below I compare the neural network and k nearest neighbours over two million iterations of training the neural network.
+	
+	This was accomplished by randomly selecting a thousand data sets, running these datasets through both the models and comparing the predictions to the targets. Then train the neural network on the same dataset for a hundred thousand iterations and repeat.
+	
+	As you can see the K nearest neighbour algorithm is consistently better than the neural network despite the improvements made so we decided to use that.	
+	
 	\section{Testing}
 	
 	\subsection{Unit Testing}
@@ -228,6 +290,6 @@
 	\bibliographystyle{agsm}
 	%\bibliographystyle{apalike}
 	% you should use your own bibtex file to replace the following example_ref bib file.
-	\bibliography{example_refs} 
+	\bibliography{Referances} 
 	
 \end{document}
