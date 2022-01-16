@@ -9,10 +9,10 @@ import PartTwo.Helpers.Fitness as fit
 import PartTwo.NeuralNetwork as nn
 import PartTwo.KNearestNeighbours as knn
 
-def compareNNAndKNN(iterationCount):
+def compareNNAndKNN(iterationCount,dataLimit):
     neuralNetwork = nn.getNN()
     nearestNeighbor = knn.getKNN()
-    data,targets = knn.getKNNData(1000,True)
+    data,targets = knn.getKNNData(dataLimit,True)
     SEKNN = 0
     SENN = 0
     for i in range(iterationCount):
@@ -27,21 +27,20 @@ def compareNNAndKNN(iterationCount):
     print("KNN: " + str(math.sqrt(SEKNN / iterationCount)))
     return math.sqrt(SENN / iterationCount),math.sqrt(SEKNN / iterationCount)
 
-def compareWithTrain(iterationCount):
+def compareWithTrain(iterationCount,dataLimit,trainingIterations,compareIterations):
     nnPlot = []
     knnPlot = []
     trainingError = []
     for i in range(iterationCount):
-        NN, KNN = compareNNAndKNN(1000)
-        toAdd = nn.trainNN(1000, 100000)
-        for i in toAdd:
-            trainingError.append(toAdd)
+        NN, KNN = compareNNAndKNN(compareIterations,dataLimit)
+        toAdd = nn.trainNN(dataLimit, trainingIterations)
+        for ta in toAdd:
+            trainingError.append(ta)
         nnPlot.append(NN)
         knnPlot.append(KNN)
-        if (i % int(iterationCount / 10)) == 0:
-            print("COMP" + str(int(float(i / iterationCount) * 100)) + "%")
+        print("COMP: " + str(i) + "/" + str(iterationCount))
 
-    NN, KNN = compareNNAndKNN(1000)
+    NN, KNN = compareNNAndKNN(compareIterations,dataLimit)
     nnPlot.append(NN)
     knnPlot.append(KNN)
 
@@ -66,4 +65,4 @@ def compareWithTrain(iterationCount):
 
 #knn.getK(1000,100,1000) # ~12 hours
 
-compareWithTrain(20)#one hour per iteration
+compareWithTrain(20,1000,100000,1000)#one hour per iteration
