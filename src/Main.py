@@ -1,10 +1,8 @@
 import math
 import matplotlib.pyplot as plt
 from datetime import datetime
-
 import numpy as np
 
-import PartTwo.Bayes
 import PartTwo.Helpers.Fitness as fit
 import PartTwo.NeuralNetwork as nn
 import PartTwo.KNearestNeighbours as knn
@@ -43,7 +41,6 @@ def compareWithTrain(iterationCount,dataLimit,trainingIterations,compareIteratio
     NN, KNN = compareNNAndKNN(compareIterations,dataLimit)
     nnPlot.append(NN)
     knnPlot.append(KNN)
-
     # plotting graph
     plt.plot(nnPlot, label="Neural Network")
     plt.plot(knnPlot, label="K Nearest Neighbor")
@@ -64,5 +61,4 @@ def compareWithTrain(iterationCount,dataLimit,trainingIterations,compareIteratio
     plt.close()
 
 #knn.getK(1000,100,1000) # ~12 hours
-
 compareWithTrain(20,1000,100000,1000)#one hour per iteration

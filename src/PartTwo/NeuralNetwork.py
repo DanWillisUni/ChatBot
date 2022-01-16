@@ -389,7 +389,7 @@ def getNN():
     :return:
     A NN object being loaded from a file or randomised
     """
-    return NeuralNetwork([2, 3, 3, 1])
+    return NeuralNetwork([2, 10, 10, 10, 10, 1])
 
 
 def relu(z):
