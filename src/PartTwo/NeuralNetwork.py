@@ -237,6 +237,7 @@ class NeuralNetwork:
         ets = time.gmtime(end - start)
         et = time.strftime("%H:%M:%S", ets)
         print("Elapsed: " + et)
+        return trainingError
 
     def predictNice(self, delay, nameA, nameB):
         """
@@ -377,7 +378,7 @@ def trainNN(maxDataSize, iterations):
     Number of iterations to train
     """
     neuralNetwork = getNN()
-    neuralNetwork.startTraining(maxDataSize, iterations)
+    return neuralNetwork.startTraining(maxDataSize, iterations)
     # return neuralNetwork
 
 

@@ -46,11 +46,11 @@ def getProbabilityOfLate(delay, fromStationTPL, toStationTPL):
                                            toStationTPL)  # get all the frequenceis of the train lateness to the second station
     pA = ph.probFromFrequency(frequencies, 1)  # get the probability of the train being late to the second station
     frequencies = sph.getLatenessFromStations(connStr, toStationTPL, fromStationTPL, 1,
-                                              1500)  # get every time the train was late to the from station
+                                              1500)  # get every time the train was late to the to station
     pBGivenA = ph.probFromFrequency(frequencies,
                                     delay)  # get the probability of the train being late to the first station by delay given that it was late to the second
     frequencies = sph.getLatenessFromStations(connStr, toStationTPL, fromStationTPL, -1500,
-                                              0)  # get every time the train was ontime to the from station
+                                              0)  # get every time the train was ontime to the to station
     pBGivenNotA = ph.probFromFrequency(frequencies,
                                        delay)  # get the probability of the train being late to the first station by delay given that it was not late to the second
     return bayesTheorem(pA, pBGivenA, pBGivenNotA)  # calcualte the probability
