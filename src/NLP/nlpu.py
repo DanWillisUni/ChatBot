@@ -3,10 +3,12 @@ from datetime import datetime, timedelta
 import spacy
 from spacy import displacy
 import json
+from os.path import dirname, join
 
+project_root = dirname(dirname(__file__))
 
 nlp = spacy.load('en_core_web_sm')
-with open("stemming/stems.json", "r") as read_file:
+with open(project_root + "/NLP/stemming/stems.json", "r") as read_file:
     stems = json.load(read_file)
 
 
@@ -24,7 +26,7 @@ station_map = load_stations()
 
 # use fuzzywuzzy to find closest match to inputted station
 def get_matching_stations(station_text):
-    return process.extract(station_text, station_map.keys())
+    return process.extract(station_text, station_map.keys(), limit=50)
 
 
 def extract_station_name(token):
@@ -69,6 +71,7 @@ units = [
         ]
 
 
+# TODO Update this to support pure numbers
 def extract_NUM(token):
     ntoken = token.doc[token.i - 1]
     if ntoken.dep_ == 'nummod':
