@@ -1,18 +1,16 @@
 import math
 import matplotlib.pyplot as plt
 from datetime import datetime
-
 import numpy as np
 
-import PartTwo.Bayes
 import PartTwo.Helpers.Fitness as fit
 import PartTwo.NeuralNetwork as nn
 import PartTwo.KNearestNeighbours as knn
 
-def compareNNAndKNN(iterationCount):
+def compareNNAndKNN(iterationCount,dataLimit):
     neuralNetwork = nn.getNN()
     nearestNeighbor = knn.getKNN()
-    data,targets = knn.getKNNData(1000,True)
+    data,targets = knn.getKNNData(dataLimit,True)
     SEKNN = 0
     SENN = 0
     for i in range(iterationCount):
@@ -27,21 +25,22 @@ def compareNNAndKNN(iterationCount):
     print("KNN: " + str(math.sqrt(SEKNN / iterationCount)))
     return math.sqrt(SENN / iterationCount),math.sqrt(SEKNN / iterationCount)
 
-def compareWithTrain(iterationCount):
+def compareWithTrain(iterationCount,dataLimit,trainingIterations,compareIterations):
     nnPlot = []
     knnPlot = []
+    trainingError = []
     for i in range(iterationCount):
-        NN, KNN = compareNNAndKNN(1000)
-        nn.trainNN(1000, 100000)
+        NN, KNN = compareNNAndKNN(compareIterations,dataLimit)
+        toAdd = nn.trainNN(dataLimit, trainingIterations)
+        for ta in toAdd:
+            trainingError.append(ta)
         nnPlot.append(NN)
         knnPlot.append(KNN)
-        if (i % int(iterationCount / 10)) == 0:
-            print("COMP" + str(int(float(i / iterationCount) * 100)) + "%")
+        print("COMP: " + str(i) + "/" + str(iterationCount))
 
-    NN, KNN = compareNNAndKNN(1000)
+    NN, KNN = compareNNAndKNN(compareIterations,dataLimit)
     nnPlot.append(NN)
     knnPlot.append(KNN)
-
     # plotting graph
     plt.plot(nnPlot, label="Neural Network")
     plt.plot(knnPlot, label="K Nearest Neighbor")
@@ -53,6 +52,13 @@ def compareWithTrain(iterationCount):
     plt.savefig("Comparison" + datetime.now().strftime("_%Y%m%d_%H%M%S") + ".png")
     plt.close()
 
-#knn.getK(1000,100,1000) # ~12 hours
+    plt.plot(trainingError)
+    plt.yscale('linear')
+    plt.grid(True)
+    plt.xlabel("Iterations (thousands)")
+    plt.ylabel("Root Mean square error in all training instances")
+    plt.savefig("FullTrainingData_" + datetime.now().strftime("%Y%m%d_%H%M%S_") + ".png")
+    plt.close()
 
-#compareWithTrain(20)#one hour per iteration
+#knn.getK(1000,100,1000) # ~12 hours
+compareWithTrain(20,1000,100000,1000)#one hour per iteration
