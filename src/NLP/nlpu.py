@@ -81,14 +81,14 @@ def extract_NUM(token):
 
 def cheapest_ticket_query(query):
     doc = nlp(query)
-    response = {'query type': 'unknown', 'from': None, 'to': None, 'arrive': True, 'time': datetime.now(), 'type': 'single', 'adult': 1, 'child': 0, 'return_time': None}
+    response = {'query type': 'unknown', 'from': None, 'to': None, 'arrive': False, 'time': datetime.now(), 'type': 'single', 'adult': 1, 'child': 0, 'return_time': None}
 
     for token in doc:
         if stems.get("booking_tickets").count(token.lemma_) > 0:
             response["query type"] = "cheapest"
         elif token.pos_ == 'VERB':
-            if stems.get("leaving").count(token.lemma_) > 0 or stems.get("leaving").count(token.lemma_) > 0:
-                response['arrive'] = False
+            if stems.get("arrive").count(token.lemma_) > 0 :
+                response['arrive'] = True
             response['time'] = extract_journey_time(token)
         elif token.lemma_.lower() == 'return':
             response['type'] = 'return'
