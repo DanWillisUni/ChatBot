@@ -333,6 +333,7 @@ ASALocalRun/
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
 
+
 #For Python
 *.idea
 *.png
@@ -340,3 +341,10 @@ KResults_*
 
 #chromedriver
 chromedriver
+
+#For Report
+.aux
+.bbl
+.blg
+.gz
+

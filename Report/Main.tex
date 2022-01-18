@@ -1,0 +1,159 @@
+\documentclass[11pt]{article}
+
+\usepackage[]{graphics}
+\usepackage{natbib}
+\usepackage{rotating}
+\usepackage[margin=2cm]{geometry}
+\usepackage{pgfgantt}
+
+%opening
+\title{Developing an Intelligent Chatbot: the First Interim Report}
+\author{Group xx: Daniel Willis, Charlotte Anderson and Brandon Gous}
+
+\begin{document}
+	
+	\maketitle	
+	\begin{abstract}
+		This interim report presents (1) the outline of our coursework report, (2) some initial descriptions of the requirements of the coursework, the methods, programming languages, packages, tools that have been identified so far, and (3) an initial work plan.
+	\end{abstract}
+	
+	\section{Introduction}
+	
+	%(Brief introduction to the coursework. You don't have to write much.  
+	%You may introduce a bit on chatbot in general if like, and why an intelligent chatbot is useful using the subsections headings if you wish.) 
+	
+	For this coursework we are developing a chatbot to help customers in finding the cheapest available ticket for their chosen journey also to improve customer service satisfaction by applying some appropriate AI techniques.
+	
+	\subsection{Background and Motivation}
+	A bit background information on chatbot in general and the coursework specification\citep{AI2018CW}.
+	
+	\subsection{Aim and Objectives of this coursework} 
+	You may rephrase the the aim and objectives from your point of view.  
+	
+	\subsection{Difficulties and Risks}
+	
+	List as many as you can identify. 
+	
+	\subsection{Work Plan}
+	
+	\begin{figure}{Project Gantt chart \label{pplan}}
+			\begin{ganttchart}[x unit=0.35cm, y unit chart = 1.0cm, y unit title=0.5cm, title height=1.0, vgrid, title label font=\scriptsize,
+				canvas/.style={draw=black, dotted},
+				/pgfgantt/milestone left shift = 0,
+				/pgfgantt/milestone right shift = 0
+				]{6}{18}
+				
+				\gantttitle{Project schedule week numbers}{13} \\
+				\gantttitlelist{6,...,18}{1}\\
+				\gantttitlelist{6,...,12}{1}
+				\gantttitle{CB}{4}
+				\gantttitle{AP}{2}\\
+				
+				\ganttbar{Asses what needs to be done}{6}{8}\\%elem0  
+				\ganttbar{Design}{8}{9}\\%elem0
+				\ganttbar{Create Scraper}{10}{11}\\%elem0	
+				\ganttbar{Predictive Models}{10}{13}\\%elem0
+				\ganttbar{Create UI}{12}{12}\\%elem0	
+				
+				\ganttbar{Create Knowledge Base}{13}{14}\\%elem0	
+				\ganttbar{Develop Natural Language Processing}{13}{14}\\%elem0	
+							
+				\ganttbar{Report Writing}{7}{8}
+				\ganttbar{}{15}{17}\\%elem0		
+				
+						
+				\ganttmilestone{Progress Check}{12}\\%elem8 
+				\ganttmilestone{Due Date}{17}\\%elem8  
+				
+				\ganttlink{elem0}{elem1}				\ganttlink[link mid=.25]{elem1}{elem2}
+				\ganttlink[link mid=.25]{elem1}{elem3}
+				\ganttlink{elem2}{elem4}
+			\end{ganttchart}
+	\end{figure}
+	\section{Related Work} 
+	Review some similar chatbot systems. (Write as much as you have now.)  
+	
+	\section{Methods, Tools and Frameworks}
+	In this section, you should describe the methods, programming languages, packages, tools and framework you plan to use.
+	for this report, you can list some you have identified and intend to use.
+	No need to give any details.     
+	
+	\subsection{Methods}
+	
+	You may list some methods you will use for developing your chatbot, including 
+	
+	Such as what type of user interface (graphical, text, or voice, etc) you intend to use.
+	
+	What Natural Language Processing and understanding methods you intend use, 
+	
+	What referring or reasoning methods
+	
+	What prediction methods, such as kNN, neural networks etc. 
+	
+	\subsection{Languages, Packages, Tools}
+	
+	On programming language: using Python or Java, or others. 
+	
+	Packages: for NLP, use NLTK\citep{NLTK}, or others, 
+	
+	For KnowledgeBase and Engine: PyKE or PyKnow, or others. 
+	
+	For Database: e.g, Postgres, or MongoDB     
+	
+	\subsection{Development Framework}
+	
+	
+	\section{Design of the Chatbot}
+	
+	
+	\subsection{The Architecture of the chatbot}
+	You may draw a functional diagram if you like.  
+	
+	You can describe your design for each key module or component of your chatbot, in a subsection. E.g. 
+	\subsection{User Interface} 
+	
+	\subsection{NLP}
+	
+	\subsection{Knowledgebase}
+	
+	\subsection{Inferring Engine}
+	
+	\subsection{Delay Prediction Models}
+	
+	\subsection{Conversation Control}
+	
+	%\begin{table}
+		%\centering
+		%\caption{This table lists ......}
+		%
+		%\begin{tabular}{|c|c|c|c|c|c|}
+			%\hline Methods &  &  &  &  &  \\ 
+			%\hline  &  &  &  &  &  \\ 
+			%\hline  &  &  &  &  &  \\ 
+			%\hline 
+			%\end{tabular} 
+		%\label{TableCC}
+		%\end{table}
+	
+	\section{Implementation}
+	
+	\section{Testing}
+	
+	\subsection{Unit Testing}
+	
+	\subsection{Integration Testing}
+	
+	\subsection{System Testing}
+	
+	\subsection{Userbility Testing}
+	
+	\section{Evaluation and Discussion}
+	
+	\section{Conclusion or Summary}
+	
+	\bibliographystyle{agsm}
+	%\bibliographystyle{apalike}
+	% you should use your own bibtex file to replace the following example_ref bib file.
+	\bibliography{example_refs} 
+	
+\end{document}
