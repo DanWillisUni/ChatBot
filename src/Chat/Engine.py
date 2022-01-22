@@ -196,11 +196,21 @@ class KEngine(KnowledgeEngine):
 
     @Rule(Fact(state="booking"), NOT(Fact(adult_count=W())))
     def ask_adults_count(self):
-        self.declare(Fact(adult_count=input("How many adults are traveling? ")))  # TODO Validate the number
+        response = input("How many adults are traveling? ")
+
+        while not response.isnumeric():
+            response = input("I didn't understand, please give me a number, such as: 2, or 3")
+
+        self.declare(Fact(adult_count=response))
 
     @Rule(Fact(state="booking"), NOT(Fact(children_count=W())))
     def ask_children_count(self):
-        self.declare(Fact(children_count=input("How many children are traveling? ")))  # TODO Validate the number
+        response = input("How many children are traveling? ")
+
+        while not response.isnumeric():
+            response = input("I didn't understand, please give me a number, such as: 2, or 3")
+
+        self.declare(Fact(children_count=response))
 
     # TODO Ensure that the number of adults + children > 0
     # TODO Ensure that the leave time is before the return time
