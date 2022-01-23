@@ -247,6 +247,7 @@ class KEngine(KnowledgeEngine):
           Fact(ticket_type=MATCH.ticket_type),
           TEST(lambda ticket_type: ticket_type == "single"),
           Fact(leave_time=MATCH.leave_time),
+          TEST(lambda leave_time: validate_ticket_time(leave_time) == True),
           Fact(adult_count=MATCH.adult_count),
           Fact(children_count=MATCH.children_count),
           TEST(lambda adult_count, children_count: (int(adult_count) + int(children_count)) > 0)
@@ -265,6 +266,8 @@ class KEngine(KnowledgeEngine):
           TEST(lambda ticket_type: ticket_type == "return"),
           Fact(leave_time=MATCH.leave_time),
           Fact(return_time=MATCH.return_time),
+          TEST(lambda return_time: validate_ticket_time(return_time) == True),
+          TEST(lambda leave_time: validate_ticket_time(leave_time) == True),
           Fact(adult_count=MATCH.adult_count),
           Fact(children_count=MATCH.children_count),
           TEST(lambda adult_count, children_count: (int(adult_count) + int(children_count)) > 0)
