@@ -30,6 +30,7 @@ class KEngine(KnowledgeEngine):
         q = input("How can I help you? ")
         data = cheapest_ticket_query(q)
 
+        # TODO Update some of the defaults, like default ticket counts, and adult/children counts
         if data["from"] is not None:
             self.declare(Fact(origin_station=data["from"]))
 
@@ -125,7 +126,6 @@ class KEngine(KnowledgeEngine):
     def ask_ticket_type(self):
         self.declare(Fact(ticket_type=input("Would you like a single, or a return ticket? ")))
 
-
     @Rule(Fact(state="booking"), Fact(ticket_type=MATCH.ticket_type),
           TEST(lambda ticket_type: ticket_type != "return" and ticket_type != "single"))
     def check_ticket_type(self):
@@ -152,15 +152,14 @@ class KEngine(KnowledgeEngine):
     def ask_leave_time(self, origin_station):
         self.declare(Fact(leave_time=input("When would you like to leave %s? " % (origin_station))))
 
-    # TODO Uncomment once date validation is done
-    # @Rule(Fact(state="booking"),
-    #       Fact(origin_station=MATCH.origin_station),
-    #       TEST(lambda origin_station: get_matching_stations(origin_station)[0][-1] == 100),
-    #       Fact(leave_time=MATCH.leave_time),
-    #       TEST(lambda leave_time: extract_journey_time(leave_time) is None)
-    #       )
-    # def check_leave_time(self):
-    #     self.__validate_ticket_time("I couldn't understand the time you wanted to leave. Please tell me again?", True)
+    @Rule(Fact(state="booking"),
+          Fact(origin_station=MATCH.origin_station),
+          TEST(lambda origin_station: get_matching_stations(origin_station)[0][-1] == 100),
+          Fact(leave_time=MATCH.leave_time),
+          TEST(lambda leave_time: validate_ticket_time(leave_time) == False)
+          )
+    def check_leave_time(self):
+        self.__validate_ticket_time(input("I couldn't understand the time you wanted to leave. I'm looking for something like 18:00 21/01/2021, please tell me again? "), True)
 
     @Rule(Fact(state="booking"),
           Fact(origin_station=MATCH.origin_station),
@@ -172,27 +171,27 @@ class KEngine(KnowledgeEngine):
     def ask_return_time(self, origin_station):
         self.declare(Fact(return_time=input("When would you like return to %s? " % (origin_station))))
 
-    # @Rule(Fact(state="booking"),
-    #       Fact(origin_station=MATCH.origin_station),
-    #       TEST(lambda origin_station: get_matching_stations(origin_station)[0][-1] == 100),
-    #       Fact(ticket_type=MATCH.ticket_type),
-    #       TEST(lambda ticket_type: ticket_type == "return"),
-    #       Fact(return_time=MATCH.return_time),
-    #       TEST(lambda return_time: extract_journey_time(return_time) is None)
-    #       )
-    # def check_return_time(self):
-    #     self.__validate_ticket_time("I couldn't understand the time you wanted to return. Please tell me again?", False)
+    @Rule(Fact(state="booking"),
+          Fact(origin_station=MATCH.origin_station),
+          TEST(lambda origin_station: get_matching_stations(origin_station)[0][-1] == 100),
+          Fact(ticket_type=MATCH.ticket_type),
+          TEST(lambda ticket_type: ticket_type == "return"),
+          Fact(return_time=MATCH.return_time),
+          TEST(lambda return_time: validate_ticket_time(return_time) == False)
+          )
+    def check_return_time(self):
+        self.__validate_ticket_time(input("I couldn't understand the time you wanted to return. I'm looking for something like 18:00 21/01/2021, please tell me again? "), False)
 
     def __validate_ticket_time(self, time, leaving):
-        extracted_time = extract_journey_time(nlp(time))
+        extracted_time = extract_journey_time(nlp("leaving at " + time)[0])
 
         if extracted_time is not None:
             if leaving:
-                self.modify(self.facts[self.__find_fact("leave_time")], leave_time=extracted_time)
+                self.modify(self.facts[self.__find_fact("leave_time")], leave_time=time)
             else:
-                self.modify(self.facts[self.__find_fact("return_time")], return_time=extracted_time)
+                self.modify(self.facts[self.__find_fact("return_time")], return_time=time)
         else:
-            self.__validate_ticket_time("I couldn't understand when you wanted to " + ("leave" if leaving else "return") + ". Please tell me again?")
+            self.__validate_ticket_time(input("I couldn't understand when you wanted to " + ("leave" if leaving else "return") + ". I'm looking for something like 18:00 21/01/2021, please tell me again? "), leaving)
 
     @Rule(Fact(state="booking"), NOT(Fact(adult_count=W())))
     def ask_adults_count(self):
@@ -315,6 +314,11 @@ class KEngine(KnowledgeEngine):
     #     else:
     #         print("The predicted delay at %s is %s." % (target_station, "DELAY GOES HERE"))
 
+
+def validate_ticket_time(time):
+    extracted_time = extract_journey_time(nlp("leaving at " + time)[0])
+
+    return extracted_time is not None
 
 if __name__ == '__main__':
     engine = KEngine()
