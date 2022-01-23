@@ -212,20 +212,45 @@ class KEngine(KnowledgeEngine):
 
         self.declare(Fact(children_count=response))
 
-    # TODO Ensure that the number of adults + children > 0
     # TODO Ensure that the leave time is before the return time
-    # TODO Ensure that the destination and origin aren't the same place
 
     @Rule(Fact(state="booking"),
           Fact(origin_station=MATCH.origin_station),
           TEST(lambda origin_station: get_matching_stations(origin_station)[0][-1] == 100),
           Fact(destination_station=MATCH.destination_station),
           TEST(lambda destination_station: get_matching_stations(destination_station)[0][-1] == 100),
+          TEST(lambda origin_station, destination_station: origin_station.lower() == destination_station.lower())
+          )
+    def check_origin_equals_destination(self):
+        print("You can't go to the same station you left from")
+
+        self.retract(self.facts[self.__find_fact("origin_station")])
+        self.retract(self.facts[self.__find_fact("destination_station")])
+
+    @Rule(Fact(state="booking"),
+          Fact(adult_count=MATCH.adult_count),
+          Fact(children_count=MATCH.children_count),
+          TEST(lambda adult_count, children_count: (int(adult_count) + int(children_count)) < 1)
+          )
+    def check_total_tickets_above_one(self):
+        print("The sum of adult and children tickets must be at least 1")
+
+        self.retract(self.facts[self.__find_fact("children_count")])
+        self.retract(self.facts[self.__find_fact("adult_count")])
+
+
+    @Rule(Fact(state="booking"),
+          Fact(origin_station=MATCH.origin_station),
+          TEST(lambda origin_station: get_matching_stations(origin_station)[0][-1] == 100),
+          Fact(destination_station=MATCH.destination_station),
+          TEST(lambda destination_station: get_matching_stations(destination_station)[0][-1] == 100),
+          TEST(lambda origin_station, destination_station: origin_station.lower() != destination_station.lower()),
           Fact(ticket_type=MATCH.ticket_type),
           TEST(lambda ticket_type: ticket_type == "single"),
           Fact(leave_time=MATCH.leave_time),
           Fact(adult_count=MATCH.adult_count),
-          Fact(children_count=MATCH.children_count)
+          Fact(children_count=MATCH.children_count),
+          TEST(lambda adult_count, children_count: (int(adult_count) + int(children_count)) > 0)
           )
     def ask_confirmation(self, origin_station, destination_station, ticket_type, leave_time, adult_count, children_count):
         self.__run_confirmation(origin_station, destination_station, ticket_type, leave_time, "N/A", adult_count, children_count)
@@ -236,12 +261,14 @@ class KEngine(KnowledgeEngine):
           TEST(lambda origin_station: get_matching_stations(origin_station)[0][-1] == 100),
           Fact(destination_station=MATCH.destination_station),
           TEST(lambda destination_station: get_matching_stations(destination_station)[0][-1] == 100),
+          TEST(lambda origin_station, destination_station: origin_station.lower() != destination_station.lower()),
           Fact(ticket_type=MATCH.ticket_type),
           TEST(lambda ticket_type: ticket_type == "return"),
           Fact(leave_time=MATCH.leave_time),
           Fact(return_time=MATCH.return_time),
           Fact(adult_count=MATCH.adult_count),
-          Fact(children_count=MATCH.children_count)
+          Fact(children_count=MATCH.children_count),
+          TEST(lambda adult_count, children_count: (int(adult_count) + int(children_count)) > 0)
           )
     def ask_confirmation_with_return(self, origin_station, destination_station, ticket_type, leave_time, return_time, adult_count, children_count):
         self.__run_confirmation(origin_station, destination_station, ticket_type, leave_time, return_time, adult_count, children_count)
