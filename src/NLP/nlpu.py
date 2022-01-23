@@ -40,26 +40,29 @@ def extract_station_name(token):
 
 
 def extract_journey_time(token):
-    # expecting VERB (by)? NUM (on)? NUM
-    ntoken = token.doc[token.i + 1]
-    if ntoken.dep_ == 'prep':
-        ntoken = token.doc[ntoken.i + 1]
-
-    time_str = ntoken.text
-
-    ntoken = token.doc[ntoken.i + 1]
-    if ntoken.dep_ == 'prep':
-        ntoken = token.doc[ntoken.i + 1]
-
     try:
-        tempus = datetime.strptime(f'{time_str} {ntoken.text}', '%H:%M %d/%m/%Y')
-    except ValueError:
-        try:
-            tempus = datetime.strptime(f'{time_str} {ntoken.text}', '%H:%M %d/%m/%y')
-        except ValueError:
-            tempus = None
+        # expecting VERB (by)? NUM (on)? NUM
+        ntoken = token.doc[token.i + 1]
+        if ntoken.dep_ == 'prep':
+            ntoken = token.doc[ntoken.i + 1]
 
-    return tempus
+        time_str = ntoken.text
+
+        ntoken = token.doc[ntoken.i + 1]
+        if ntoken.dep_ == 'prep':
+            ntoken = token.doc[ntoken.i + 1]
+
+        try:
+            tempus = datetime.strptime(f'{time_str} {ntoken.text}', '%H:%M %d/%m/%Y')
+        except ValueError:
+            try:
+                tempus = datetime.strptime(f'{time_str} {ntoken.text}', '%H:%M %d/%m/%y')
+            except ValueError:
+                tempus = None
+
+        return tempus
+    except IndexError:  # Wrapping this method because single word inputs will break it
+        return None
 
 
 units = [
