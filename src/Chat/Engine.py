@@ -211,7 +211,40 @@ class KEngine(KnowledgeEngine):
 
         self.declare(Fact(children_count=response))
 
-    # TODO Ensure that the leave time is before the return time
+    @Rule(Fact(state="booking"),
+          Fact(ticket_type=MATCH.ticket_type),
+          TEST(lambda ticket_type: ticket_type == "return"),
+          Fact(leave_time=MATCH.leave_time),
+          Fact(return_time=MATCH.return_time),
+          TEST(lambda return_time: validate_ticket_time(return_time) == True),
+          TEST(lambda leave_time: validate_ticket_time(leave_time) == True),
+          TEST(lambda leave_time, return_time: return_time <= leave_time)
+          )
+    def check_return_after_leave(self):
+        print("Your return time should be after the departure time")
+
+        self.retract(self.facts[self.__find_fact("leave_time")])
+        self.retract(self.facts[self.__find_fact("return_time")])
+
+    @Rule(Fact(state="booking"),
+          Fact(return_time=MATCH.return_time),
+          TEST(lambda return_time: validate_ticket_time(return_time) == True),
+          TEST(lambda return_time: return_time < f"{datetime.now():%H:%M %d/%m/%Y}")
+          )
+    def check_return_in_future(self):
+        print("Your return time should be in the future")
+
+        self.retract(self.facts[self.__find_fact("return_time")])
+
+    @Rule(Fact(state="booking"),
+          Fact(leave_time=MATCH.leave_time),
+          TEST(lambda leave_time: validate_ticket_time(leave_time) == True),
+          TEST(lambda leave_time: leave_time < f"{datetime.now():%H:%M %d/%m/%Y}")
+          )
+    def check_leave_in_future(self):
+        print("Your departure time should be in the future")
+
+        self.retract(self.facts[self.__find_fact("leave_time")])
 
     @Rule(Fact(state="booking"),
           Fact(origin_station=MATCH.origin_station),
@@ -248,6 +281,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda ticket_type: ticket_type == "single"),
           Fact(leave_time=MATCH.leave_time),
           TEST(lambda leave_time: validate_ticket_time(leave_time) == True),
+          TEST(lambda leave_time: leave_time > f"{datetime.now():%H:%M %d/%m/%Y}"),
           Fact(adult_count=MATCH.adult_count),
           Fact(children_count=MATCH.children_count),
           TEST(lambda adult_count, children_count: (int(adult_count) + int(children_count)) > 0)
@@ -268,6 +302,9 @@ class KEngine(KnowledgeEngine):
           Fact(return_time=MATCH.return_time),
           TEST(lambda return_time: validate_ticket_time(return_time) == True),
           TEST(lambda leave_time: validate_ticket_time(leave_time) == True),
+          TEST(lambda leave_time, return_time: return_time > leave_time),
+          TEST(lambda return_time: return_time > f"{datetime.now():%H:%M %d/%m/%Y}"),
+          TEST(lambda leave_time: leave_time > f"{datetime.now():%H:%M %d/%m/%Y}"),
           Fact(adult_count=MATCH.adult_count),
           Fact(children_count=MATCH.children_count),
           TEST(lambda adult_count, children_count: (int(adult_count) + int(children_count)) > 0)
