@@ -4,6 +4,7 @@ import spacy
 from spacy import displacy
 import json
 from os.path import dirname
+import pandas as pd
 
 project_root = dirname(dirname(__file__))
 
@@ -87,7 +88,7 @@ def extract_NUM(token):
 
 def cheapest_ticket_query(query):
     doc = nlp(query)
-    response = {'query type': 'unknown', 'from': None, 'to': None, 'arrive': False, 'time': datetime.now(), 'type': 'single', 'adult': 1, 'child': 0, 'return_time': None}
+    response = {'query type': 'unknown', 'from': None, 'to': None, 'arrive': False, 'time': pd.Timestamp(datetime.now()).ceil("15min").to_pydatetime(), 'type': 'single', 'adult': 1, 'child': 0, 'return_time': None}
 
     for token in doc:
         if stems.get("booking_tickets").count(token.lemma_) > 0:

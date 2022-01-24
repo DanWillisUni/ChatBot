@@ -1,5 +1,6 @@
 from experta import *
 from src.NLP.nlpu import *
+from src.scraper import *
 
 
 # Knowledge Engine
@@ -27,6 +28,8 @@ class KEngine(KnowledgeEngine):
 
     @Rule(Fact(state='greeting'))
     def ask_how_can_help(self):
+        self.declare(Fact(now=pd.Timestamp(datetime.now()).ceil("1min").to_pydatetime()))
+
         q = input("How can I help you? ")
         data = cheapest_ticket_query(q)
 
@@ -37,7 +40,8 @@ class KEngine(KnowledgeEngine):
         if data["to"] is not None:
             self.declare(Fact(destination_station=data["to"]))
 
-        self.declare(Fact(leave_time=data["time"]))
+        if data["time"] is not None:
+            self.declare(Fact(leave_time=data["time"]))
         self.declare(Fact(ticket_type=data["type"]))
         self.declare(Fact(adult_count=str(data["adult"])))
         self.declare(Fact(children_count=str(data["child"])))
@@ -45,7 +49,7 @@ class KEngine(KnowledgeEngine):
         if data["return_time"] is not None:
             self.declare(Fact(return_time=data["return_time"]))
 
-        self.modify(self.facts[1], state="booking")
+        self.modify(self.facts[self.__find_fact("state")], state="booking")
 
     @Rule(Fact(state="booking"), NOT(Fact(origin_station=W())))
     def ask_origin_station(self):
@@ -228,8 +232,9 @@ class KEngine(KnowledgeEngine):
 
     @Rule(Fact(state="booking"),
           Fact(return_time=MATCH.return_time),
+          Fact(now=MATCH.now),
           TEST(lambda return_time: validate_ticket_time(format_tempus(return_time)) == True),
-          TEST(lambda return_time: return_time < datetime.now())
+          TEST(lambda return_time, now: return_time < now)
           )
     def check_return_in_future(self):
         print("Your return time should be in the future")
@@ -238,8 +243,9 @@ class KEngine(KnowledgeEngine):
 
     @Rule(Fact(state="booking"),
           Fact(leave_time=MATCH.leave_time),
+          Fact(now=MATCH.now),
           TEST(lambda leave_time: validate_ticket_time(format_tempus(leave_time)) == True),
-          TEST(lambda leave_time: leave_time < datetime.now())
+          TEST(lambda leave_time, now: leave_time < now)
           )
     def check_leave_in_future(self):
         print("Your departure time should be in the future")
@@ -270,6 +276,7 @@ class KEngine(KnowledgeEngine):
         self.retract(self.facts[self.__find_fact("children_count")])
         self.retract(self.facts[self.__find_fact("adult_count")])
 
+    # TODO Implement a question to support arrive by or depart by times
 
     @Rule(Fact(state="booking"),
           Fact(origin_station=MATCH.origin_station),
@@ -281,7 +288,8 @@ class KEngine(KnowledgeEngine):
           TEST(lambda ticket_type: ticket_type == "single"),
           Fact(leave_time=MATCH.leave_time),
           TEST(lambda leave_time: validate_ticket_time(format_tempus(leave_time)) == True),
-          TEST(lambda leave_time: leave_time > datetime.now()),
+          Fact(now=MATCH.now),
+          TEST(lambda leave_time, now: leave_time > now),
           Fact(adult_count=MATCH.adult_count),
           Fact(children_count=MATCH.children_count),
           TEST(lambda adult_count, children_count: (int(adult_count) + int(children_count)) > 0)
@@ -303,8 +311,9 @@ class KEngine(KnowledgeEngine):
           TEST(lambda return_time: validate_ticket_time(format_tempus(return_time)) == True),
           TEST(lambda leave_time: validate_ticket_time(format_tempus(leave_time)) == True),
           TEST(lambda leave_time, return_time: return_time > leave_time),
-          TEST(lambda return_time: return_time > datetime.now()),
-          TEST(lambda leave_time: leave_time > datetime.now()),
+          Fact(now=MATCH.now),
+          TEST(lambda return_time, now: return_time > now),
+          TEST(lambda leave_time, now: leave_time > now),
           Fact(adult_count=MATCH.adult_count),
           Fact(children_count=MATCH.children_count),
           TEST(lambda adult_count, children_count: (int(adult_count) + int(children_count)) > 0)
@@ -364,6 +373,36 @@ def run_confirmation(origin_station, destination_station, ticket_type, leave_tim
 
     print("Awesome! I'm going to look for %s from %s to %s leaving by %s %s" % (
         ticket_string, origin_station, destination_station, format_tempus(leave_time), return_string))
+
+    correct = input("Is that all correct?")
+
+    if correct.lower() == "yes":  # TODO Add support for more answers
+        trainline = TheTrainLine()
+        cost, url = trainline.get_ticket(origin_station,
+                                         destination_station,
+                                         leave_time,
+                                         adults=adult_num,
+                                         children=children_num,
+                                         inbound_time=return_time,
+                                         outward_time_type=Ticket.ARRIVE_BEFORE,
+                                         inbound_time_type=Ticket.ARRIVE_BEFORE,
+                                         ticket_type=Ticket.RETURN) \
+            if ticket_type == "return" \
+            else trainline.get_ticket(origin_station,
+                                      destination_station,
+                                      leave_time,
+                                      adults=adult_num,
+                                      children=children_num,
+                                      outward_time_type=Ticket.ARRIVE_BEFORE,
+                                      ticket_type=Ticket.SINGLE)
+        print(f"The cheapest ticket will cost £{cost} and can be purchased here: {url}")
+
+    elif correct.lower() == "no":  # TODO Add support for more variations of no
+        # TODO Figure out what isn't correct
+        print("no")
+    else:
+        # TODO Else if not yes and not no
+        print("Else")
 
 if __name__ == '__main__':
     engine = KEngine()
