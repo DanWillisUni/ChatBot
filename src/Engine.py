@@ -1,13 +1,14 @@
 from experta import *
-from src.NLP.nlpu import *
-from src.scraper import *
+from nlpu import *
+from scraper import *
 
 
 # Knowledge Engine
 class KEngine(KnowledgeEngine):
 
-    def __init__(self):
+    def __init__(self, ui):
         super().__init__()
+        self.ui = ui
         self.reset()
         self.run()
 

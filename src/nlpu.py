@@ -3,19 +3,16 @@ from datetime import datetime, timedelta
 import spacy
 from spacy import displacy
 import json
-from os.path import dirname
 import pandas as pd
 
-project_root = dirname(dirname(__file__))
-
 nlp = spacy.load('en_core_web_sm')
-with open(project_root + "/NLP/stemming/stems.json", "r") as read_file:
+with open("stemming/stems.json", "r") as read_file:
     stems = json.load(read_file)
 
 
 def load_stations():
     data = {}
-    with open('../../resources/stations.csv') as fp:
+    with open('../resources/stations.csv') as fp:
         fp.readline()  # throw away first line
         for line in fp:
             fields = line.split(',')
