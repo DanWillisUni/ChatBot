@@ -25,9 +25,12 @@ def load_stations():
 
 station_map = load_stations()
 
+matching_stations_cache = {}
+
 # use fuzzywuzzy to find closest match to inputted station
 def get_matching_stations(station_text):
-    return process.extract(station_text, station_map.keys(), limit=50)
+    matching_stations_cache[station_text] = process.extract(station_text, station_map.keys(), limit=50)
+    return matching_stations_cache[station_text]
 
 
 def extract_station_name(token):
