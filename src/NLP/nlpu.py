@@ -75,7 +75,6 @@ units = [
         ]
 
 
-# TODO Update this to support pure numbers
 def extract_NUM(token):
     try:
         ntoken = token.doc[token.i - 1]
