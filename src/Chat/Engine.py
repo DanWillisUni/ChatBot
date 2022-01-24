@@ -381,7 +381,6 @@ class KEngine(KnowledgeEngine):
     def ask_confirmation(self, origin_station, destination_station, ticket_type, leave_time, adult_count, children_count, leave_time_type):
         run_confirmation(origin_station, destination_station, ticket_type, leave_time, "N/A", adult_count, children_count, leave_time_type, "N/A")
 
-    # TODO Add some caching to the get matching stations function, it's called way to much to not cache results
     @Rule(Fact(state="booking"),
           Fact(origin_station=MATCH.origin_station),
           TEST(lambda origin_station: get_matching_stations(origin_station)[0][-1] == 100),
@@ -538,33 +537,33 @@ def run_confirmation(origin_station, destination_station, ticket_type, leave_tim
 
     correct = input("Is that all correct? ")
 
-    if correct.lower() == "yes":  # TODO Add support for more answers
-        trainline = TheTrainLine()
-        cost, url = trainline.get_ticket(origin_station,
-                                         destination_station,
-                                         leave_time,
-                                         adults=adult_num,
-                                         children=children_num,
-                                         inbound_time=return_time,
-                                         outward_time_type=leave_time_type,
-                                         inbound_time_type=return_time_type,
-                                         ticket_type=Ticket.RETURN) \
-            if ticket_type == "return" \
-            else trainline.get_ticket(origin_station,
-                                      destination_station,
-                                      leave_time,
-                                      adults=adult_num,
-                                      children=children_num,
-                                      outward_time_type=leave_time_type,
-                                      ticket_type=Ticket.SINGLE)
-        print(f"The cheapest ticket will cost £{cost} and can be purchased here: {url}")
 
-    elif correct.lower() == "no":  # TODO Add support for more variations of no
-        # TODO Figure out what isn't correct
+    if correct.lower() == "no":  # TODO Add support for more variations of no
         print("no")
     else:
-        # TODO Else if not yes and not no
-        print("Else")
+        if correct.lower() != "yes":
+            print("I'm not sure what you meant. So I'm going to assume everything is alright!")
+
+        if correct.lower() == "yes":  # TODO Add support for more answers
+            trainline = TheTrainLine()
+            cost, url = trainline.get_ticket(origin_station,
+                                             destination_station,
+                                             leave_time,
+                                             adults=adult_num,
+                                             children=children_num,
+                                             inbound_time=return_time,
+                                             outward_time_type=leave_time_type,
+                                             inbound_time_type=return_time_type,
+                                             ticket_type=Ticket.RETURN) \
+                if ticket_type == "return" \
+                else trainline.get_ticket(origin_station,
+                                          destination_station,
+                                          leave_time,
+                                          adults=adult_num,
+                                          children=children_num,
+                                          outward_time_type=leave_time_type,
+                                          ticket_type=Ticket.SINGLE)
+            print(f"The cheapest ticket will cost £{cost} and can be purchased here: {url}")
 
 if __name__ == '__main__':
     engine = KEngine()
