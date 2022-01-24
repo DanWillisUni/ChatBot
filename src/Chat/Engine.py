@@ -33,6 +33,9 @@ class KEngine(KnowledgeEngine):
         q = input("How can I help you? ")
         data = parse_query(q)
 
+        while data["query type"] == "unknown":
+            data = parse_query(input("I didn't understand, if you want to book a ticket, use words like \"book\" or \"ticket\". If you'd like to predict a delay, use words like \"delay\" or \"predict\". "))
+
         if data["query type"] == "cheapest":
             # TODO Update some of the defaults, like default ticket counts, and adult/children counts
             if data["from"] is not None:
