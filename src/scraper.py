@@ -22,7 +22,7 @@ class TheTrainLine:
 
     # provide apis to TheTrainLine website
     def __init__(self):
-        service = Service(project_root + '../resources/chromedriver')
+        service = Service(project_root + '/resources/chromedriver')
         self.driver = webdriver.Chrome(service=service)
         self.driver.get("https://www.thetrainline.com")
 
