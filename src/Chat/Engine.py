@@ -75,7 +75,7 @@ class KEngine(KnowledgeEngine):
 
         for s in stations:
             if s[-1] >= 85:
-                message += "\n " + str(found + 1) + ") " + s[0] + " (" + str(s[-1]) + "%)"
+                message += "\n " + str(found + 1) + ") " + s[0] + " (" + str(s[-1]) + "% match)"
                 found += 1
 
         if found == 1:
@@ -98,7 +98,7 @@ class KEngine(KnowledgeEngine):
 
             return
         else:
-            list_response = input(message)
+            list_response = input(message + "\n")
 
             if list_response.isnumeric() and stations[int(list_response) - 1][0] is not None:
                 if leaving:
