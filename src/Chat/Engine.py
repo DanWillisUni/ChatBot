@@ -31,25 +31,35 @@ class KEngine(KnowledgeEngine):
         self.declare(Fact(now=pd.Timestamp(datetime.now()).ceil("1min").to_pydatetime()))
 
         q = input("How can I help you? ")
-        data = cheapest_ticket_query(q)
+        data = parse_query(q)
 
-        # TODO Update some of the defaults, like default ticket counts, and adult/children counts
-        if data["from"] is not None:
-            self.declare(Fact(origin_station=data["from"]))
+        if data["query type"] == "cheapest":
+            # TODO Update some of the defaults, like default ticket counts, and adult/children counts
+            if data["from"] is not None:
+                self.declare(Fact(origin_station=data["from"]))
 
-        if data["to"] is not None:
-            self.declare(Fact(destination_station=data["to"]))
+            if data["to"] is not None:
+                self.declare(Fact(destination_station=data["to"]))
 
-        if data["time"] is not None:
-            self.declare(Fact(leave_time=data["time"]))
-        self.declare(Fact(ticket_type=data["type"]))
-        self.declare(Fact(adult_count=str(data["adult"])))
-        self.declare(Fact(children_count=str(data["child"])))
+            if data["time"] is not None:
+                self.declare(Fact(leave_time=data["time"]))
+            self.declare(Fact(ticket_type=data["type"]))
+            self.declare(Fact(adult_count=str(data["adult"])))
+            self.declare(Fact(children_count=str(data["child"])))
 
-        if data["return_time"] is not None:
-            self.declare(Fact(return_time=data["return_time"]))
+            if data["return_time"] is not None:
+                self.declare(Fact(return_time=data["return_time"]))
 
-        self.modify(self.facts[self.__find_fact("state")], state="booking")
+            self.modify(self.facts[self.__find_fact("state")], state="booking")
+        elif data["query type"] == "prediction":
+            self.modify(self.facts[self.__find_fact("state")], state="delay")
+
+            if data["from"] is not None:
+                self.declare(Fact(current_station=data["from"]))
+            if data["to"] is not None:
+                self.declare(Fact(target_station=data["to"]))
+            if data["delay"] is not None:
+                self.declare(Fact(current_delay=data["delay"]))
 
     @Rule(Fact(state="booking"), NOT(Fact(origin_station=W())))
     def ask_origin_station(self):
@@ -321,29 +331,103 @@ class KEngine(KnowledgeEngine):
     def ask_confirmation_with_return(self, origin_station, destination_station, ticket_type, leave_time, return_time, adult_count, children_count):
         run_confirmation(origin_station, destination_station, ticket_type, leave_time, return_time, adult_count, children_count)
 
-    # @Rule(Fact(state="delay"), NOT(Fact(current_delay=W())))
-    # def delay_ask_delay(self):
-    #     self.declare(Fact(current_delay=input("How much is your train delayed so far by? ")))
-    #
-    # @Rule(Fact(state="delay"), NOT(Fact(current_station=W())))
-    # def delay_ask_current_station(self):
-    #     self.declare(Fact(current_station=input("What station are you currently at? ")))
-    #
-    # @Rule(Fact(state="delay"), NOT(Fact(target_station=W())))
-    # def delay_ask_target_station(self):
-    #     self.declare(Fact(target_station=input("What station would you like the delay to be predicted at? ")))
-    #
-    # @Rule(Fact(state="delay"),
-    #       Fact(current_delay=MATCH.current_delay),
-    #       Fact(current_station=MATCH.current_station),
-    #       Fact(target_station=MATCH.target_station))
-    # def delay_send_delay_prediction(self, current_delay, current_station, target_station):
-    #     on_time = True
-    #
-    #     if on_time:
-    #         print("The train is predicted to arrive at %s on time." % target_station)
-    #     else:
-    #         print("The predicted delay at %s is %s." % (target_station, "DELAY GOES HERE"))
+    @Rule(Fact(state="delay"), NOT(Fact(current_delay=W())))
+    def delay_ask_delay(self):
+        self.declare(Fact(current_delay=extract_NUM(nlp(input("How much is your train delayed so far by? "))[1])))
+
+    @Rule(Fact(state="delay"), NOT(Fact(current_station=W())))
+    def delay_ask_current_station(self):
+        self.declare(Fact(current_station=input("What station are you currently at? ")))
+
+    @Rule(Fact(state="delay"), Fact(current_station=MATCH.current_station),
+          TEST(lambda current_station: get_matching_stations(current_station)[0][-1] != 100))
+    def delay_check_current_station(self, current_station):
+        self.__delay_validate_station(current_station, True)
+
+    @Rule(Fact(state="delay"), NOT(Fact(target_station=W())))
+    def delay_ask_target_station(self):
+        self.declare(Fact(target_station=input("What station would you like the delay to be predicted at? ")))
+
+    @Rule(Fact(state="delay"), Fact(target_station=MATCH.target_station),
+          TEST(lambda target_station: get_matching_stations(target_station)[0][-1] != 100))
+    def delay_check_target_station(self, target_station):
+        self.__delay_validate_station(target_station, False)
+
+    def __delay_validate_station(self, station, current):
+        message = "Which of these did you mean for where you are currently? " if current else "Which of these did you mean for where you want the delay to be predicted at? "
+
+        found = 0
+        stations = get_matching_stations(station)
+
+        for s in stations:
+            if s[-1] >= 85:
+                message += "\n " + str(found + 1) + ") " + s[0] + " (" + str(s[-1]) + "% match)"
+                found += 1
+
+        if found == 1:
+            confirmation = input("Did you mean " + str(stations[0][0]) + "? ")
+
+            if confirmation.lower() == "yes":  # TODO Add support for more answers
+                if current:
+                    self.modify(self.facts[self.__find_fact("current_station")], current_station=stations[0][0])
+                else:
+                    self.modify(self.facts[self.__find_fact("target_station")], target_station=stations[0][0])
+            elif confirmation.lower() == "no":  # TODO Add support for more variations of no
+                self.__delay_validate_station(input("Can you double check the name of the station and tell me again? "), current)
+            else:
+                self.__delay_validate_station(input("I didn't understand what you said, please could you double check the name of the station and tell me again? "), current)
+
+            return
+
+        elif found == 0:
+            self.__delay_validate_station(input("I'm not sure what station you meant. Can you double check the name of the station you " + ("are currently at" if current else "want the delay to be predicted at") + " and tell me again? "), current)
+
+            return
+        else:
+            list_response = input(message + "\n")
+
+            if list_response.isnumeric() and stations[int(list_response) - 1][0] is not None:
+                if current:
+                    self.modify(self.facts[self.__find_fact("current_station")], current_station=stations[int(list_response) - 1][0])
+                else:
+                    self.modify(self.facts[self.__find_fact("target_station")], target_station=stations[int(list_response) - 1][0])
+            else:
+                local_stations = get_matching_stations(list_response)
+
+                if local_stations[0][-1] == 100:
+                    if current:
+                        self.modify(self.facts[self.__find_fact("current_station")], current_station=local_stations[0][0])
+                    else:
+                        self.modify(self.facts[self.__find_fact("target_station")], target_station=local_stations[0][0])
+
+                else:
+                    self.__delay_validate_station(list_response, current)
+
+            return
+
+    @Rule(Fact(state="delay"),
+          Fact(current_station=MATCH.current_station),
+          TEST(lambda current_station: get_matching_stations(current_station)[0][-1] == 100),
+          Fact(target_station=MATCH.target_station),
+          TEST(lambda target_station: get_matching_stations(target_station)[0][-1] == 100),
+          TEST(lambda current_station, target_station: current_station.lower() == target_station.lower())
+          )
+    def check_origin_equals_destination(self):
+        print("You can't predict the delay to and from the same station")
+
+        self.retract(self.facts[self.__find_fact("current_station")])
+        self.retract(self.facts[self.__find_fact("target_station")])
+
+    @Rule(Fact(state="delay"),
+          Fact(current_delay=MATCH.current_delay),
+          Fact(current_station=MATCH.current_station),
+          Fact(target_station=MATCH.target_station),
+          TEST(lambda current_station: get_matching_stations(current_station)[0][-1] == 100),
+          TEST(lambda target_station: get_matching_stations(target_station)[0][-1] == 100),
+          TEST(lambda current_station, target_station: current_station.lower() != target_station.lower()),
+          )
+    def delay_send_delay_prediction(self, current_delay, current_station, target_station):
+        print("TODO Calculate delay at %s from %s when the delay is %s" % (target_station, current_station, current_delay))
 
 
 def validate_ticket_time(time):

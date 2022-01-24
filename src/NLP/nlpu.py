@@ -77,13 +77,16 @@ units = [
 
 # TODO Update this to support pure numbers
 def extract_NUM(token):
-    ntoken = token.doc[token.i - 1]
-    if ntoken.dep_ == 'nummod':
-        try:
-            return units.index(ntoken.text)
-        except ValueError:
-            return int(ntoken.text)
-    return 1
+    try:
+        ntoken = token.doc[token.i - 1]
+        if ntoken.dep_ == 'nummod':
+            try:
+                return units.index(ntoken.text)
+            except ValueError:
+                return int(ntoken.text)
+        return 1
+    except IndexError:
+        return 1
 
 
 def cheapest_ticket_query(query):
