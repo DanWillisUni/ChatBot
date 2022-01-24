@@ -68,7 +68,7 @@ class KEngine(KnowledgeEngine):
         self.__validate_station(destination_station, False)
 
     def __validate_station(self, station, leaving):
-        message = "Which of these did you mean for where you are leaving from?" if leaving else "Which of these did you mean for where you want to go?"
+        message = "Which of these did you mean for where you are leaving from? " if leaving else "Which of these did you mean for where you want to go? "
 
         found = 0
         stations = get_matching_stations(station)
@@ -79,7 +79,7 @@ class KEngine(KnowledgeEngine):
                 found += 1
 
         if found == 1:
-            confirmation = input("Did you mean " + str(stations[0][0]) + "?")
+            confirmation = input("Did you mean " + str(stations[0][0]) + "? ")
 
             if confirmation.lower() == "yes":  # TODO Add support for more answers
                 if leaving:
@@ -87,14 +87,14 @@ class KEngine(KnowledgeEngine):
                 else:
                     self.modify(self.facts[self.__find_fact("destination_station")], destination_station=stations[0][0])
             elif confirmation.lower() == "no":  # TODO Add support for more variations of no
-                self.__validate_station(input("Can you double check the name of the station and tell me again?"), leaving)
+                self.__validate_station(input("Can you double check the name of the station and tell me again? "), leaving)
             else:
-                self.__validate_station(input("I didn't understand what you said, please could you double check the name of the station and tell me again?"), leaving)
+                self.__validate_station(input("I didn't understand what you said, please could you double check the name of the station and tell me again? "), leaving)
 
             return
 
         elif found == 0:
-            self.__validate_station(input("I'm not sure what station you meant. Can you double check the name of the station you are " + ("travelling from" if leaving else "going to") + " and tell me again?"), leaving)
+            self.__validate_station(input("I'm not sure what station you meant. Can you double check the name of the station you are " + ("travelling from" if leaving else "going to") + " and tell me again? "), leaving)
 
             return
         else:
@@ -374,7 +374,7 @@ def run_confirmation(origin_station, destination_station, ticket_type, leave_tim
     print("Awesome! I'm going to look for %s from %s to %s leaving by %s %s" % (
         ticket_string, origin_station, destination_station, format_tempus(leave_time), return_string))
 
-    correct = input("Is that all correct?")
+    correct = input("Is that all correct? ")
 
     if correct.lower() == "yes":  # TODO Add support for more answers
         trainline = TheTrainLine()
