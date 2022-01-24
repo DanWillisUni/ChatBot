@@ -150,13 +150,13 @@ class KEngine(KnowledgeEngine):
           NOT(Fact(leave_time=W())),
           )
     def ask_leave_time(self, origin_station):
-        self.declare(Fact(leave_time=input("When would you like to leave %s? " % (origin_station))))
+        self.declare(Fact(leave_time=extract_journey_time(nlp("leaving at " + input("When would you like to leave %s? " % (origin_station)))[0])))
 
     @Rule(Fact(state="booking"),
           Fact(origin_station=MATCH.origin_station),
           TEST(lambda origin_station: get_matching_stations(origin_station)[0][-1] == 100),
           Fact(leave_time=MATCH.leave_time),
-          TEST(lambda leave_time: validate_ticket_time(leave_time) == False)
+          TEST(lambda leave_time: validate_ticket_time(format_tempus(leave_time)) == False)
           )
     def check_leave_time(self):
         self.__validate_ticket_time(input("I couldn't understand the time you wanted to leave. I'm looking for something like 18:00 21/01/2021, please tell me again? "), True)
@@ -169,7 +169,7 @@ class KEngine(KnowledgeEngine):
           NOT(Fact(return_time=W()))
           )
     def ask_return_time(self, origin_station):
-        self.declare(Fact(return_time=input("When would you like return to %s? " % (origin_station))))
+        self.declare(Fact(return_time=extract_journey_time(nlp("leaving at " + input("When would you like return to %s? " % (origin_station)))[0])))
 
     @Rule(Fact(state="booking"),
           Fact(origin_station=MATCH.origin_station),
@@ -177,7 +177,7 @@ class KEngine(KnowledgeEngine):
           Fact(ticket_type=MATCH.ticket_type),
           TEST(lambda ticket_type: ticket_type == "return"),
           Fact(return_time=MATCH.return_time),
-          TEST(lambda return_time: validate_ticket_time(return_time) == False)
+          TEST(lambda return_time: validate_ticket_time(format_tempus(return_time)) == False)
           )
     def check_return_time(self):
         self.__validate_ticket_time(input("I couldn't understand the time you wanted to return. I'm looking for something like 18:00 21/01/2021, please tell me again? "), False)
@@ -187,9 +187,9 @@ class KEngine(KnowledgeEngine):
 
         if extracted_time is not None:
             if leaving:
-                self.modify(self.facts[self.__find_fact("leave_time")], leave_time=time)
+                self.modify(self.facts[self.__find_fact("leave_time")], leave_time=extracted_time)
             else:
-                self.modify(self.facts[self.__find_fact("return_time")], return_time=time)
+                self.modify(self.facts[self.__find_fact("return_time")], return_time=extracted_time)
         else:
             self.__validate_ticket_time(input("I couldn't understand when you wanted to " + ("leave" if leaving else "return") + ". I'm looking for something like 18:00 21/01/2021, please tell me again? "), leaving)
 
@@ -216,8 +216,8 @@ class KEngine(KnowledgeEngine):
           TEST(lambda ticket_type: ticket_type == "return"),
           Fact(leave_time=MATCH.leave_time),
           Fact(return_time=MATCH.return_time),
-          TEST(lambda return_time: validate_ticket_time(return_time) == True),
-          TEST(lambda leave_time: validate_ticket_time(leave_time) == True),
+          TEST(lambda return_time: validate_ticket_time(format_tempus(return_time)) == True),
+          TEST(lambda leave_time: validate_ticket_time(format_tempus(leave_time)) == True),
           TEST(lambda leave_time, return_time: return_time <= leave_time)
           )
     def check_return_after_leave(self):
@@ -228,8 +228,8 @@ class KEngine(KnowledgeEngine):
 
     @Rule(Fact(state="booking"),
           Fact(return_time=MATCH.return_time),
-          TEST(lambda return_time: validate_ticket_time(return_time) == True),
-          TEST(lambda return_time: return_time < f"{datetime.now():%H:%M %d/%m/%Y}")
+          TEST(lambda return_time: validate_ticket_time(format_tempus(return_time)) == True),
+          TEST(lambda return_time: return_time < datetime.now())
           )
     def check_return_in_future(self):
         print("Your return time should be in the future")
@@ -238,8 +238,8 @@ class KEngine(KnowledgeEngine):
 
     @Rule(Fact(state="booking"),
           Fact(leave_time=MATCH.leave_time),
-          TEST(lambda leave_time: validate_ticket_time(leave_time) == True),
-          TEST(lambda leave_time: leave_time < f"{datetime.now():%H:%M %d/%m/%Y}")
+          TEST(lambda leave_time: validate_ticket_time(format_tempus(leave_time)) == True),
+          TEST(lambda leave_time: leave_time < datetime.now())
           )
     def check_leave_in_future(self):
         print("Your departure time should be in the future")
@@ -280,14 +280,14 @@ class KEngine(KnowledgeEngine):
           Fact(ticket_type=MATCH.ticket_type),
           TEST(lambda ticket_type: ticket_type == "single"),
           Fact(leave_time=MATCH.leave_time),
-          TEST(lambda leave_time: validate_ticket_time(leave_time) == True),
-          TEST(lambda leave_time: leave_time > f"{datetime.now():%H:%M %d/%m/%Y}"),
+          TEST(lambda leave_time: validate_ticket_time(format_tempus(leave_time)) == True),
+          TEST(lambda leave_time: leave_time > datetime.now()),
           Fact(adult_count=MATCH.adult_count),
           Fact(children_count=MATCH.children_count),
           TEST(lambda adult_count, children_count: (int(adult_count) + int(children_count)) > 0)
           )
     def ask_confirmation(self, origin_station, destination_station, ticket_type, leave_time, adult_count, children_count):
-        self.__run_confirmation(origin_station, destination_station, ticket_type, leave_time, "N/A", adult_count, children_count)
+        run_confirmation(origin_station, destination_station, ticket_type, leave_time, "N/A", adult_count, children_count)
 
     # TODO Add some caching to the get matching stations function, it's called way to much to not cache results
     @Rule(Fact(state="booking"),
@@ -300,35 +300,17 @@ class KEngine(KnowledgeEngine):
           TEST(lambda ticket_type: ticket_type == "return"),
           Fact(leave_time=MATCH.leave_time),
           Fact(return_time=MATCH.return_time),
-          TEST(lambda return_time: validate_ticket_time(return_time) == True),
-          TEST(lambda leave_time: validate_ticket_time(leave_time) == True),
+          TEST(lambda return_time: validate_ticket_time(format_tempus(return_time)) == True),
+          TEST(lambda leave_time: validate_ticket_time(format_tempus(leave_time)) == True),
           TEST(lambda leave_time, return_time: return_time > leave_time),
-          TEST(lambda return_time: return_time > f"{datetime.now():%H:%M %d/%m/%Y}"),
-          TEST(lambda leave_time: leave_time > f"{datetime.now():%H:%M %d/%m/%Y}"),
+          TEST(lambda return_time: return_time > datetime.now()),
+          TEST(lambda leave_time: leave_time > datetime.now()),
           Fact(adult_count=MATCH.adult_count),
           Fact(children_count=MATCH.children_count),
           TEST(lambda adult_count, children_count: (int(adult_count) + int(children_count)) > 0)
           )
     def ask_confirmation_with_return(self, origin_station, destination_station, ticket_type, leave_time, return_time, adult_count, children_count):
-        self.__run_confirmation(origin_station, destination_station, ticket_type, leave_time, return_time, adult_count, children_count)
-
-    def __run_confirmation(self, origin_station, destination_station, ticket_type, leave_time, return_time, adult_count, children_count):
-        adult_num = int(adult_count)
-        children_num = int(children_count)
-        total_count = adult_num + children_num
-
-        # Some complex conditional response building
-        adult_string = adult_count + " adult" + ("s" if adult_num > 1 else "") if adult_num > 0 else ""
-        children_string = children_count + " child" + ("ren" if children_num > 1 else "") if children_num > 0 else ""
-        and_string = " and " if adult_num > 0 and children_num > 0 else ""
-        ticket_string = ("a " if total_count == 1 else str(total_count) + " ") + (
-            "return " if ticket_type == "return" else "") + "ticket" + (
-                            "s for " + adult_string + and_string + children_string if total_count > 1 else "")
-
-        return_string = "and returning by " + return_time if ticket_type == "return" else ""
-
-        print("Awesome! I'm going to look for %s from %s to %s leaving by %s %s" % (
-            ticket_string, origin_station, destination_station, leave_time, return_string))
+        run_confirmation(origin_station, destination_station, ticket_type, leave_time, return_time, adult_count, children_count)
 
     # @Rule(Fact(state="delay"), NOT(Fact(current_delay=W())))
     # def delay_ask_delay(self):
@@ -359,6 +341,29 @@ def validate_ticket_time(time):
     extracted_time = extract_journey_time(nlp("leaving at " + time)[0])
 
     return extracted_time is not None
+
+
+def format_tempus(tempus):
+    return tempus.strftime("%H:%M %d/%m/%Y")
+
+
+def run_confirmation(origin_station, destination_station, ticket_type, leave_time, return_time, adult_count, children_count):
+    adult_num = int(adult_count)
+    children_num = int(children_count)
+    total_count = adult_num + children_num
+
+    # Some complex conditional response building
+    adult_string = adult_count + " adult" + ("s" if adult_num > 1 else "") if adult_num > 0 else ""
+    children_string = children_count + " child" + ("ren" if children_num > 1 else "") if children_num > 0 else ""
+    and_string = " and " if adult_num > 0 and children_num > 0 else ""
+    ticket_string = ("a " if total_count == 1 else str(total_count) + " ") + (
+        "return " if ticket_type == "return" else "") + "ticket" + (
+                        "s for " + adult_string + and_string + children_string if total_count > 1 else "")
+
+    return_string = "and returning by " + format_tempus(return_time) if ticket_type == "return" else ""
+
+    print("Awesome! I'm going to look for %s from %s to %s leaving by %s %s" % (
+        ticket_string, origin_station, destination_station, format_tempus(leave_time), return_string))
 
 if __name__ == '__main__':
     engine = KEngine()
