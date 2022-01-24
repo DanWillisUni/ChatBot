@@ -379,7 +379,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda leave_time_type: leave_time_type==Ticket.ARRIVE_BEFORE or leave_time_type==Ticket.DEPART_AFTER)
           )
     def ask_confirmation(self, origin_station, destination_station, ticket_type, leave_time, adult_count, children_count, leave_time_type):
-        run_confirmation(origin_station, destination_station, ticket_type, leave_time, "N/A", adult_count, children_count, leave_time_type, "N/A")
+        self.run_confirmation(origin_station, destination_station, ticket_type, leave_time, "N/A", adult_count, children_count, leave_time_type, "N/A")
 
     @Rule(Fact(state="booking"),
           Fact(origin_station=MATCH.origin_station),
@@ -406,7 +406,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda return_time_type: return_time_type == Ticket.ARRIVE_BEFORE or return_time_type == Ticket.DEPART_AFTER)
           )
     def ask_confirmation_with_return(self, origin_station, destination_station, ticket_type, leave_time, return_time, adult_count, children_count, leave_time_type, return_time_type):
-        run_confirmation(origin_station, destination_station, ticket_type, leave_time, return_time, adult_count, children_count, leave_time_type, return_time_type)
+        self.run_confirmation(origin_station, destination_station, ticket_type, leave_time, return_time, adult_count, children_count, leave_time_type, return_time_type)
 
     @Rule(Fact(state="delay"), NOT(Fact(current_delay=W())))
     def delay_ask_delay(self):
@@ -506,6 +506,70 @@ class KEngine(KnowledgeEngine):
     def delay_send_delay_prediction(self, current_delay, current_station, target_station):
         print("TODO Calculate delay at %s from %s when the delay is %s" % (target_station, current_station, current_delay))
 
+    def run_confirmation(self, origin_station, destination_station, ticket_type, leave_time, return_time, adult_count,
+                         children_count, leave_time_type, return_time_type):
+        adult_num = int(adult_count)
+        children_num = int(children_count)
+        total_count = adult_num + children_num
+
+        # Some complex conditional response building
+        adult_string = adult_count + " adult" + ("s" if adult_num > 1 else "") if adult_num > 0 else ""
+        children_string = children_count + " child" + ("ren" if children_num > 1 else "") if children_num > 0 else ""
+        and_string = " and " if adult_num > 0 and children_num > 0 else ""
+        ticket_string = ("a " if total_count == 1 else str(total_count) + " ") + (
+            "return " if ticket_type == "return" else "") + "ticket" + (
+                            "s for " + adult_string + and_string + children_string if total_count > 1 else "")
+
+        return_string = "and returning " + (
+            "by " if return_time_type == Ticket.ARRIVE_BEFORE else "at ") + format_tempus(
+            return_time) if ticket_type == "return" else ""
+
+        print("Awesome! I'm going to look for %s from %s to %s %s %s %s" % (
+            ticket_string, origin_station, destination_station,
+            "arriving by" if leave_time_type == Ticket.ARRIVE_BEFORE else "leaving at", format_tempus(leave_time),
+            return_string))
+
+        correct = input("Is that all correct? ")
+
+        if correct.lower() == "no":  # TODO Add support for more variations of no
+            print("Sorry about that! I'm going to ask you the questions again to make sure I get it right this time!")
+
+            self.retract(self.facts[self.__find_fact("origin_station")])
+            self.retract(self.facts[self.__find_fact("destination_station")])
+            self.retract(self.facts[self.__find_fact("ticket_type")])
+            self.retract(self.facts[self.__find_fact("leave_time")])
+            self.retract(self.facts[self.__find_fact("return_time")])
+            self.retract(self.facts[self.__find_fact("adult_count")])
+            self.retract(self.facts[self.__find_fact("children_count")])
+            self.retract(self.facts[self.__find_fact("leave_time_type")])
+            self.retract(self.facts[self.__find_fact("return_time_type")])
+
+            print(self.facts)
+        else:
+            if correct.lower() != "yes":
+                print("I'm not sure what you meant. So I'm going to assume everything is alright!")
+
+            if correct.lower() == "yes":  # TODO Add support for more answers
+                trainline = TheTrainLine()
+                cost, url = trainline.get_ticket(origin_station,
+                                                 destination_station,
+                                                 leave_time,
+                                                 adults=adult_num,
+                                                 children=children_num,
+                                                 inbound_time=return_time,
+                                                 outward_time_type=leave_time_type,
+                                                 inbound_time_type=return_time_type,
+                                                 ticket_type=Ticket.RETURN) \
+                    if ticket_type == "return" \
+                    else trainline.get_ticket(origin_station,
+                                              destination_station,
+                                              leave_time,
+                                              adults=adult_num,
+                                              children=children_num,
+                                              outward_time_type=leave_time_type,
+                                              ticket_type=Ticket.SINGLE)
+                print(f"The cheapest ticket will cost £{cost} and can be purchased here: {url}")
+
 
 def validate_ticket_time(time):
     extracted_time = extract_journey_time(nlp("leaving at " + time)[0])
@@ -515,55 +579,6 @@ def validate_ticket_time(time):
 
 def format_tempus(tempus):
     return tempus.strftime("%H:%M %d/%m/%Y")
-
-
-def run_confirmation(origin_station, destination_station, ticket_type, leave_time, return_time, adult_count, children_count, leave_time_type, return_time_type):
-    adult_num = int(adult_count)
-    children_num = int(children_count)
-    total_count = adult_num + children_num
-
-    # Some complex conditional response building
-    adult_string = adult_count + " adult" + ("s" if adult_num > 1 else "") if adult_num > 0 else ""
-    children_string = children_count + " child" + ("ren" if children_num > 1 else "") if children_num > 0 else ""
-    and_string = " and " if adult_num > 0 and children_num > 0 else ""
-    ticket_string = ("a " if total_count == 1 else str(total_count) + " ") + (
-        "return " if ticket_type == "return" else "") + "ticket" + (
-                        "s for " + adult_string + and_string + children_string if total_count > 1 else "")
-
-    return_string = "and returning " + ("by " if return_time_type == Ticket.ARRIVE_BEFORE else "at ") + format_tempus(return_time) if ticket_type == "return" else ""
-
-    print("Awesome! I'm going to look for %s from %s to %s %s %s %s" % (
-        ticket_string, origin_station, destination_station, "arriving by" if leave_time_type == Ticket.ARRIVE_BEFORE else "leaving at", format_tempus(leave_time), return_string))
-
-    correct = input("Is that all correct? ")
-
-
-    if correct.lower() == "no":  # TODO Add support for more variations of no
-        print("no")
-    else:
-        if correct.lower() != "yes":
-            print("I'm not sure what you meant. So I'm going to assume everything is alright!")
-
-        if correct.lower() == "yes":  # TODO Add support for more answers
-            trainline = TheTrainLine()
-            cost, url = trainline.get_ticket(origin_station,
-                                             destination_station,
-                                             leave_time,
-                                             adults=adult_num,
-                                             children=children_num,
-                                             inbound_time=return_time,
-                                             outward_time_type=leave_time_type,
-                                             inbound_time_type=return_time_type,
-                                             ticket_type=Ticket.RETURN) \
-                if ticket_type == "return" \
-                else trainline.get_ticket(origin_station,
-                                          destination_station,
-                                          leave_time,
-                                          adults=adult_num,
-                                          children=children_num,
-                                          outward_time_type=leave_time_type,
-                                          ticket_type=Ticket.SINGLE)
-            print(f"The cheapest ticket will cost £{cost} and can be purchased here: {url}")
 
 if __name__ == '__main__':
     engine = KEngine()
