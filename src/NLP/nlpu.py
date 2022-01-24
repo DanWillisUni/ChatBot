@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import spacy
 from spacy import displacy
 import json
-from os.path import dirname, join
+from os.path import dirname
 
 project_root = dirname(dirname(__file__))
 
@@ -141,9 +141,9 @@ def parse_query(query):
 
 if __name__ == "__main__":
     queries = [
-        "What is the cheapest single ticket for four adults and 2 children from Milton Keynes Central to Norwich, arriving at 13:00 on 15/1/2022",
+        "What is the cheapest single ticket for four adults and 2 children from Milton Keynes Central to Norwich, arriving at 13:00 on 15/2/2022",  # TODO: Can't recognise MKC, and I updated the time to be in the future
         
-        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 on 14/02/20",
+        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 on 14/02/22",  # TODO: London Liverpool Street is actually Liverpool Street London, and updated the date to be 2022
 
         "What will the delay be at Southampton if the train was delayed 5 minutes from Weymouth?",
 
@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
         "What is the predicted delay at Southampton if my train was 3 minutes late from Weymouth?",
 
-        "What is the cheapest single ticket for six adults and one child from Milton Keynes Central to Norwich, arriving for 11:00 on 30/1/2022"
+        "What is the cheapest single ticket for six adults and one child from Milton Keynes Central to Norwich, arriving for 11:00 on 30/2/2022"  # TODO Updated to be in the future, it can't read the time for some reason
     ]
     #displacy.serve(nlp(queries[2]), style="dep", port=16000)
 
