@@ -178,6 +178,80 @@ class KEngine(KnowledgeEngine):
     @Rule(Fact(state="booking"),
           Fact(origin_station=MATCH.origin_station),
           TEST(lambda origin_station: get_matching_stations(origin_station)[0][-1] == 100),
+          Fact(destination_station=MATCH.destination_station),
+          TEST(lambda destination_station: get_matching_stations(destination_station)[0][-1] == 100),
+          TEST(lambda origin_station, destination_station: origin_station.lower() != destination_station.lower()),
+          Fact(leave_time=MATCH.leave_time),
+          TEST(lambda leave_time: validate_ticket_time(format_tempus(leave_time)) == True),
+          Fact(now=MATCH.now),
+          TEST(lambda leave_time, now: leave_time > now),
+          NOT(Fact(leave_time_type=W()))
+          )
+    def ask_leave_time_type(self, origin_station, destination_station, leave_time):
+        leave_time_type = input("For your outbound journey from " + origin_station + " to " + destination_station + ", would you like to arrive by, or depart at " + format_tempus(leave_time) + "? ")
+
+        failures = 0
+
+        while leave_time_type != "arrive by" and leave_time_type != "depart at":
+            failures = failures + 1
+
+            if failures > 3:
+                leave_time_type = input(
+                    "I didn't understand. For your outbound journey from " + origin_station + " to " + destination_station + ", would you like to arrive by, or depart at " + format_tempus(
+                        leave_time) + "? (I'm looking for \"arrive by\" or \"depart at\") ")
+            else:
+                leave_time_type = input("I didn't understand. For your outbound journey from " + origin_station + " to " + destination_station + ", would you like to arrive by, or depart at " + format_tempus(leave_time) + "? ")
+
+        if leave_time_type.lower() == "arrive by":
+            self.declare(Fact(leave_time_type=Ticket.ARRIVE_BEFORE))
+        elif leave_time_type.lower() == "depart at":
+            self.declare(Fact(leave_time_type=Ticket.DEPART_AFTER))
+
+    @Rule(Fact(state="booking"),
+          Fact(origin_station=MATCH.origin_station),
+          TEST(lambda origin_station: get_matching_stations(origin_station)[0][-1] == 100),
+          Fact(destination_station=MATCH.destination_station),
+          TEST(lambda destination_station: get_matching_stations(destination_station)[0][-1] == 100),
+          TEST(lambda origin_station, destination_station: origin_station.lower() != destination_station.lower()),
+          Fact(ticket_type=MATCH.ticket_type),
+          TEST(lambda ticket_type: ticket_type == "return"),
+          Fact(leave_time=MATCH.leave_time),
+          Fact(return_time=MATCH.return_time),
+          TEST(lambda return_time: validate_ticket_time(format_tempus(return_time)) == True),
+          TEST(lambda leave_time: validate_ticket_time(format_tempus(leave_time)) == True),
+          TEST(lambda leave_time, return_time: return_time > leave_time),
+          Fact(now=MATCH.now),
+          TEST(lambda return_time, now: return_time > now),
+          TEST(lambda leave_time, now: leave_time > now),
+          NOT(Fact(return_time_type=W()))
+          )
+    def ask_return_time_type(self, origin_station, destination_station, return_time):
+        return_time_type = input(
+            "For your return journey from " + destination_station + " to " + origin_station + ", would you like to arrive by, or depart at " + format_tempus(
+                return_time) + "? ")
+
+        failures = 0
+
+        while return_time_type != "arrive by" and return_time_type != "depart at":
+            failures = failures + 1
+
+            if failures > 3:
+                return_time_type = input(
+                    "I didn't understand. For your return journey from " + destination_station + " to " + origin_station + ", would you like to arrive by, or depart at " + format_tempus(
+                return_time) + "? (I'm looking for \"arrive by\" or \"depart at\") ")
+            else:
+                return_time_type = input(
+                    "I didn't understand. For your return journey from " + destination_station + " to " + origin_station + ", would you like to arrive by, or depart at " + format_tempus(
+                        return_time) + "? ")
+
+        if return_time_type.lower() == "arrive by":
+            self.declare(Fact(return_time_type=Ticket.ARRIVE_BEFORE))
+        elif return_time_type.lower() == "depart at":
+            self.declare(Fact(return_time_type=Ticket.DEPART_AFTER))
+
+    @Rule(Fact(state="booking"),
+          Fact(origin_station=MATCH.origin_station),
+          TEST(lambda origin_station: get_matching_stations(origin_station)[0][-1] == 100),
           Fact(ticket_type=MATCH.ticket_type),
           TEST(lambda ticket_type: ticket_type == "return"),
           NOT(Fact(return_time=W()))
@@ -235,7 +309,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda leave_time, return_time: return_time <= leave_time)
           )
     def check_return_after_leave(self):
-        print("Your return time should be after the departure time")
+        print("Your inbound trip should be after your outbound trip")
 
         self.retract(self.facts[self.__find_fact("leave_time")])
         self.retract(self.facts[self.__find_fact("return_time")])
@@ -247,7 +321,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda return_time, now: return_time < now)
           )
     def check_return_in_future(self):
-        print("Your return time should be in the future")
+        print("Your inbound trip should be in the future")
 
         self.retract(self.facts[self.__find_fact("return_time")])
 
@@ -258,7 +332,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda leave_time, now: leave_time < now)
           )
     def check_leave_in_future(self):
-        print("Your departure time should be in the future")
+        print("Your outbound trip should be in the future")
 
         self.retract(self.facts[self.__find_fact("leave_time")])
 
@@ -286,8 +360,6 @@ class KEngine(KnowledgeEngine):
         self.retract(self.facts[self.__find_fact("children_count")])
         self.retract(self.facts[self.__find_fact("adult_count")])
 
-    # TODO Implement a question to support arrive by or depart by times
-
     @Rule(Fact(state="booking"),
           Fact(origin_station=MATCH.origin_station),
           TEST(lambda origin_station: get_matching_stations(origin_station)[0][-1] == 100),
@@ -302,10 +374,12 @@ class KEngine(KnowledgeEngine):
           TEST(lambda leave_time, now: leave_time > now),
           Fact(adult_count=MATCH.adult_count),
           Fact(children_count=MATCH.children_count),
-          TEST(lambda adult_count, children_count: (int(adult_count) + int(children_count)) > 0)
+          TEST(lambda adult_count, children_count: (int(adult_count) + int(children_count)) > 0),
+          Fact(leave_time_type=MATCH.leave_time_type),
+          TEST(lambda leave_time_type: leave_time_type==Ticket.ARRIVE_BEFORE or leave_time_type==Ticket.DEPART_AFTER)
           )
-    def ask_confirmation(self, origin_station, destination_station, ticket_type, leave_time, adult_count, children_count):
-        run_confirmation(origin_station, destination_station, ticket_type, leave_time, "N/A", adult_count, children_count)
+    def ask_confirmation(self, origin_station, destination_station, ticket_type, leave_time, adult_count, children_count, leave_time_type):
+        run_confirmation(origin_station, destination_station, ticket_type, leave_time, "N/A", adult_count, children_count, leave_time_type, "N/A")
 
     # TODO Add some caching to the get matching stations function, it's called way to much to not cache results
     @Rule(Fact(state="booking"),
@@ -326,10 +400,14 @@ class KEngine(KnowledgeEngine):
           TEST(lambda leave_time, now: leave_time > now),
           Fact(adult_count=MATCH.adult_count),
           Fact(children_count=MATCH.children_count),
-          TEST(lambda adult_count, children_count: (int(adult_count) + int(children_count)) > 0)
+          TEST(lambda adult_count, children_count: (int(adult_count) + int(children_count)) > 0),
+          Fact(leave_time_type=MATCH.leave_time_type),
+          TEST(lambda leave_time_type: leave_time_type == Ticket.ARRIVE_BEFORE or leave_time_type == Ticket.DEPART_AFTER),
+          Fact(return_time_type=MATCH.return_time_type),
+          TEST(lambda return_time_type: return_time_type == Ticket.ARRIVE_BEFORE or return_time_type == Ticket.DEPART_AFTER)
           )
-    def ask_confirmation_with_return(self, origin_station, destination_station, ticket_type, leave_time, return_time, adult_count, children_count):
-        run_confirmation(origin_station, destination_station, ticket_type, leave_time, return_time, adult_count, children_count)
+    def ask_confirmation_with_return(self, origin_station, destination_station, ticket_type, leave_time, return_time, adult_count, children_count, leave_time_type, return_time_type):
+        run_confirmation(origin_station, destination_station, ticket_type, leave_time, return_time, adult_count, children_count, leave_time_type, return_time_type)
 
     @Rule(Fact(state="delay"), NOT(Fact(current_delay=W())))
     def delay_ask_delay(self):
@@ -440,7 +518,7 @@ def format_tempus(tempus):
     return tempus.strftime("%H:%M %d/%m/%Y")
 
 
-def run_confirmation(origin_station, destination_station, ticket_type, leave_time, return_time, adult_count, children_count):
+def run_confirmation(origin_station, destination_station, ticket_type, leave_time, return_time, adult_count, children_count, leave_time_type, return_time_type):
     adult_num = int(adult_count)
     children_num = int(children_count)
     total_count = adult_num + children_num
@@ -453,10 +531,10 @@ def run_confirmation(origin_station, destination_station, ticket_type, leave_tim
         "return " if ticket_type == "return" else "") + "ticket" + (
                         "s for " + adult_string + and_string + children_string if total_count > 1 else "")
 
-    return_string = "and returning by " + format_tempus(return_time) if ticket_type == "return" else ""
+    return_string = "and returning " + ("by " if return_time_type == Ticket.ARRIVE_BEFORE else "at ") + format_tempus(return_time) if ticket_type == "return" else ""
 
-    print("Awesome! I'm going to look for %s from %s to %s leaving by %s %s" % (
-        ticket_string, origin_station, destination_station, format_tempus(leave_time), return_string))
+    print("Awesome! I'm going to look for %s from %s to %s %s %s %s" % (
+        ticket_string, origin_station, destination_station, "arriving by" if leave_time_type == Ticket.ARRIVE_BEFORE else "leaving at", format_tempus(leave_time), return_string))
 
     correct = input("Is that all correct? ")
 
@@ -468,8 +546,8 @@ def run_confirmation(origin_station, destination_station, ticket_type, leave_tim
                                          adults=adult_num,
                                          children=children_num,
                                          inbound_time=return_time,
-                                         outward_time_type=Ticket.ARRIVE_BEFORE,
-                                         inbound_time_type=Ticket.ARRIVE_BEFORE,
+                                         outward_time_type=leave_time_type,
+                                         inbound_time_type=return_time_type,
                                          ticket_type=Ticket.RETURN) \
             if ticket_type == "return" \
             else trainline.get_ticket(origin_station,
@@ -477,7 +555,7 @@ def run_confirmation(origin_station, destination_station, ticket_type, leave_tim
                                       leave_time,
                                       adults=adult_num,
                                       children=children_num,
-                                      outward_time_type=Ticket.ARRIVE_BEFORE,
+                                      outward_time_type=leave_time_type,
                                       ticket_type=Ticket.SINGLE)
         print(f"The cheapest ticket will cost £{cost} and can be purchased here: {url}")
 
