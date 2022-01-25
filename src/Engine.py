@@ -38,7 +38,6 @@ class KEngine(KnowledgeEngine):
             data = parse_query(input("I didn't understand, if you want to book a ticket, use words like \"book\" or \"ticket\". If you'd like to predict a delay, use words like \"delay\" or \"predict\". "))
 
         if data["query type"] == "cheapest":
-            # TODO Update some of the defaults, like default ticket counts, and adult/children counts
             if data["from"] is not None:
                 self.declare(Fact(origin_station=data["from"]))
 
@@ -547,8 +546,6 @@ class KEngine(KnowledgeEngine):
             self.retract(self.facts[self.__find_fact("children_count")])
             self.retract(self.facts[self.__find_fact("leave_time_type")])
             self.retract(self.facts[self.__find_fact("return_time_type")])
-
-            print(self.facts)
         else:
             if correct.lower() != "yes":
                 print("I'm not sure what you meant. So I'm going to assume everything is alright!")
