@@ -492,7 +492,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda target_station: get_matching_stations(target_station)[0][-1] == 100),
           TEST(lambda current_station, target_station: current_station.lower() == target_station.lower())
           )
-    def check_origin_equals_destination(self):
+    def delay_check_origin_equals_destination(self):
         print("You can't predict the delay to and from the same station")
 
         self.retract(self.facts[self.__find_fact("current_station")])
@@ -537,6 +537,7 @@ class KEngine(KnowledgeEngine):
         if correct.lower() == "no":  # TODO Add support for more variations of no
             print("Sorry about that! I'm going to ask you the questions again to make sure I get it right this time!")
 
+            # TODO Account for Key Errors here
             self.retract(self.facts[self.__find_fact("origin_station")])
             self.retract(self.facts[self.__find_fact("destination_station")])
             self.retract(self.facts[self.__find_fact("ticket_type")])
