@@ -42,7 +42,7 @@ class TheTrainLine:
                    inbound_time=None, outward_time_type=Ticket.ARRIVE_BEFORE,
                    inbound_time_type=Ticket.ARRIVE_BEFORE, ticket_type=Ticket.SINGLE):
 
-        self.driver.get("https://www.thetrainline.com")
+        #self.driver.get("https://www.thetrainline.com")
 
         outward_time = TheTrainLine.round_to_15(outward_time)  # only accepts 15-minute intervals
         if inbound_time:
@@ -160,6 +160,13 @@ class TheTrainLine:
 if __name__ == '__main__':
     trainline = TheTrainLine()
 
+    cost, url = trainline.get_ticket("Norwich", "Barnes", adults=1,
+                                     outward_time_type=Ticket.ARRIVE_BEFORE,
+                                     outward_time=datetime(2022, 2, 20, 12), ticket_type=Ticket.SINGLE)
+    print(f"Cheapest ticket: £{cost}")
+    print(f"Buy ticket: {url}")
+
+    trainline = TheTrainLine()
     #   trainline.getTicket('milton keynes central', 'norwich', datetime.now())
     cost, url = trainline.get_ticket('milton keynes central', 'norwich', datetime.now(),
                                      inbound_time=datetime.now() + timedelta(days=2),
