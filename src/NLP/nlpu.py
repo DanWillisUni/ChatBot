@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import spacy
 from spacy import displacy
 import json
+import dateparser
 
 
 nlp = spacy.load('en_core_web_sm')
@@ -22,9 +23,10 @@ def load_stations():
 
 station_map = load_stations()
 
+
 # use fuzzywuzzy to find closest match to inputted station
 def get_matching_stations(station_text):
-    return process.extract(station_text, station_map.keys())
+    return process.extract(station_text, station_map.keys(), limit=50)
 
 
 def extract_station_name(token):
@@ -38,26 +40,23 @@ def extract_station_name(token):
 
 
 def extract_journey_time(token):
-    # expecting VERB (by)? NUM (on)? NUM
+    # let dateparser do the heavy lifting.
+    # just keep adding tokens until it fails
+    maxtoken = len(token.doc)
+    if token.i == maxtoken - 1:
+        return None
     ntoken = token.doc[token.i + 1]
-    if ntoken.dep_ == 'prep':
-        ntoken = token.doc[ntoken.i + 1]
-
-    time_str = ntoken.text
-
-    ntoken = token.doc[ntoken.i + 1]
-    if ntoken.dep_ == 'prep':
-        ntoken = token.doc[ntoken.i + 1]
-
-    try:
-        tempus = datetime.strptime(f'{time_str} {ntoken.text}', '%H:%M %d/%m/%Y')
-    except ValueError:
-        try:
-            tempus = datetime.strptime(f'{time_str} {ntoken.text}', '%H:%M %d/%m/%y')
-        except ValueError:
-            tempus = None
-
-    return tempus
+    date_str = ntoken.text
+    last_tempus = None
+    while True:
+        tempus = dateparser.parse(date_str)
+        if tempus is None and last_tempus is not None:
+            return last_tempus
+        last_tempus = tempus
+        if ntoken.i == maxtoken - 1:
+            return last_tempus
+        ntoken = ntoken.doc[ntoken.i + 1]
+        date_str += ' ' + ntoken.text
 
 
 units = [
@@ -81,14 +80,14 @@ def extract_NUM(token):
 
 def cheapest_ticket_query(query):
     doc = nlp(query)
-    response = {'query type': 'unknown', 'from': None, 'to': None, 'arrive': True, 'time': datetime.now(), 'type': 'single', 'adult': 1, 'child': 0, 'return_time': None}
+    response = {'query type': 'unknown', 'from': None, 'to': None, 'arrive': False, 'time': datetime.now(), 'type': 'single', 'adult': 1, 'child': 0, 'return_time': None}
 
     for token in doc:
         if stems.get("booking_tickets").count(token.lemma_) > 0:
             response["query type"] = "cheapest"
         elif token.pos_ == 'VERB':
-            if stems.get("leaving").count(token.lemma_) > 0 or stems.get("leaving").count(token.lemma_) > 0:
-                response['arrive'] = False
+            if stems.get("arrive").count(token.lemma_) > 0 :
+                response['arrive'] = True
             response['time'] = extract_journey_time(token)
         elif token.lemma_.lower() == 'return':
             response['type'] = 'return'
@@ -135,9 +134,9 @@ def parse_query(query):
 
 if __name__ == "__main__":
     queries = [
-        "What is the cheapest single ticket for four adults and 2 children from Milton Keynes Central to Norwich, arriving at 13:00 on 15/1/2022",
+        "What is the cheapest single ticket for four adults and 2 children from Milton Keynes Central to Norwich, arriving at 13:00 on 15.1.2022",
         
-        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 on 14/02/20",
+        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 on 14.02.20",
 
         "What will the delay be at Southampton if the train was delayed 5 minutes from Weymouth?",
 
@@ -153,3 +152,5 @@ if __name__ == "__main__":
     for query in queries:
         response = parse_query(query)
         print(response)
+
+    print(get_matching_stations("london"))
