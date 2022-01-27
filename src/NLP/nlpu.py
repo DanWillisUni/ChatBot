@@ -134,9 +134,13 @@ def parse_query(query):
 
 if __name__ == "__main__":
     queries = [
-        "What is the cheapest single ticket for four adults and 2 children from Milton Keynes Central to Norwich, arriving at 13:00 on 15.1.2022",
-        
-        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 on 14.02.20",
+        "What is the cheapest single ticket for four adults and 2 children from Milton Keynes Central to Norwich, arriving at 13:00 on 15/1/2022",
+
+        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 on 14/02/20 for 2 adults and one child",
+        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 today",
+        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 6pm tomorrow",
+        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 5am on 14th feb",
+        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 on february 14th",
 
         "What will the delay be at Southampton if the train was delayed 5 minutes from Weymouth?",
 
@@ -144,9 +148,11 @@ if __name__ == "__main__":
 
         "What is the predicted delay at Southampton if my train was 3 minutes late from Weymouth?",
 
-        "What is the cheapest single ticket for six adults and one child from Milton Keynes Central to Norwich, arriving for 11:00 on 30/1/2022"
+        "What is the cheapest single ticket for six adults and one child from Milton Keynes Central to Norwich, arriving for 11:00 on 30/1/2022",
+
+        "What is the cheapest single ticket for six adults and one child from Milton Keynes Central to Norwich, arriving for 11:00 next week"
     ]
-    #displacy.serve(nlp(queries[2]), style="dep", port=16000)
+    displacy.serve(nlp(queries[1]), style="dep", port=16000)
 
 
     for query in queries:
