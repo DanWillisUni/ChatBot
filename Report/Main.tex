@@ -19,25 +19,96 @@
 	
 	\maketitle	
 	\begin{abstract}
-		This interim report presents (1) the outline of our coursework report, (2) some initial descriptions of the requirements of the coursework, the methods, programming languages, packages, tools that have been identified so far, and (3) an initial work plan.
+		The report shall introduce some background to the subject as well as the groups motivations for creating the chatbot. It then discusses the group's aims, objectives and difficulties for both part 1 and 2 of the brief. In section \ref{RelatedWork}, similar systems are discusses and evaluated by their relevance to the project. In part REF methods, tools and frameworks used for this project are stated and explained. The design \ref{Design} and implementation \ref{Implementation} are then outlined in subsections of the different areas of work. Testing for this project is then covered briefly in section \ref{Testing}. Finally, the groups work is evaluated in section \ref{Evaluation} and then a conclusion to the project is made in the closing section \ref{Conclusion}.
+		
 	\end{abstract}
 	
 	\section{Introduction}
 	
-	%(Brief introduction to the coursework. You don't have to write much.  
-	%You may introduce a bit on chatbot in general if like, and why an intelligent chatbot is useful using the subsections headings if you wish.) 
-	
-	For this coursework we are developing a chatbot to help customers in finding the cheapest available ticket for their chosen journey also to improve customer service satisfaction by applying some appropriate AI techniques.
+	For this coursework \citep{AI2018CW} the group is developing an intelligent chatbot for customers to use which will find them the cheapest train ticket for a specified journey. The service shall also provide users with information on train delays, for a specified journey, to improve customer service. The chatbot will be able to recognise which service the user wishes to use, using Natural Language Processing techniques. The chatbot will respond appropriately until it has gathered all information needed to answer the user's query.	
 	
 	\subsection{Background and Motivation}
-	A bit background information on chatbot in general and the coursework specification\citep{AI2018CW}.
+		
+	Increasingly chatbots are used for customer service by companies and businesses. The first wave of chatbot systems could only recognise questions posed to them if they were written exactly as it was programmed to understand \citet(ebi). Artificial intelligence is a hot topic at the moment, and has been used to develop seriously intelligent chatbots. Using AI chatbots are able to understand and answer customer questions, which can be asked in a huge variation of ways. As chatbots these days are so capable, many companies favour using AI for customer service over an employee as it can save money and time as \citet(Sintef) found in his study than many users understand that chatbots work best when asked direct and precise queries.	
 	
 	\subsection{Aim and Objectives of this coursework} 
-	You may rephrase the the aim and objectives from your point of view.  
+	The aim of the group is to develop a prototype intelligent chatbot system that can be extended to handle a large variation of queries. The chatbot will have two functions
+	\begin{enumerate}
+		\item Finding a user the cheapest ticket for a specified journey.
+		\item 	Reporting to a user the predicted train delay when prompted with their journey and their current delay.		
+	\end{enumerate}	
+
+	Our objectives are:
+	\begin{enumerate}
+		\item To keep to our outlined project plan in the Gantt Chart.		
+		\item Have bi-weekly meetings on Microsoft Team to update the group on progress made.		
+	\end{enumerate}	
+	
+	Have all set separate work completed for the chatbot, ready to be integrated with each other, by the 10th of January. This will give the group a week to integrate their systems together and iron out any issues, ready for the demonstration and video.
+	
+	\subsubsection{MoSCoW}
+	Must
+	\begin{itemize}	
+		\item The chatbot must be able to handle single-way tickets.		
+		\item The chatbot must prompt the user until enough information is obtained to complete their query.
+		\item The system must be able to use the gathered information to complete the request. 
+		\begin{itemize}
+			\item In the case of a cheapest ticket query, it must return the cheapest ticket found and a hyperlink to a page where the customer may purchase it.
+			\item In the case of prediction, it must return the predicted train delay in minutes at the users destination station			
+		\end{itemize}		
+		\item Once the chatbot has received all the information it needs to search, it must check with the user it has understood the query correctly, so changes can be made if needed.
+	\end{itemize}
+	Should 
+	\begin{itemize}
+		\item The chatbot should be able to handle return tickets.		
+		\item The chatbot should be able to handle a large query with multiple pieces of information within it.
+		\item The chatbot should be able to handle misspelt station names.
+		\item That chatbot should return the user an answer to their question, once all the information is obtained, within 15 seconds.		
+	\end{itemize}
+	Could
+	\begin{itemize}
+		\item The chatbot could be able to handle multiple date and time formats.		
+		\item The chatbot could be able to ask the user if there is anything more they can help with.
+		\item The chatbot could have an attractive user interface.
+		\item The chatbot could search for multiple adults or children.				
+	\end{itemize}
+	Won't
+	\begin{itemize}
+		\item The chatbot won't be able to handle all query formats.
+		\item The chatbot won't be able to recognise badly spelt station names.
+		\item The chatbot won’t be able to use railcards in its search for the cheapest tickets.		
+	\end{itemize}	 
 	
 	\subsection{Difficulties and Risks}
 	
-	List as many as you can identify. 
+A risk with this task could be poor project management. To try and reduce this risk, in our first group meeting we decided upon a group leader, Dan. Dan ensured that we had weekly meetings in which he encouraged us to all share what we’d been working on. A large portion of this work had to be completed over the Christmas break. It was important that the team continued to work together despite not being on campus at university. Our group continued to have regular meetings on teams during this time, with the intention that this would reduce the risk of slippage in the project. 
+Another risk is that deadlines will not be met. A member of the group not meeting a specific deadline could mean that the next piece of work cannot be started. To reduce the risk of this happening, the work was divided in such a way that each member could get on with a specific part of the brief. The work was delegated as follows:
+
+
+Dan:
+\begin{itemize}
+	\item Project manager
+	\item Create the database
+	\item Research predictive models
+	\item Programme a few of these models and report back the most successful model
+	\item Work with Brandon to get this work integrated with the chatbot.
+\end{itemize}
+Charlotte:
+\begin{itemize}
+	\item Write the webscraper for the cheapest ticket
+	\item Decided on the flow of conversation for the chatbot
+	\item Write the NLPU component and work with Brandon to get this integrated with the chatbot.
+\end{itemize}
+Brandon: 
+\begin{itemize}
+	\item Write the Knowledge-Base
+	\item Reasoning Engine and User Interface. 
+	\item Worked with the other team members to get their contributions integrated with the chatbot. 
+\end{itemize}
+
+Working this way meant that each member could begin programming without having to wait for another member of the group to have already finished a task. In the weekly meetings everyone shared what they had been working on since the last. 
+
+Once the individual work was complete the final risk was that our work would not be integrated together in time. This is a large and integral task, if all elements work separately but cannot work together the brief has not been met, for this reason one of the objectives was to begin integrating work by at least the 10th of January.
 	
 	\subsection{Work Plan}	
 	
@@ -75,9 +146,8 @@
 				\ganttlink{elem2}{elem4}
 			\end{ganttchart}
 	\end{figure}
-	\section{Related Work} 
-	Review some similar chatbot systems. (Write as much as you have now.)  
-	
+	\section{Related Work} \label {RelatedWork}
+		
 	\subsection{TFL chatbot}
 	The TFL chatbot was very friendly and said “You're welcome” (or equivalent) when you thanked it \citet{TflTravelBot}. It seemed to understand what I meant most of the time very well even when I wasn't being very specific. It was functionally useful as it could give me live information about the next few buses if I know the stop code for the bus stop that I am standing by And was fully integrated with facebook messenger so it is as easy as sending a facebook message.
 	
@@ -135,18 +205,39 @@
 	
 	For Database: e.g, Postgres, or MongoDB     
 	
-	\subsection{Development Framework}
+	\subsection{Development Framework}	
 	
-	
-	\section{Design of the Chatbot}	
+	\section{Design of the Chatbot}	 \label {Design}
 	
 	\subsection{The Architecture of the chatbot}
-	You may draw a functional diagram if you like.  
+	In an early group meeting we decided to conduct the work for this project modularly. This meant creating contracts with one another on what work would be completed by each member, by when and detailing exactly what we expected from each piece of work. This meant we could work separately, which was necessary as much of this work was completed away from university. It was decided that Dan would create a database, as well as writing predictive models, Brandon would write the knowledge-base and inferring engine, and Charlie would write the scraper and NLPU. Once all this work was completed, the group could come together and integrate the various pieces of work. 
 	
-	You can describe your design for each key module or component of your chatbot, in a subsection. E.g. 
+	
+	The chatot is responsible for handling questions from a user and responding to these. It uses the NLPU to understand what a user has inputted as well as to see if all fields have been filled for a search. If all fields have not been inputted, the chatbot will reply to the user asking for the information it is missing. Once the NPLU has all the information it needs to make a search, it delivers this to the scraper or the prediction model depending on the task. If the task is for find the cheapest ticket, once this has been found the chatbot will relay this information to the user with a price and a link to buy the ticket. Similarly, for predicting train delays, once the predicted delay has been predicted, it is relayed through the chatbot to the user.
+	
 	\subsection{User Interface} 
 	
+	\subsection{Scraper}
+	The implementation of the scraper has been designed to complete the task of finding a cheapest ticket for a train booking. Trainline’s website \citet{trainline} was chosen to be scraped, this was because when inspecting the page when a search was completed there was a clear tag which indicated the cheapest ticket which could then be used to return to the user. The package `selenium’ \citet{selenium} was used to webscrape as it was found to be the most useful for what was trying to be achieved. The TrainLine class has many functions which find different elements within TrainLine’s page, which are then filled once the chatbot has retrieved information from the user. 
+	
+	The scraper clears all field boxes before entering data. This is because if a field was pre-filled by the website, i.e. defaulting to today's date, when the scraper tried to enter the date which has been specified by the user, it cannot do so as it is already full and throws an error. The scraper uses selenium to find specific elements within the page that will be filled with the users query. For example if a user wants a single ticket, it is capable of choosing between the radio buttons for a `single’ or `return’ journey. This is done by using TrainLine’s element ID’s, for example the radio button for a single tickets element ID is `single’, and therefore can be found and clicked. 
+	
+	Once a full search has been made, the scraper waits for an element with an `aria-label’ that has the value `the cheapest fare’. The price which belongs to this value is the cheapest ticket for the specified journey, and this price and the link to the page is given as a reply to the user through the chatbot.	
+	
 	\subsection{NLP}
+	The NLPU is essential to the scraper. TraineLine’s website only works for certain date formats, 24 hour times, full and correctly spelt train stations, and will only complete a search successfully if it has all of the information. The NLPU works with the chatbot to ensure all fields are full before passing this information to the scraper so it doesn’t fail. Not only this, but the chatbot has to be able to understand what a user is asking it to do. The NLPU can identify, using SpaCy’s \citet{Spacydoc} parts of speech, when a user is inputting a cheapest ticket query or prediction query. It does this by looking for specific words in the sentence. To identify whether it is a cheapest ticket query it looks for words in the stems.json file, which matches similar words. If a query contains the a words, once stemmed,  `book’, `ticket’, `cheap’ or `buy’, it infers that the user is wanted to find the cheapest ticket, rather than asking about a delay prediction. The same goes for the prediction query. 
+	
+	One of the most important parts of the NLPU for this project was the chatbot recognising train station names that were spelt incorrectly, or missing parts of the station name, as when these stations are inputted into the scraper they must be exact or the search will not run. To do this a package called ‘fuzzywuzzy’ was used, which does a ‘fuzzy match’ on station names and finds percentage matches to the station names inputted. If a station is not a 100\% `fuzzy match’, the chatbot suggests any station that has an 80\% match or higher. The unit also handles multiple different date formats, times and understands words like ‘today’ and ‘tomorrow’. 
+	
+	\begin{figure}[!htb]
+		\begin{center}
+			\includegraphics[width=1\textwidth]{Resources/partsOfSpeechLarge.jpeg}
+			\caption{Example of SpaCy's parts of speech tagging on a cheapest ticket query}
+			\label{Img:Spacy}
+		\end{center}
+	\end{figure}
+	
+	For sentence queries, like the one in figure \ref{Img:Spacy}, the NLPU works by using SpaCy, looking at parts of speech tags like `NOUN' or `VERB' or for words within the stems.json file. For example, if the parts of speech tag is `ADP' and one of the relating `from\_station' words in the stems.json file, the program extracts the following station name and sets it to the origin station. 
 	
 	\subsection{Knowledgebase}
 	
@@ -259,7 +350,7 @@
 		%\label{TableCC}
 		%\end{table}
 	
-	\section{Implementation}
+	\section{Implementation} \label{Implementation}
 	
 	\subsection{Predictive Models}
 	
@@ -317,13 +408,13 @@
 	\subsubsection{Comparison}
 	We didn't think that the Bayesian model was very good as it is a classification model not a regression therefore not particularly useful to the user as they would want to know their expected time of arrival.
 	
-	\begin{figure}[!htb]
-		\begin{center}
-			\includegraphics{Resources/PartTwo/Comparison_20220112_152958.png}
-			\caption{Comparison of neural network and K nearest neighbour}
-			\label{Img:NNKNNComp}
-		\end{center}
-	\end{figure}
+	%\begin{figure}[!htb]
+	%	\begin{center}
+	%		\includegraphics{Resources/PartTwo/Comparison_20220112_152958.png}
+	%		\caption{Comparison of neural network and K nearest neighbour}
+	%		\label{Img:NNKNNComp}
+	%	\end{center}
+	%\end{figure}
 	
 	In figure \ref{Img:NNKNNComp} we compare the neural network and k nearest neighbours over two million iterations of training the neural network.
 	
@@ -331,9 +422,11 @@
 	
 	As you can see the K nearest neighbour algorithm is consistently better than the neural network despite the improvements made so we decided to use that as our final predictive model.
 	
-	\section{Testing}
+	\section{Testing} \label{Testing}
 	
 	\subsection{Unit Testing}
+	For the predictive models and NLP, unit tests were used to check that each function achieved its intended purpose; this approach is known as test driven development. Unit tests were written first, then code was developed to pass these tests. This meant the group was able to monitor which parts of development needed more work, and which were complete. Before each merge on GitHub, these tests were run to check that the code being pushed hadn’t broken the previous commit. For the NLP, as the scope of what the chatbot could understand is massive, specific tests were written for what the group had outlined as chatflows it should accept. 
+	
 	
 	\subsection{Integration Testing}
 	
@@ -341,9 +434,9 @@
 	
 	\subsection{Userbility Testing}
 	
-	\section{Evaluation and Discussion}
+	\section{Evaluation and Discussion}\label {Evaluation}
 	
-	\section{Conclusion or Summary}
+	\section{Conclusion or Summary} \label{Conclusion}
 	
 	\bibliographystyle{agsm}
 	%\bibliographystyle{apalike}
