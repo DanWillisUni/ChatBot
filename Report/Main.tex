@@ -10,6 +10,7 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{url}
+\usepackage{pdfpages}
 
 %opening
 \title{Developing an Intelligent Chatbot: the First Interim Report}
@@ -19,7 +20,7 @@
 	
 	\maketitle	
 	\begin{abstract}
-		The report shall introduce some background to the subject as well as the groups motivations for creating the chatbot. It then discusses the group's aims, objectives and difficulties for both part 1 and 2 of the brief. In section \ref{RelatedWork}, similar systems are discusses and evaluated by their relevance to the project. In part REF methods, tools and frameworks used for this project are stated and explained. The design \ref{Design} and implementation \ref{Implementation} are then outlined in subsections of the different areas of work. Testing for this project is then covered briefly in section \ref{Testing}. Finally, the groups work is evaluated in section \ref{Evaluation} and then a conclusion to the project is made in the closing section \ref{Conclusion}.
+		The report shall introduce some background to the subject as well as the groups motivations for creating the chatbot. It then discusses the group's aims, objectives and difficulties for both part 1 and 2 of the brief. In section \ref{RelatedWork}, similar systems are discusses and evaluated by their relevance to the project. In part REF methods, tools and frameworks used for this project are stated and explained. The design \ref{Design} and implementation \ref{Implementation} are then outlined in subsections of the different areas of work. Testing for this project is then covered briefly in section \ref{Testing}. Finally, the groups work is evaluated and concluded in section \ref{Evaluation}.
 		
 	\end{abstract}
 	
@@ -185,59 +186,49 @@ Once the individual work was complete the final risk was that our work would not
 	
 	\subsection{Methods}
 	
-	You may list some methods you will use for developing your chatbot, including 
-	
-	Such as what type of user interface (graphical, text, or voice, etc) you intend to use.
-	
-	What Natural Language Processing and understanding methods you intend use, 
-	
-	What referring or reasoning methods
-	
-	What prediction methods, such as kNN, neural networks etc. 
+A primarily text based user interface was selected, long with an aim to wrap the text-based system in a graphical user interface. The user’s responses would be processed using a natural language processing library called Spacy. From the responses provided by the user, the knowledge engine would determine what steps are next based on rules built into the system and which of those match the user’s responses.
+
+
+For the delay prediction we used a k-nearest-neighbour method and a neural network. 
 	
 	\subsection{Languages, Packages, Tools}
 	
-	On programming language: using Python or Java, or others. 
+	The two main languages that were selected were Python and C\# for the main chat-bot and then some of the database interaction respectively.
+	Within the chatbot the following packages were used:
+	\begin{itemize}
+		\item Experta - Used for the knowledge engine, it handled all of the questions relating to the state of the booking/delay prediction query.
+	\item Fuzzywuzzy - Used to process station names that may have been entered incorrectly. Such as in the case of typos.
+	\item Datetime - Was used for reading and formatting dates.
+	\item Spacy - Spacy was used for all of the natural language processing.
+	\item Json - JSON was the format that the text stemming was stored in, so the library was used to read and understand that.
+    \item Pandas - Pandas is a data analysis library that we used to help round some timing to better work with the train data.
+	\item Selenium - Was a web-scraping library that we used to extract data from websites to feed back to the user 
+	\item Numpy - Was used for most of the arrays in the delay prediction, and the matrix transformations required.
+	\item Matplot - Was used for the graph plotting so that we could visualise how the two delay prediction methods were working and compare them
+\end{itemize}
+	For the database, we selected SQL Express. Because a member of our group had used this a lot on their placement year so was familiar with MYSQL.	   
 	
-	Packages: for NLP, use NLTK\citep{NLTK}, or others, 
-	
-	For KnowledgeBase and Engine: PyKE or PyKnow, or others. 
-	
-	For Database: e.g, Postgres, or MongoDB     
-	
-	\subsection{Development Framework}	
+	%\subsection{Development Framework}	
 	
 	\section{Design of the Chatbot}	 \label {Design}
 	
 	\subsection{The Architecture of the chatbot}
+	
 	In an early group meeting we decided to conduct the work for this project modularly. This meant creating contracts with one another on what work would be completed by each member, by when and detailing exactly what we expected from each piece of work. This meant we could work separately, which was necessary as much of this work was completed away from university. It was decided that Dan would create a database, as well as writing predictive models, Brandon would write the knowledge-base and inferring engine, and Charlie would write the scraper and NLPU. Once all this work was completed, the group could come together and integrate the various pieces of work. 
 	
 	
 	The chatot is responsible for handling questions from a user and responding to these. It uses the NLPU to understand what a user has inputted as well as to see if all fields have been filled for a search. If all fields have not been inputted, the chatbot will reply to the user asking for the information it is missing. Once the NPLU has all the information it needs to make a search, it delivers this to the scraper or the prediction model depending on the task. If the task is for find the cheapest ticket, once this has been found the chatbot will relay this information to the user with a price and a link to buy the ticket. Similarly, for predicting train delays, once the predicted delay has been predicted, it is relayed through the chatbot to the user.
 	
 	\subsection{User Interface} 
+	For the user interface, we decided to emulate a chat window similar to your typical messaging app, consisting of a chat log, chat line and send button. The chat log would display a history of all the messages sent between the user and the bot, whilst displaying who sent each message and the time sent. The chat line and send button would be the way the user interacts with the system. Responses to messages sent by the chatbot would be written in the chat line and then “sent” for processing when the return key, or the send button are pressed.	
+	
 	
 	\subsection{Scraper}
-	The implementation of the scraper has been designed to complete the task of finding a cheapest ticket for a train booking. Trainline’s website \citet{trainline} was chosen to be scraped, this was because when inspecting the page when a search was completed there was a clear tag which indicated the cheapest ticket which could then be used to return to the user. The package `selenium’ \citet{selenium} was used to webscrape as it was found to be the most useful for what was trying to be achieved. The TrainLine class has many functions which find different elements within TrainLine’s page, which are then filled once the chatbot has retrieved information from the user. 
-	
-	The scraper clears all field boxes before entering data. This is because if a field was pre-filled by the website, i.e. defaulting to today's date, when the scraper tried to enter the date which has been specified by the user, it cannot do so as it is already full and throws an error. The scraper uses selenium to find specific elements within the page that will be filled with the users query. For example if a user wants a single ticket, it is capable of choosing between the radio buttons for a `single’ or `return’ journey. This is done by using TrainLine’s element ID’s, for example the radio button for a single tickets element ID is `single’, and therefore can be found and clicked. 
-	
-	Once a full search has been made, the scraper waits for an element with an `aria-label’ that has the value `the cheapest fare’. The price which belongs to this value is the cheapest ticket for the specified journey, and this price and the link to the page is given as a reply to the user through the chatbot.	
+	The scraper will input all necessary fields in Trainline’s website. Trainline’s ticket search will fail if the train station is spelt wrong so the scraper needs to work with the NLPU to ensure stations are correctly spelt. Additionally, the website only handles specific date formats so the NLPU will need to format differing date formats into the accepted version.
 	
 	\subsection{NLP}
-	The NLPU is essential to the scraper. TraineLine’s website only works for certain date formats, 24 hour times, full and correctly spelt train stations, and will only complete a search successfully if it has all of the information. The NLPU works with the chatbot to ensure all fields are full before passing this information to the scraper so it doesn’t fail. Not only this, but the chatbot has to be able to understand what a user is asking it to do. The NLPU can identify, using SpaCy’s \citet{Spacydoc} parts of speech, when a user is inputting a cheapest ticket query or prediction query. It does this by looking for specific words in the sentence. To identify whether it is a cheapest ticket query it looks for words in the stems.json file, which matches similar words. If a query contains the a words, once stemmed,  `book’, `ticket’, `cheap’ or `buy’, it infers that the user is wanted to find the cheapest ticket, rather than asking about a delay prediction. The same goes for the prediction query. 
+	The NLPU shall be able to handle large queries. This means a user can input into the chatbot a sentence with lots of information in, and the NLPU shall be able to understand what the user is asking for. This may not be achievable for all structures of sentences due as that would be very complicated, but annexs \ref{appendix:ChatFlow} shows the structure of a sentence the NLP will be designed to work for. The NLPU shall also accept multiple date formats, time formats and understand words like ‘tomorrow’ and ‘today’.
 	
-	One of the most important parts of the NLPU for this project was the chatbot recognising train station names that were spelt incorrectly, or missing parts of the station name, as when these stations are inputted into the scraper they must be exact or the search will not run. To do this a package called ‘fuzzywuzzy’ was used, which does a ‘fuzzy match’ on station names and finds percentage matches to the station names inputted. If a station is not a 100\% `fuzzy match’, the chatbot suggests any station that has an 80\% match or higher. The unit also handles multiple different date formats, times and understands words like ‘today’ and ‘tomorrow’. 
-	
-	\begin{figure}[!htb]
-		\begin{center}
-			\includegraphics[width=1\textwidth]{Resources/partsOfSpeechLarge.jpeg}
-			\caption{Example of SpaCy's parts of speech tagging on a cheapest ticket query}
-			\label{Img:Spacy}
-		\end{center}
-	\end{figure}
-	
-	For sentence queries, like the one in figure \ref{Img:Spacy}, the NLPU works by using SpaCy, looking at parts of speech tags like `NOUN' or `VERB' or for words within the stems.json file. For example, if the parts of speech tag is `ADP' and one of the relating `from\_station' words in the stems.json file, the program extracts the following station name and sets it to the origin station. 
 	
 	\subsection{Knowledgebase}
 	
@@ -335,7 +326,7 @@ Once the individual work was complete the final risk was that our work would not
 	
 	These distances are then sorted and you get the mean of the delay at the second station for the closest K nodes in the dataset. This is simple algorithm but heavily dependant on finding the correct K value. Too small and you wont get the correct number because it will be skewed by having not enough data, too large and the result will be skewed by nodes that are not close enough.
 	
-	\subsection{Conversation Control}
+	%\subsection{Conversation Control}
 	
 	%\begin{table}
 		%\centering
@@ -352,6 +343,35 @@ Once the individual work was complete the final risk was that our work would not
 	
 	\section{Implementation} \label{Implementation}
 	
+	\subsection{Scraper}
+	The implementation of the scraper has been designed to complete the task of finding a cheapest ticket for a train booking. Trainline’s website \citet{trainline} was chosen to be scraped, this was because when inspecting the page when a search was completed there was a clear tag which indicated the cheapest ticket which could then be used to return to the user. The package `selenium’ \citet{selenium} was used to webscrape as it was found to be the most useful for what was trying to be achieved. The TrainLine class has many functions which find different elements within TrainLine’s page, which are then filled once the chatbot has retrieved information from the user. 
+	
+	The scraper clears all field boxes before entering data. This is because if a field was pre-filled by the website, i.e. defaulting to today's date, when the scraper tried to enter the date which has been specified by the user, it cannot do so as it is already full and throws an error. The scraper uses selenium to find specific elements within the page that will be filled with the users query. For example if a user wants a single ticket, it is capable of choosing between the radio buttons for a `single’ or `return’ journey. This is done by using TrainLine’s element ID’s, for example the radio button for a single tickets element ID is `single’, and therefore can be found and clicked. 
+	
+	Once a full search has been made, the scraper waits for an element with an `aria-label’ that has the value `the cheapest fare’. The price which belongs to this value is the cheapest ticket for the specified journey, and this price and the link to the page is given as a reply to the user through the chatbot.	
+	
+	\subsection{NLP}
+	The NLPU is essential to the scraper. TraineLine’s website only works for certain date formats, 24 hour times, full and correctly spelt train stations, and will only complete a search successfully if it has all of the information. The NLPU works with the chatbot to ensure all fields are full before passing this information to the scraper so it doesn’t fail. Not only this, but the chatbot has to be able to understand what a user is asking it to do. The NLPU can identify, using SpaCy’s \citet{Spacydoc} parts of speech, when a user is inputting a cheapest ticket query or prediction query. It does this by looking for specific words in the sentence. To identify whether it is a cheapest ticket query it looks for words in the stems.json file, which matches similar words. If a query contains the a words, once stemmed,  `book’, `ticket’, `cheap’ or `buy’, it infers that the user is wanted to find the cheapest ticket, rather than asking about a delay prediction. The same goes for the prediction query. 
+	
+	One of the most important parts of the NLPU for this project was the chatbot recognising train station names that were spelt incorrectly, or missing parts of the station name, as when these stations are inputted into the scraper they must be exact or the search will not run. To do this a package called ‘fuzzywuzzy’ was used, which does a ‘fuzzy match’ on station names and finds percentage matches to the station names inputted. If a station is not a 100\% `fuzzy match’, the chatbot suggests any station that has an 80\% match or higher. The unit also handles multiple different date formats, times and understands words like ‘today’ and ‘tomorrow’. 
+	
+	\begin{figure}[!htb]
+		\begin{center}
+			\includegraphics[width=1\textwidth]{Resources/partsOfSpeechLarge.jpeg}
+			\caption{Example of SpaCy's parts of speech tagging on a cheapest ticket query}
+			\label{Img:Spacy}
+		\end{center}
+	\end{figure}
+	
+	For sentence queries, like the one in figure \ref{Img:Spacy}, the NLPU works by using SpaCy, looking at parts of speech tags like `NOUN' or `VERB' or for words within the stems.json file. For example, if the parts of speech tag is `ADP' and one of the relating `from\_station' words in the stems.json file, the program extracts the following station name and sets it to the origin station. 
+	
+	\subsection{KnowledgeBase and Inferring engine}
+	The knowledge base and inferring engine were implemented with a library called Experta. Experta will store declared facts, such as where the user wants to go, or where they are coming from.
+	
+	From the declared facts, the engine will infer which function should next be run based on rules associated with each. The rules will be evaluated, and if true the function runs. In the case of multiple rules being evaluated to be true, the engine will pick a random one.
+	
+	After each function is run, all of the rules are re-evaluated so an updated set of available functions is available for selection. Once there are no remaining functions, the application will terminate.	
+		
 	\subsection{Predictive Models}
 	
 	\subsubsection{Bayes}
@@ -432,15 +452,23 @@ Once the individual work was complete the final risk was that our work would not
 	
 	\subsection{System Testing}
 	
-	\subsection{Userbility Testing}
+	\subsection{Usability Testing}
 	
-	\section{Evaluation and Discussion}\label {Evaluation}
+	\section{Evaluation and Conclusion}\label {Evaluation}
+	The scope of this project is huge and open ended, and therefore an endless amount of additions could be made to the project to make it faster and smarter. However, for the time that the group had to work on it, we are extremely happy. The chabot can handle full sentences, as well as prompting the user for any missing information. The information given to the chatbot is validated, and when appropriate the chatbot will make an attempt at what it thinks the user meant, or provide options the user can select from. The scraper is successful in finding a user the cheapest ticket for the parameters it has been given, however there is a significant delay when loading Trainline’s website, which could be mitigated if we had been granted access to National Rails API. Additionally, delays are predicted with reasonable accuracy, but with more time could be improved further. 
 	
-	\section{Conclusion or Summary} \label{Conclusion}
+	
+	In conclusion, work was completed to a high standard and as a group we are pleased with what we have produced. The individual parts of this project were challenging, as was working as a group remotely. There were a few setbacks during the course of the project due to illness and extenuating circumstances. Despite this we have created a piece of work we are all proud of, and that we believe meets the required specification. 
+	
 	
 	\bibliographystyle{agsm}
 	%\bibliographystyle{apalike}
 	% you should use your own bibtex file to replace the following example_ref bib file.
 	\bibliography{Referances} 
+	\clearpage
+	\appendix
+	
+	\section{Chat Flow} \label{appendix:ChatFlow}	
+		\includepdf[pages={1-4},pagecommand={\pagestyle{plain}},linktodoc=true,width=1\textwidth]{Resources/Annex/chatbotDialog.pdf}
 	
 \end{document}
