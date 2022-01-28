@@ -62,5 +62,7 @@ def compare_and_train(iteration_count, data_limit, training_iterations, compare_
     plt.close()
 
 
+
+
 # knn.getK(1000,100,1000) # ~12 hours
-compare_and_train(20, 1000, 100000, 1000)  # one hour per iteration
+compare_and_train(10, 1000, 100000, 1000)  # 75 mins per iteration
