@@ -7,7 +7,7 @@ GO
 -- Create date: 
 -- Description:	
 -- =============================================
-ALTER PROCEDURE GetAllInfoOnStationTimes
+CREATE PROCEDURE GetAllInfoOnStationTimes
 	-- Add the parameters for the stored procedure here
 	@station varchar(7) = ''
 AS

@@ -7,7 +7,7 @@ GO
 -- Create date: 
 -- Description:	
 -- =============================================
-ALTER PROCEDURE CompareStations
+CREATE PROCEDURE CompareStations
 	-- Add the parameters for the stored procedure here
 	@A VARCHAR(7) = '',
 	@B VARCHAR(7) = ''
