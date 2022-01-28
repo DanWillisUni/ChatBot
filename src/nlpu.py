@@ -5,19 +5,22 @@ from spacy import displacy
 import json
 import pandas as pd
 import dateparser
+from os.path import dirname
+
+project_root = dirname(dirname(__file__))
 
 nlp = spacy.load('en_core_web_sm')
-with open("../stemming/stems.json", "r") as read_file:
+with open(project_root + "/src/stemming/stems.json", "r") as read_file:
     stems = json.load(read_file)
 
 
 def load_stations():
     data = {}
-    with open('../../resources/stations.csv') as fp:
+    with open(project_root + '/resources/stations.csv') as fp:
         fp.readline()  # throw away first line
         for line in fp:
             fields = line.split(',')
-            data[fields[0].lower()] = fields[3].lower()
+            data[fields[0].lower()] = fields[4]
     return data
 
 
@@ -32,7 +35,6 @@ def get_matching_stations(station_text):
     except KeyError:
         matching_stations_cache[station_text.lower()] = process.extract(station_text, station_map.keys(), limit=50)
         return matching_stations_cache[station_text.lower()]
-
 
 def extract_station_name(token):
     ntoken = token.doc[token.i + 1]

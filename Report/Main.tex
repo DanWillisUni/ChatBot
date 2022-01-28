@@ -346,10 +346,10 @@ For the delay prediction we used a K-Nearest-Neighbour (KNN) method and a neural
 	Once a full search has been made, the scraper waits for an element with an `aria-label’ that has the value `the cheapest fare’. The price which belongs to this value is the cheapest ticket for the specified journey, and this price and the link to the page is given as a reply to the user through the chatbot.	
 	
 	\subsection{NLP}
-	The NLPU is essential to the scraper. TraineLine’s website only works for certain date formats, 24 hour times, full and correctly spelt train stations, and will only complete a search successfully if it has all of the information. The NLPU works with the chatbot to ensure all fields are full before passing this information to the scraper so it doesn’t fail. Not only this, but the chatbot has to be able to understand what a user is asking it to do. The NLPU can identify, using SpaCy’s \citet{Spacydoc} parts of speech, when a user is inputting a cheapest ticket query or prediction query. It does this by looking for specific words in the sentence. To identify whether it is a cheapest ticket query it looks for words in the stems.json file, which matches similar words. If a query contains the a words, once stemmed,  `book’, `ticket’, `cheap’ or `buy’, it infers that the user is wanted to find the cheapest ticket, rather than asking about a delay prediction. The same goes for the prediction query. 
-	
-	One of the most important parts of the NLPU for this project was the chatbot recognising train station names that were spelt incorrectly, or missing parts of the station name, as when these stations are inputted into the scraper they must be exact or the search will not run. To do this a package called ‘fuzzywuzzy’ was used, which does a ‘fuzzy match’ on station names and finds percentage matches to the station names inputted. If a station is not a 100\% `fuzzy match’, the chatbot suggests any station that has an 80\% match or higher. The unit also handles multiple different date formats, times and understands words like ‘today’ and ‘tomorrow’. 
-	
+	The NLPU is essential to the scraper. TraineLine’s website only works for certain date formats, 24 hour times, full and correctly spelt train stations, and will only complete a search successfully if it has all of the information. The NLPU works with the chatbot to ensure all fields are full before passing this information to the scraper so it doesn’t fail. Not only this, but the chatbot has to be able to understand what a user is asking it to do. The NLPU can identify, using SpaCy’s \citet{Spacydoc} parts of speech, when a user is inputting a cheapest ticket query or prediction query. It does this by looking for specific words in the sentence. To identify whether it is a cheapest ticket query it looks for words in the stems.json file, which matches similar words. If a query contains the a words, once stemmed,  `book’, `ticket’, `cheap’ or `buy’, it infers that the user is wanting to find the cheapest ticket, rather than asking about a delay prediction. The same goes for the prediction query.
+
+	One of the most important parts of the NLPU for this project was the chatbot recognising train station names that were spelt incorrectly, or missing parts of the station name, as when these stations are inputted into the scraper they must be exact or the search will not run. To do this a package called ‘fuzzywuzzy’ was used, which does a ‘fuzzy match’ on station names and finds percentage matches to the station names inputted. If a station is not a 100\% `fuzzy match’, the chatbot suggests any station that has an 85\% match or higher. The unit also handles multiple different date formats, times and understands words like ‘today’ and ‘tomorrow’.
+
 	\begin{figure}[!htb]
 		\begin{center}
 			\includegraphics[width=1\textwidth]{Resources/partsOfSpeechLarge.jpeg}
@@ -357,52 +357,50 @@ For the delay prediction we used a K-Nearest-Neighbour (KNN) method and a neural
 			\label{Img:Spacy}
 		\end{center}
 	\end{figure}
-	
-	For sentence queries, like the one in figure \ref{Img:Spacy}, the NLPU works by using SpaCy, looking at parts of speech tags like `NOUN' or `VERB' or for words within the stems.json file. For example, if the parts of speech tag is `ADP' and one of the relating `from\_station' words in the stems.json file, the program extracts the following station name and sets it to the origin station. 
-	
+
+	For sentence queries, like the one in figure \ref{Img:Spacy}, the NLPU works by using SpaCy, looking at parts of speech tags like `NOUN' or `VERB' or for words within the stems.json file. For example, if the parts of speech tag is `ADP' and one of the relating `from\_station' words in the stems.json file, the program extracts the following station name and sets it to the origin station.
+
 	\subsection{KnowledgeBase and Inferring engine}
 	The knowledge base and inferring engine were implemented with a library called Experta. Experta will store declared facts, such as where the user wants to go, or where they are coming from.
-	
+
 	From the declared facts, the engine will infer which function should next be run based on rules associated with each. The rules will be evaluated, and if true the function runs. In the case of multiple rules being evaluated to be true, the engine will pick a random one.
-	
-	After each function is run, all of the rules are re-evaluated so an updated set of available functions is available for selection. Once there are no remaining functions, the application will terminate.	
-		
+
+	After each function is run, all of the rules are re-evaluated so an updated set of available functions is available for selection. Once there are no remaining functions, the application will terminate.
+
 	\subsection{Predictive Models}
-	
+
 	\subsubsection{Bayes}
 	To get the probabilities we can use stored procedures to extract the frequencies from the database.
-	
-	Firstly the probability of A (the train being late to the second station). This was easy enough to calculate I simply extracted the frequency count of all times it arrived at the second station late. Totalled up the number of times the train was late and divided by the total pieces of data I had.
-	
+
+	Firstly the probability of A (the train being late to the second station)  was easy enough to calculate as I simply extracted the frequency count of all the times the train arrived at the second station late and divided by the total pieces of data I had.
+
 	Secondly I calculated the probability of B given A (the probability the train was late to the first station by delay given it was late to the second station). To do this I extracted the frequencies of delays at the first station if the train arrived late to the second station. From here I summed all the frequencies that the train was late to the first station by at least the delay.
-	
-	Next I calculated the probability of B given not A (the probability the train was late to the first station by delay given it was on time to the second station). To do this I extracted the frequencies of delays at the first station if the train arrived on-time or early to the second station. From here I summed all the frequencies that the train was late to the first station by at least the delay.	
-	
-	From here it was just a case of doing the calculation and returning the result as a probability.
-	
+
+	Next I calculated the probability of B given not A (the probability the train was late to the first station by delay given it was on time to the second station). To do this I extracted the frequencies of delays at the first station if the train arrived on-time or early to the second station. From here I summed all the frequencies that the train was late to the first station by at least the delay, then it was just a case of doing the calculation and returning the result as a probability.
+
 	\subsubsection{Neural Network}
-	
-	 We thought that the best way to implement all the weights and values being stored was through dictionaries with string keys eg: "W1" with multidimensional arrays as the value. 
-	 
+
+	 We thought that the best way to implement all the weights and values being stored was through dictionaries with string keys eg: "W1" with multidimensional arrays as the value.
+
 	 This meant that I could implement a solution which has the capacity to expand the number of layers and neurons per layer easily with simple for loops, making the solution highly customizable.
-	 
-	 To keep track of how well the network was learning we would test every single data point through it every 1000 iterations and get the root mean squared error for them all. This was then plotted on a graph seen in figure \ref{Img:NNTrainA}. This shows how quickly it could correct itself at the start and then converge to 0 with a shape similar to $y=x^{-1}$ graph. This was the shape that we expected to see.
-	 
+
+	 To keep track of how well the network was learning we would test every single data point through it every 1000 iterations and get the root mean squared error (RMSE) for them all. This was then plotted on a graph seen in figure \ref{Img:NNTrainA}. This shows how quickly it could correct itself at the start and then converge to 0 with a shape similar to $y=x^{-1}$ graph. This was the shape that we expected to see.
+
 	 \begin{figure}[!htb]
 	 	\centering
 	 		\includegraphics{Resources/PartTwo/LearningGraphs/20220111_184633_1000_1.png}
 	 		\caption{Comparison of neural network and K nearest neighbour}
 	 		\label{Img:NNTrainB}
 	 \end{figure}
- 
+
  	We would also graph every hundred thousand iterations  as seen in figure \ref{Img:NNTrainB} to be able to see more clearly that is learning still. However this quickly has a very small range on the Y axis showing it is learning slower.
-	
+
 	\subsubsection{K Nearest Neighbour}
 	Once you have the data for the KNN it is a very simple algorithm but still heavily depends on the correct K value. So to find the best K value we set up a test to run one thousand iterations of selecting random data points from the data. Then for each piece of data I would create a KNN object with a different value of K ranging 1 to 100 (inclusive). Get a prediction from each object and compare it to the target outcome. From this I calculated the root mean square error for each value of K over the iterations.
-	
-	The results plotted on a graph is in figure \ref{Img:KSearch} and the top ranking results are included in the table in figure \ref{Img:KSearchRaw}.	
+
+	The results plotted on a graph is in figure \ref{Img:KSearch} and the top ranking results are included in the table in figure \ref{Img:KSearchRaw}.
 	The shape of the graph is exactly what I expected to see with very few neighbours having a very high RMSE and then having a dip where the ideal K value is with the RMSE gradually increasing again as the more neighbours are used.
-	
+
 	\begin{figure}[!htb]
 		\centering
 		\begin{minipage}{.8\textwidth}
@@ -418,10 +416,10 @@ For the delay prediction we used a K-Nearest-Neighbour (KNN) method and a neural
 			\label{Img:KSearchRaw}
 		\end{minipage}
 	\end{figure}
-	
+
 	From these results I concluded that 9 was the best value for K not only because it ranks at the top but because 10 and 8 rank 3rd and 4th in the list. However any value from 5 - 15 would still be accurate.
 	\subsubsection{Comparison}
-	We didn't think that the Bayesian model was very good as it is a classification model not a regression therefore not particularly useful to the user as they would want to know their expected time of arrival.
+	We didn't think that the Bayesian model was very good as it is a classification model not a regression model, therefore not particularly useful to the user as they would want to know their expected time of arrival.
 	
 	%\begin{figure}[!htb]
 	%	\begin{center}
@@ -445,9 +443,27 @@ For the delay prediction we used a K-Nearest-Neighbour (KNN) method and a neural
 	
 	\subsection{Integration Testing}
 	
+	For our chatbot all the sections are very well encapsulated through design. This also means that they only interact in the knowledge base which is where all the crossover is. 
+	
+	To integrate the prediction models we mapped the station names to the TIPLOC in the database that was used throughout the prediction models. This also enabled us to validate that the stations were in the correct order and actually on the line being used. Because of the way the prediction models can be encapsulated this enabled us to simply add a handful of lines of code.
+	
+	To integrate the NLP, all that was required was calling the correct functions when appropriate in order to process and validate the inputs provided by the user, along with appropriate messages detailing the progress towards extracting all of the information needed.
+	
+	Integrating the web scraper was very similar to how the prediction models and NLP were integrated. As mentioned, and as a result of the encapsulation used, the extent of it was simply calling a function and using the values returned in a message to the user.
+	
 	\subsection{System Testing}
 	
+	System testing was completed through giving the fully integrated system a variety of initial queries, along with any subsequently required inputs to see if the output is as expected and to ensure that no other information is required from the user beyond what was initially supplied.
+	
 	\subsection{Usability Testing}
+	
+	To make the chatbot more user friendly we began by anticipating the formats what we expected a user to reasonably respond to each question. If the user responded in an unsupported format we would say the format that is required. This will make it easier for the user to enter the correct data.
+	
+	The chatbot will also hold a conversation until the required information is collected. 
+	
+	The chatbot will ask very specific questions especially if the user states that the data was incorrect. This enables the user to respond correctly as they are unambiguous.
+	
+	In order to make itself as clear as possible the chatbot will use previous collected information in order to tailor the question making it as clear as possible in what it is asking for. 
 	
 	\section{Evaluation and Conclusion}\label {Evaluation}
 	The scope of this project is huge and open ended, and therefore an endless amount of additions could be made to the project to make it faster and smarter. However, for the time that the group had to work on it, we are extremely happy. The chabot can handle full sentences, as well as prompting the user for any missing information. The information given to the chatbot is validated, and when appropriate the chatbot will make an attempt at what it thinks the user meant, or provide options the user can select from. The scraper is successful in finding a user the cheapest ticket for the parameters it has been given, however there is a significant delay when loading Trainline’s website, which could be mitigated if we had been granted access to National Rails API. Additionally, delays are predicted with reasonable accuracy, but with more time could be improved further. 

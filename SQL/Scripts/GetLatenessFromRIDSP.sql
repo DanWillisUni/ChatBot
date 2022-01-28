@@ -7,7 +7,7 @@ GO
 -- Create date: 
 -- Description:	
 -- =============================================
-ALTER PROCEDURE GetLatenessFromRID
+CREATE PROCEDURE GetLatenessFromRID
 	-- Add the parameters for the stored procedure here
 	@rid VARCHAR(16) = ''
 AS

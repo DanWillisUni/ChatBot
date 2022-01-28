@@ -5,6 +5,8 @@ from datetime import datetime
 import PartTwo.Helpers.Fitness as fit
 import PartTwo.NeuralNetwork as nn
 import PartTwo.KNearestNeighbours as knn
+import PartTwo.Helpers.SPHelper as sph
+import appSettings
 
 
 def compare_nn_and_knn(iteration_count, data_limit):
@@ -61,8 +63,23 @@ def compare_and_train(iteration_count, data_limit, training_iterations, compare_
     plt.savefig("FullTrainingData_" + datetime.now().strftime("%Y%m%d_%H%M%S_") + ".png")
     plt.close()
 
+def verify_station_order(from_station, to_station):
+    all_stations = fit.get_all_stations()
+    if from_station in all_stations:
+        if to_station in all_stations:
+            normal_distance = sph.compare_stations(appSettings.get_conn_str(),from_station,to_station)
+            if normal_distance != 'None':  # if not Null
+                if int(normal_distance) > 0:
+                    return True
+    return False
+
+
+def predict(from_station, to_station, delay):
+   prediction_model = knn.get_knn()
+   delay_prediction = prediction_model.predict_nice(delay, from_station, to_station)
+   return delay_prediction
 
 
 
 # knn.getK(1000,100,1000) # ~12 hours
-compare_and_train(10, 1000, 100000, 1000)  # 75 mins per iteration
+# compare_and_train(20, 1000, 100000, 1000)  # one hour per iteration
