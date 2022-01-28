@@ -523,7 +523,7 @@ class KEngine(KnowledgeEngine):
     def delay_send_delay_prediction(self, current_delay, current_station, target_station):
         predicted_delay = predict(station_map[current_station.lower()], station_map[target_station.lower()], current_delay)
 
-        print("Predicted delay at %s from %s when you are currently delayed by %s will be %s" % (current_station, target_station, current_delay + " minutes", math.ceil(predicted_delay) + " minutes"))
+        print("Predicted delay at %s from %s when you are currently delayed by %s will be %s" % (target_station, current_station, str(current_delay) + " minutes", str(predicted_delay) + " minutes"))
 
     def run_confirmation(self, origin_station, destination_station, ticket_type, leave_time, return_time, adult_count,
                          children_count, leave_time_type, return_time_type):
@@ -553,16 +553,50 @@ class KEngine(KnowledgeEngine):
         if correct.lower() == "no":  # TODO Add support for more variations of no
             print("Sorry about that! I'm going to ask you the questions again to make sure I get it right this time!")
 
-            # TODO Account for Key Errors here
-            self.retract(self.facts[self.__find_fact("origin_station")])
-            self.retract(self.facts[self.__find_fact("destination_station")])
-            self.retract(self.facts[self.__find_fact("ticket_type")])
-            self.retract(self.facts[self.__find_fact("leave_time")])
-            self.retract(self.facts[self.__find_fact("return_time")])
-            self.retract(self.facts[self.__find_fact("adult_count")])
-            self.retract(self.facts[self.__find_fact("children_count")])
-            self.retract(self.facts[self.__find_fact("leave_time_type")])
-            self.retract(self.facts[self.__find_fact("return_time_type")])
+            try:
+                self.retract(self.facts[self.__find_fact("origin_station")])
+            except KeyError:
+                pass
+
+            try:
+                self.retract(self.facts[self.__find_fact("destination_station")])
+            except KeyError:
+                pass
+
+            try:
+                self.retract(self.facts[self.__find_fact("ticket_type")])
+            except KeyError:
+                pass
+
+            try:
+                self.retract(self.facts[self.__find_fact("leave_time")])
+            except KeyError:
+                pass
+
+            try:
+                self.retract(self.facts[self.__find_fact("return_time")])
+            except KeyError:
+                pass
+
+            try:
+                self.retract(self.facts[self.__find_fact("adult_count")])
+            except KeyError:
+                pass
+
+            try:
+                self.retract(self.facts[self.__find_fact("children_count")])
+            except KeyError:
+                pass
+
+            try:
+                self.retract(self.facts[self.__find_fact("leave_time_type")])
+            except KeyError:
+                pass
+
+            try:
+                self.retract(self.facts[self.__find_fact("return_time_type")])
+            except KeyError:
+                pass
         else:
             if correct.lower() != "yes":
                 print("I'm not sure what you meant. So I'm going to assume everything is alright!")
