@@ -21,7 +21,7 @@ class MyTestCase(unittest.TestCase):
 
         for i in tests :
             attempt = parse_query(i[0])
-            self.assertEqual(i[1], attempt.)
+            self.assertEqual(i[1], attempt)
 
 if __name__ == '__main__':
     unittest.main()
