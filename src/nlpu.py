@@ -9,7 +9,7 @@ from os.path import dirname
 
 project_root = dirname(dirname(__file__))
 
-nlp = spacy.load('en_core_web_sm')
+nlp = spacy.load("en_core_web_sm")
 with open(project_root + "/src/stemming/stems.json", "r") as read_file:
     stems = json.load(read_file)
 

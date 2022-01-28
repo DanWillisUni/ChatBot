@@ -29,7 +29,7 @@ class KEngine(KnowledgeEngine):
 
     @Rule(Fact(state='greeting'))
     def ask_how_can_help(self):
-        self.declare(Fact(now=pd.Timestamp(datetime.now()).ceil("1min").to_pydatetime()))
+        self.declare(Fact(now=Timestamp(datetime.now()).ceil("1min").to_pydatetime()))
 
         q = input("How can I help you? ")
         data = parse_query(q)

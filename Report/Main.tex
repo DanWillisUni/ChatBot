@@ -170,7 +170,7 @@ Once the individual work was complete the final risk was that our work would not
 	Overall it was entertaining and enjoyable to speak to. If there was more time for this project, this is a great feature the group would have liked to incorporate it into the project.
 	
 	\subsection{Google Assistant}
-	Google assistant is arguably a chatbot, it commonly has a speech to text, and text to speech software alongside \citet{Google Assistant}. However there is the option on phones to just type text to it and reply, but this conversation would be the same if verbal.
+	Google assistant is arguably a chatbot, it commonly has a speech to text, and text to speech software alongside \citet{GoogleAssistant}. However there is the option on phones to just type text to it and reply, but this conversation would be the same if verbal.
 	
 	Google assistant is useful to perform tasks such as switching lights on and off, playing media, setting timers for cooking etc. But that is all it is, as it is designed to be a tool and to be as useful and functional as possible. It isn't designed to hold a conversation with a user. 
 	
@@ -379,8 +379,9 @@ For the delay prediction we used a K-Nearest-Neighbour (KNN) method and a neural
 	Next I calculated the probability of B given not A (the probability the train was late to the first station by delay given it was on time to the second station). To do this I extracted the frequencies of delays at the first station if the train arrived on-time or early to the second station. From here I summed all the frequencies that the train was late to the first station by at least the delay, then it was just a case of doing the calculation and returning the result as a probability.
 
 	\subsubsection{Neural Network}
-
-	 We thought that the best way to implement all the weights and values being stored was through dictionaries with string keys eg: "W1" with multidimensional arrays as the value.
+	Interestingly there are python libraries that will essentially build and train a neural network for you with limited input other than the shape and the training data. However we decided against using this as we felt it would be a hollow victory and not in the spirt of the coursework.
+	
+	 Therefore we thought that the best way to implement all the weights and values being stored was through dictionaries with string keys eg: "W1" with multidimensional arrays as the value.
 
 	 This meant that I could implement a solution which has the capacity to expand the number of layers and neurons per layer easily with simple for loops, making the solution highly customizable.
 
@@ -388,12 +389,26 @@ For the delay prediction we used a K-Nearest-Neighbour (KNN) method and a neural
 
 	 \begin{figure}[!htb]
 	 	\centering
-	 		\includegraphics{Resources/PartTwo/LearningGraphs/20220111_184633_1000_1.png}
-	 		\caption{Comparison of neural network and K nearest neighbour}
-	 		\label{Img:NNTrainB}
+	 		\includegraphics{Resources/PartTwo/FullTrainingData_20220128_124029_.png}
+	 		\caption{Neural network learning over one million iterations}
+	 		\label{Img:NNTrainA}
 	 \end{figure}
+ 
+ \begin{figure}[!htb]
+ 	\centering
+ 	\includegraphics{Resources/PartTwo/LearningGraphs/ActualRun/20220128_020003_1000_1.png}
+ 	\caption{Neural network learning over first hundred thousand iterations}
+ 	\label{Img:NNTrainB}
+ \end{figure}
 
- 	We would also graph every hundred thousand iterations  as seen in figure \ref{Img:NNTrainB} to be able to see more clearly that is learning still. However this quickly has a very small range on the Y axis showing it is learning slower.
+\begin{figure}[!htb]
+	\centering
+	\includegraphics{Resources/PartTwo/LearningGraphs/ActualRun/20220128_122722_1000_1.png}
+	\caption{Neural network learning over last hundred thousand iterations}
+	\label{Img:NNTrainC}
+\end{figure}
+
+ 	We would also graph every hundred thousand iterations as seen in figure \ref{Img:NNTrainB} and figure \ref{Img:NNTrainC} to be able to see more clearly that is learning still. However this quickly has a very small range on the Y axis showing it is learning slower.
 
 	\subsubsection{K Nearest Neighbour}
 	Once you have the data for the KNN it is a very simple algorithm but still heavily depends on the correct K value. So to find the best K value we set up a test to run one thousand iterations of selecting random data points from the data. Then for each piece of data I would create a KNN object with a different value of K ranging 1 to 100 (inclusive). Get a prediction from each object and compare it to the target outcome. From this I calculated the root mean square error for each value of K over the iterations.
@@ -406,7 +421,7 @@ For the delay prediction we used a K-Nearest-Neighbour (KNN) method and a neural
 		\begin{minipage}{.8\textwidth}
 			\centering
 			\includegraphics[width=.8\linewidth]{Resources/PartTwo/searchingForK_20220110_065714.png}
-			\captionof{figure}{Searching for the correct K value}
+			\captionof{figure}{Searching for the correct K value (Y axis is multiplied by 10)}
 			\label{Img:KSearch}
 		\end{minipage}%
 		\begin{minipage}{.2\textwidth}
@@ -421,20 +436,38 @@ For the delay prediction we used a K-Nearest-Neighbour (KNN) method and a neural
 	\subsubsection{Comparison}
 	We didn't think that the Bayesian model was very good as it is a classification model not a regression model, therefore not particularly useful to the user as they would want to know their expected time of arrival.
 	
-	%\begin{figure}[!htb]
-	%	\begin{center}
-	%		\includegraphics{Resources/PartTwo/Comparison_20220112_152958.png}
-	%		\caption{Comparison of neural network and K nearest neighbour}
-	%		\label{Img:NNKNNComp}
-	%	\end{center}
-	%\end{figure}
+	\begin{figure}[!htb]
+		\begin{center}
+			\includegraphics{Resources/PartTwo/Comparison_20220128_124029.png}
+		\caption{Comparison of neural network and K nearest neighbour for 1000 routes}
+			\label{Img:NNKNNComp}
+		\end{center}
+	\end{figure}
 	
-	In figure \ref{Img:NNKNNComp} we compare the neural network and k nearest neighbours over two million iterations of training the neural network.
+	In figure \ref{Img:NNKNNComp} we compare the neural network and k nearest neighbours over one million iterations of training the neural network.
 	
 	This was accomplished by randomly selecting a thousand data sets, running these datasets through both the models and comparing the predictions to the targets. Then train the neural network on the same dataset for a hundred thousand iterations and repeat.
 	
 	As you can see the K nearest neighbour algorithm is consistently better than the neural network despite the improvements made so we decided to use that as our final predictive model.
 	
+	Interestingly though when using 100 trains instead of 1000 the neural network learnt far faster and quickly overtook the k nearest neighbour as seen in figure \ref{Img:NNKNNCompB} and 
+	
+	\begin{figure}[!htb]
+		\begin{center}
+			\includegraphics{Resources/PartTwo/Comparison_20220116_050242.png}
+			\caption{Comparison of neural network and K nearest neighbour for 100 trains}
+			\label{Img:NNKNNCompB}
+		\end{center}
+	\end{figure}
+
+\begin{figure}[!htb]
+	\centering
+	\includegraphics{Resources/PartTwo/FullTrainingData_20220116_050242_.png}
+	\caption{Neural network learning over two million iterations}
+	\label{Img:NNTrainD}
+\end{figure}
+	
+	\clearpage
 	\section{Testing} \label{Testing}
 	
 	\subsection{Unit Testing}
@@ -457,13 +490,21 @@ For the delay prediction we used a K-Nearest-Neighbour (KNN) method and a neural
 	
 	\subsection{Usability Testing}
 	
+	\begin{figure}[!htb]
+		\begin{center}
+			\includegraphics{Resources/Screenshot 2022-01-28 at 15.23.51.png}
+			\caption{Demo of question tailoring}
+			\label{Img:Userbility}
+		\end{center}
+	\end{figure}
+
 	To make the chatbot more user friendly we began by anticipating the formats what we expected a user to reasonably respond to each question. If the user responded in an unsupported format we would say the format that is required. This will make it easier for the user to enter the correct data.
 	
 	The chatbot will also hold a conversation until the required information is collected. 
 	
 	The chatbot will ask very specific questions especially if the user states that the data was incorrect. This enables the user to respond correctly as they are unambiguous.
 	
-	In order to make itself as clear as possible the chatbot will use previous collected information in order to tailor the question making it as clear as possible in what it is asking for. 
+	In order to make itself as clear as possible the chatbot will use previous collected information in order to tailor the question making it as clear as possible in what it is asking for as seen in \ref{Img:Userbility}
 	
 	\section{Evaluation and Conclusion}\label {Evaluation}
 	The scope of this project is huge and open ended, and therefore an endless amount of additions could be made to the project to make it faster and smarter. However, for the time that the group had to work on it, we are extremely happy. The chabot can handle full sentences, as well as prompting the user for any missing information. The information given to the chatbot is validated, and when appropriate the chatbot will make an attempt at what it thinks the user meant, or provide options the user can select from. The scraper is successful in finding a user the cheapest ticket for the parameters it has been given, however there is a significant delay when loading Trainline’s website, which could be mitigated if we had been granted access to National Rails API. Additionally, delays are predicted with reasonable accuracy, but with more time could be improved further. 
