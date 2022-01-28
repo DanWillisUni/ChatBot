@@ -44,6 +44,7 @@ def extract_station_name(token):
     return name
 
 
+# TODO might need to wrap in a try block
 def extract_journey_time(token):
     # let dateparser do the heavy lifting.
     # just keep adding tokens until it fails
