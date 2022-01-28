@@ -7,7 +7,9 @@ from time import sleep
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
+from os.path import dirname
 
+project_root = dirname(dirname(__file__))
 
 class Ticket:
     SINGLE = 1
