@@ -61,6 +61,16 @@ def compare_and_train(iteration_count, data_limit, training_iterations, compare_
     plt.savefig("FullTrainingData_" + datetime.now().strftime("%Y%m%d_%H%M%S_") + ".png")
     plt.close()
 
+def verify_station_order(from_station, to_station):
+   #TODO verify that the stations are in the correct order on the line
+   return True
+
+
+def predict(from_station, to_station, delay):
+   prediction_model = knn.get_knn()
+   #TODO add convert function in here
+   delay_prediction = prediction_model.predict_nice(delay, from_station, to_station)
+   return delay_prediction
 
 # knn.getK(1000,100,1000) # ~12 hours
 compare_and_train(20, 1000, 100000, 1000)  # one hour per iteration

@@ -1,14 +1,15 @@
 from experta import *
+
+from src import nlpu
 from src.nlpu import *
 from scraper import *
-
+from partTwoHighLevel import *
 
 # Knowledge Engine
 class KEngine(KnowledgeEngine):
 
-    def __init__(self, ui):
+    def __init__(self):
         super().__init__()
-        self.ui = ui
         self.reset()
         self.run()
 
@@ -499,6 +500,20 @@ class KEngine(KnowledgeEngine):
         self.retract(self.facts[self.__find_fact("target_station")])
 
     @Rule(Fact(state="delay"),
+          Fact(current_station=MATCH.current_station),
+          TEST(lambda current_station: get_matching_stations(current_station)[0][-1] == 100),
+          Fact(target_station=MATCH.target_station),
+          TEST(lambda target_station: get_matching_stations(target_station)[0][-1] == 100),
+          TEST(lambda current_station, target_station: current_station.lower() != target_station.lower()),
+          TEST(lambda current_station, target_station: verify_station_order(nlpu.station_map[current_station.lower()], nlpu.station_map[target_station.lower()]) == False)
+          )
+    def delay_check_station_order(self):
+        print("The stations you have chosen are either not on the same line, or are in the wrong order")
+
+        self.retract(self.facts[self.__find_fact("current_station")])
+        self.retract(self.facts[self.__find_fact("target_station")])
+
+    @Rule(Fact(state="delay"),
           Fact(current_delay=MATCH.current_delay),
           Fact(current_station=MATCH.current_station),
           Fact(target_station=MATCH.target_station),
@@ -507,7 +522,9 @@ class KEngine(KnowledgeEngine):
           TEST(lambda current_station, target_station: current_station.lower() != target_station.lower()),
           )
     def delay_send_delay_prediction(self, current_delay, current_station, target_station):
-        print("TODO Calculate delay at %s from %s when the delay is %s" % (target_station, current_station, current_delay))
+        delay = predict(nlpu.station_map[current_station.lower()], nlpu.station_map[target_station.lower()], current_delay)
+
+        print("Predicted delay at %s from %s when you are currently delayed by %s will be %s" % (current_station, target_station, current_delay + " minutes", math.ceil(delay) + " minutes"))
 
     def run_confirmation(self, origin_station, destination_station, ticket_type, leave_time, return_time, adult_count,
                          children_count, leave_time_type, return_time_type):
