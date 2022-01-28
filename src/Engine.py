@@ -553,16 +553,50 @@ class KEngine(KnowledgeEngine):
         if correct.lower() == "no":  # TODO Add support for more variations of no
             print("Sorry about that! I'm going to ask you the questions again to make sure I get it right this time!")
 
-            # TODO Account for Key Errors here
-            self.retract(self.facts[self.__find_fact("origin_station")])
-            self.retract(self.facts[self.__find_fact("destination_station")])
-            self.retract(self.facts[self.__find_fact("ticket_type")])
-            self.retract(self.facts[self.__find_fact("leave_time")])
-            self.retract(self.facts[self.__find_fact("return_time")])
-            self.retract(self.facts[self.__find_fact("adult_count")])
-            self.retract(self.facts[self.__find_fact("children_count")])
-            self.retract(self.facts[self.__find_fact("leave_time_type")])
-            self.retract(self.facts[self.__find_fact("return_time_type")])
+            try:
+                self.retract(self.facts[self.__find_fact("origin_station")])
+            except KeyError:
+                pass
+
+            try:
+                self.retract(self.facts[self.__find_fact("destination_station")])
+            except KeyError:
+                pass
+
+            try:
+                self.retract(self.facts[self.__find_fact("ticket_type")])
+            except KeyError:
+                pass
+
+            try:
+                self.retract(self.facts[self.__find_fact("leave_time")])
+            except KeyError:
+                pass
+
+            try:
+                self.retract(self.facts[self.__find_fact("return_time")])
+            except KeyError:
+                pass
+
+            try:
+                self.retract(self.facts[self.__find_fact("adult_count")])
+            except KeyError:
+                pass
+
+            try:
+                self.retract(self.facts[self.__find_fact("children_count")])
+            except KeyError:
+                pass
+
+            try:
+                self.retract(self.facts[self.__find_fact("leave_time_type")])
+            except KeyError:
+                pass
+
+            try:
+                self.retract(self.facts[self.__find_fact("return_time_type")])
+            except KeyError:
+                pass
         else:
             if correct.lower() != "yes":
                 print("I'm not sure what you meant. So I'm going to assume everything is alright!")
