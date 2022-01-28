@@ -79,5 +79,7 @@ def predict(from_station, to_station, delay):
    delay_prediction = prediction_model.predict_nice(delay, from_station, to_station)
    return delay_prediction
 
+
+
 # knn.getK(1000,100,1000) # ~12 hours
 # compare_and_train(20, 1000, 100000, 1000)  # one hour per iteration
