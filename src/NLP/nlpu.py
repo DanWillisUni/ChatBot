@@ -4,6 +4,7 @@ import spacy
 from spacy import displacy
 import json
 import pandas as pd
+import dateparser
 
 nlp = spacy.load('en_core_web_sm')
 with open("../stemming/stems.json", "r") as read_file:
@@ -44,29 +45,23 @@ def extract_station_name(token):
 
 
 def extract_journey_time(token):
-    try:
-        # expecting VERB (by)? NUM (on)? NUM
-        ntoken = token.doc[token.i + 1]
-        if ntoken.dep_ == 'prep':
-            ntoken = token.doc[ntoken.i + 1]
-
-        time_str = ntoken.text
-
-        ntoken = token.doc[ntoken.i + 1]
-        if ntoken.dep_ == 'prep':
-            ntoken = token.doc[ntoken.i + 1]
-
-        try:
-            tempus = datetime.strptime(f'{time_str} {ntoken.text}', '%H:%M %d/%m/%Y')
-        except ValueError:
-            try:
-                tempus = datetime.strptime(f'{time_str} {ntoken.text}', '%H:%M %d/%m/%y')
-            except ValueError:
-                tempus = None
-
-        return tempus
-    except IndexError:  # Wrapping this method because single word inputs will break it
+    # let dateparser do the heavy lifting.
+    # just keep adding tokens until it fails
+    maxtoken = len(token.doc)
+    if token.i == maxtoken - 1:
         return None
+    ntoken = token.doc[token.i + 1]
+    date_str = ntoken.text
+    last_tempus = None
+    while True:
+        tempus = dateparser.parse(date_str)
+        if tempus is None and last_tempus is not None:
+            return last_tempus
+        last_tempus = tempus
+        if ntoken.i == maxtoken - 1:
+            return last_tempus
+        ntoken = ntoken.doc[ntoken.i + 1]
+        date_str += ' ' + ntoken.text
 
 
 units = [
@@ -147,9 +142,13 @@ def parse_query(query):
 
 if __name__ == "__main__":
     queries = [
-        "What is the cheapest single ticket for four adults and 2 children from Milton Keynes Central to Norwich, arriving at 13:00 on 15/2/2022",  # TODO: Can't recognise MKC, and I updated the time to be in the future
-        
-        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 on 14/02/22",  # TODO: London Liverpool Street is actually Liverpool Street London, and updated the date to be 2022
+        "What is the cheapest single ticket for four adults and 2 children from Milton Keynes Central to Norwich, arriving at 13:00 on 15/1/2022",
+
+        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 on 14/02/20 for 2 adults and one child",
+        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 today",
+        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 6pm tomorrow",
+        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 5am on 14th feb",
+        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 on february 14th",
 
         "What will the delay be at Southampton if the train was delayed 5 minutes from Weymouth?",
 
@@ -157,11 +156,15 @@ if __name__ == "__main__":
 
         "What is the predicted delay at Southampton if my train was 3 minutes late from Weymouth?",
 
-        "What is the cheapest single ticket for six adults and one child from Milton Keynes Central to Norwich, arriving for 11:00 on 30/2/2022"  # TODO Updated to be in the future, it can't read the time for some reason
+        "What is the cheapest single ticket for six adults and one child from Milton Keynes Central to Norwich, arriving for 11:00 on 30/1/2022",
+
+        "What is the cheapest single ticket for six adults and one child from Milton Keynes Central to Norwich, arriving for 11:00 next week"
     ]
-    #displacy.serve(nlp(queries[2]), style="dep", port=16000)
+    displacy.serve(nlp(queries[1]), style="dep", port=16000)
 
 
     for query in queries:
         response = parse_query(query)
         print(response)
+
+    print(get_matching_stations("london"))

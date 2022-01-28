@@ -22,3 +22,6 @@ Install chromedriver to resources folder
 4. Make sure chromedriver is executable 'ls -l ChatBot/resrouces/chromedriver'
 5. If not executable 'chmod +x ChatBot/resources/chromedriver'
 6. OSX may need further entitlements
+
+##Download requirements
+1. pip install -r requirements.txt
