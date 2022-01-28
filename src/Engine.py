@@ -1,7 +1,6 @@
 from experta import *
 
-from src import nlpu
-from src.nlpu import *
+from nlpu import *
 from scraper import *
 from partTwoHighLevel import *
 
@@ -505,7 +504,7 @@ class KEngine(KnowledgeEngine):
           Fact(target_station=MATCH.target_station),
           TEST(lambda target_station: get_matching_stations(target_station)[0][-1] == 100),
           TEST(lambda current_station, target_station: current_station.lower() != target_station.lower()),
-          TEST(lambda current_station, target_station: verify_station_order(nlpu.station_map[current_station.lower()], nlpu.station_map[target_station.lower()]) == False)
+          TEST(lambda current_station, target_station: verify_station_order(station_map[current_station.lower()], station_map[target_station.lower()]) == False)
           )
     def delay_check_station_order(self):
         print("The stations you have chosen are either not on the same line, or are in the wrong order")
@@ -522,7 +521,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda current_station, target_station: current_station.lower() != target_station.lower()),
           )
     def delay_send_delay_prediction(self, current_delay, current_station, target_station):
-        delay = predict(nlpu.station_map[current_station.lower()], nlpu.station_map[target_station.lower()], current_delay)
+        delay = predict(station_map[current_station.lower()], station_map[target_station.lower()], current_delay)
 
         print("Predicted delay at %s from %s when you are currently delayed by %s will be %s" % (current_station, target_station, current_delay + " minutes", math.ceil(delay) + " minutes"))
 
