@@ -14,59 +14,58 @@
 
 %opening
 \title{Developing an Intelligent Chatbot: the First Interim Report}
-\author{Group xx: Daniel Willis, Charlotte Anderson and Brandon Gous}
+\author{Group UG14: Daniel Willis, Charlotte Anderson and Brandon Gous}
 
 \begin{document}
 	
 	\maketitle	
 	\begin{abstract}
-		The report shall introduce some background to the subject as well as the groups motivations for creating the chatbot. It then discusses the group's aims, objectives and difficulties for both part 1 and 2 of the brief. In section \ref{RelatedWork}, similar systems are discusses and evaluated by their relevance to the project. In part REF methods, tools and frameworks used for this project are stated and explained. The design \ref{Design} and implementation \ref{Implementation} are then outlined in subsections of the different areas of work. Testing for this project is then covered briefly in section \ref{Testing}. Finally, the groups work is evaluated and concluded in section \ref{Evaluation}.
+		The report shall introduce some background to the subject as well as the groups motivations for creating the chatbot. It then discusses the group's aims, objectives and difficulties for both part 1 and 2 of the brief. In section \ref{RelatedWork}, similar systems are discusses and evaluated by their relevance to the project. In part \ref{Methods} methods, tools and frameworks used for this project are stated and explained. The design in section \ref{Design} and implementation in section \ref{Implementation} are then outlined in subsections of the different areas of work. Testing for this project is then covered briefly in section \ref{Testing}. Finally, the groups work is evaluated and concluded in section \ref{Evaluation}.
 		
 	\end{abstract}
 	
 	\section{Introduction}
 	
-	For this coursework \citep{AI2018CW} the group is developing an intelligent chatbot for customers to use which will find them the cheapest train ticket for a specified journey. The service shall also provide users with information on train delays, for a specified journey, to improve customer service. The chatbot will be able to recognise which service the user wishes to use, using Natural Language Processing techniques. The chatbot will respond appropriately until it has gathered all information needed to answer the user's query.	
+	For this coursework \citep{AI2018CW} the group is developing an intelligent chatbot for customers to use which will find them the cheapest train ticket for a specified journey. The service shall also provide users with information on train delays, for a specified journey, to improve customer service. The chatbot will be able to recognise which service the user wishes to use, using Natural Language Processing (NLP) techniques. The chatbot will respond appropriately until it has gathered all information needed to answer the user's query.	
 	
 	\subsection{Background and Motivation}
 		
-	Increasingly chatbots are used for customer service by companies and businesses. The first wave of chatbot systems could only recognise questions posed to them if they were written exactly as it was programmed to understand \citet(ebi). Artificial intelligence is a hot topic at the moment, and has been used to develop seriously intelligent chatbots. Using AI chatbots are able to understand and answer customer questions, which can be asked in a huge variation of ways. As chatbots these days are so capable, many companies favour using AI for customer service over an employee as it can save money and time as \citet(Sintef) found in his study than many users understand that chatbots work best when asked direct and precise queries.	
+	Increasingly chatbots are used for customer service by companies and businesses. The first wave of chatbot systems could only recognise questions posed to them if they were written exactly as it was programmed to understand \citet{Ebi}. Artificial intelligence is a hot topic at the moment, and has been used to develop seriously intelligent chatbots. Using AI, chatbots are able to understand and answer customer questions, which can be asked in a huge variation of ways. As chatbots these days are so capable, many companies favour using AI for customer service over an employee, as it can save money and time. Furthermore \citet{Sintef} found in his study than many users do understand that chatbots work best when asked direct and precise queries; therefore often the user is doing some of the work for the chatbot by using simple language.	
 	
 	\subsection{Aim and Objectives of this coursework} 
-	The aim of the group is to develop a prototype intelligent chatbot system that can be extended to handle a large variation of queries. The chatbot will have two functions
+	The aim of the group is to develop a prototype intelligent chatbot system that can be extended to handle a large variation of queries. The chatbot will have two functions:
 	\begin{enumerate}
 		\item Finding a user the cheapest ticket for a specified journey.
-		\item 	Reporting to a user the predicted train delay when prompted with their journey and their current delay.		
+		\item 	Reporting to a user the predicted train delay when prompted with their journey and current delay.		
 	\end{enumerate}	
 
 	Our objectives are:
 	\begin{enumerate}
 		\item To keep to our outlined project plan in the Gantt Chart.		
-		\item Have bi-weekly meetings on Microsoft Team to update the group on progress made.		
+		\item Have two weekly meetings on Microsoft Team to update the group on progress made.		
+		\item Have all set separate work completed for the chatbot, ready to be integrated with each other, by the 10th of January. This will give the group a week to integrate their systems together and iron out any issues, ready for the demonstration and video.
 	\end{enumerate}	
 	
-	Have all set separate work completed for the chatbot, ready to be integrated with each other, by the 10th of January. This will give the group a week to integrate their systems together and iron out any issues, ready for the demonstration and video.
-	
-	\subsubsection{MoSCoW}
-	Must
+	\subsubsection{MoSCoW Analysis}
+	Must:
 	\begin{itemize}	
 		\item The chatbot must be able to handle single-way tickets.		
 		\item The chatbot must prompt the user until enough information is obtained to complete their query.
 		\item The system must be able to use the gathered information to complete the request. 
 		\begin{itemize}
 			\item In the case of a cheapest ticket query, it must return the cheapest ticket found and a hyperlink to a page where the customer may purchase it.
-			\item In the case of prediction, it must return the predicted train delay in minutes at the users destination station			
+			\item In the case of prediction, it must return the predicted train delay in minutes at the users destination station.			
 		\end{itemize}		
 		\item Once the chatbot has received all the information it needs to search, it must check with the user it has understood the query correctly, so changes can be made if needed.
 	\end{itemize}
-	Should 
+	Should: 
 	\begin{itemize}
 		\item The chatbot should be able to handle return tickets.		
 		\item The chatbot should be able to handle a large query with multiple pieces of information within it.
 		\item The chatbot should be able to handle misspelt station names.
 		\item That chatbot should return the user an answer to their question, once all the information is obtained, within 15 seconds.		
 	\end{itemize}
-	Could
+	Could:
 	\begin{itemize}
 		\item The chatbot could be able to handle multiple date and time formats.		
 		\item The chatbot could be able to ask the user if there is anything more they can help with.
@@ -83,7 +82,8 @@
 	\subsection{Difficulties and Risks}
 	
 A risk with this task could be poor project management. To try and reduce this risk, in our first group meeting we decided upon a group leader, Dan. Dan ensured that we had weekly meetings in which he encouraged us to all share what we’d been working on. A large portion of this work had to be completed over the Christmas break. It was important that the team continued to work together despite not being on campus at university. Our group continued to have regular meetings on teams during this time, with the intention that this would reduce the risk of slippage in the project. 
-Another risk is that deadlines will not be met. A member of the group not meeting a specific deadline could mean that the next piece of work cannot be started. To reduce the risk of this happening, the work was divided in such a way that each member could get on with a specific part of the brief. The work was delegated as follows:
+
+Another risk is that deadlines will not be met. A member of the group not meeting a specific deadline could mean that the next piece of work cannot be started. To reduce this risk, the work was divided in such a way that each member could get on with a specific part of the brief. The work was delegated as follows:
 
 
 Dan:
@@ -109,10 +109,10 @@ Brandon:
 
 Working this way meant that each member could begin programming without having to wait for another member of the group to have already finished a task. In the weekly meetings everyone shared what they had been working on since the last. 
 
-Once the individual work was complete the final risk was that our work would not be integrated together in time. This is a large and integral task, if all elements work separately but cannot work together the brief has not been met, for this reason one of the objectives was to begin integrating work by at least the 10th of January.
+Once the individual work was complete the final risk was that our work would not be integrated together in time. This is a large and integral task, if all elements work separately but cannot work together the brief has not been met; for this reason one of the objectives was to begin integrating work by at least the 10th of January.
 	
 	\subsection{Work Plan}	
-	
+	\clearpage
 	\begin{figure}{Project Gantt chart \label{pplan}}
 			\begin{ganttchart}[x unit=0.35cm, y unit chart = 1.0cm, y unit title=0.5cm, title height=1.0, vgrid, title label font=\scriptsize,
 				canvas/.style={draw=black, dotted},
@@ -150,46 +150,42 @@ Once the individual work was complete the final risk was that our work would not
 	\section{Related Work} \label {RelatedWork}
 		
 	\subsection{TFL chatbot}
-	The TFL chatbot was very friendly and said “You're welcome” (or equivalent) when you thanked it \citet{TflTravelBot}. It seemed to understand what I meant most of the time very well even when I wasn't being very specific. It was functionally useful as it could give me live information about the next few buses if I know the stop code for the bus stop that I am standing by And was fully integrated with facebook messenger so it is as easy as sending a facebook message.
+	The TFL chatbot was very friendly and said “You're welcome” (or equivalent) when you thanked it \citet{TflTravelBot}. It seemed to understand what was meant most of the time very well even when the input was not very specific. It was functionally useful as it could give live information about the next few buses if it knew the stop code for the bus stop that the user was standing by. It was fully integrated with facebook messenger so it is as easy as sending a facebook message.
 	
-	Unfortunately it had very limited functionality especially for the tubes. I couldn't select my station properly and it took me a few attempts to get the correct station for where there are two called similarly as it did not offer me to pick from suggestions. I couldn't plan as there was no way to enter the time of the journey; it always had to be right then and you couldn't plan ahead of time. And it couldn't understand when you said everything in one message, you had to separate the too and from stations.
+	Unfortunately it had very limited functionality especially for the tubes. Often it failed to select the correct station or it took a few attempts to get the correct station. For where there are two stations named similarly it did not offer suggestions of stations to the user to pick from. Planning was impossible as there was no way to enter a time, it only handled current time rather than a time in the future. Additionally, it couldn't understand a user if all information was entered in one message, it had to separate the too and from stations.
 	
-	Overall I would say the chatbot worked well but needed more functionality as it would only occasionally misunderstand but for tubes it could only tell the user what line the closures are on so that the user can decide if they want to see in more detail when/where they are. 
-	But a lot of the time when trying to extract information, especially when talking about cost, it would just send me a link to the TFL website. 
+	Overall the chatbot worked well, but needed more functionality as it would only occasionally misunderstood. However, for tubes it could only tell the user what line the closures are on so, and the user has to decide if they want to see in more detail when/where they are. Additionally, a lot of the time when trying to extract information, especially when talking about cost, the chatbot would just send a link to the TFL website. 
 	
 	\subsection{BlenderBot}
-	Blenderbot or parlai is a open source, highly customisable chatbot developed by Facebook \citet{roller2020recipes}. Its relatively easy to install and use in the terminal, and if you desired its comes with integration into Facebook messager. 
+	Blenderbot or parlai is a open source, highly customisable chatbot developed by Facebook \citet{roller2020recipes}. Its relatively easy to install and use in the terminal, and if desired it comes with integration into Facebook messenger. 
 	
-	You can have it be assigned a random persona or set one for it or just have a general conversation. This was very interesting to play around with giving the AI different characters to play and seeing how well it did. 
+	One can be assigned a random persona, set one manually, or just have a general conversation. This was very interesting to play around with, giving the chatbot different characters to play with and seeing how well it handled them. 
 	
-	You can load up models from the "zoo" or create your own built off a base. The 80million data points model is a little clunky and not as fluent. There is a definite pattern to its responses. But the top level 9billion data point weights is very impressive, it could almost pass as a human. 
+	Models can be uploaded from the ``zoo", or one cane be created built off a base. The 80 million data points model is a little clunky and not as fluent. There is a definite pattern to its responses. The top level 9 billion data point weights is very impressive, and could almost pass as a human. 
 	
 	It's very factual too, it will attempt to slip in facts in a "normal" manner rather than just blurting them out robotically. 
 	
 	It comes with a lot of documentation and a paper about how to build a good model. 
 	
-	Overall it was very entertaining and enjoyable speaking to it. If we had longer time on our project I would have liked to incorporate it and perhaps build our own model for it. 
+	Overall it was entertaining and enjoyable to speak to. If there was more time for this project, this is a great feature the group would have liked to incorporate it into the project.
 	
 	\subsection{Google Assistant}
-	Google assistant is arguably a chatbot, it just commonly has a speech to text and text to speech software alongside \citet{Google Assistant}. However there is the option on phones to just type text to it and reply but this conversation would be the same as if you were speaking to it.
+	Google assistant is arguably a chatbot, it commonly has a speech to text, and text to speech software alongside \citet{Google Assistant}. However there is the option on phones to just type text to it and reply, but this conversation would be the same if verbal.
 	
-	Personally I like google assistant and find it very useful to perform tasks such as switching lights on and off, playing media, setting timers for cooking etc. But that is all it is, it is designed to be a tool and to be as useful and functional as possible. It isn't designed to have a proper conversation with it. 
+	Google assistant is useful to perform tasks such as switching lights on and off, playing media, setting timers for cooking etc. But that is all it is, as it is designed to be a tool and to be as useful and functional as possible. It isn't designed to hold a conversation with a user. 
 	
-	This is where it is lacking, its responses are very robotic, blunt and to the point. No human speaks like that. You can ask it all the questions that you like and it always has an answer from crawling the web or doing the maths. You can get it to tell you a joke or the weather or how the traffic looks on your morning commute but it isn't having a real conversation. It is being used as a tool to solve your problem.
+	This is where the assistant is lacking; its responses are very robotic, blunt and to the point. No human speaks like that. Any questions asked will have an answer from crawling the web or doing the maths. Users can ask it to tell them a joke, ask about the weather, or how the traffic looks on your morning commute, but it cannot hold a conversation; it is being used as a tool to solve a users problem.
 	
-	Its natural language processing is near perfect and in real time from audio which is incredible. It really understands what you are saying so long as it is a command. Overall a very useful thing to have around but not the best chatbot.	
+	Its natural language processing is near perfect and in real time from audio which is incredible. It really understands what you are saying so long as it is a command. Overall, a very useful product to have around, but not the best chatbot.	
 	
-	\section{Methods, Tools and Frameworks}
-	In this section, you should describe the methods, programming languages, packages, tools and framework you plan to use.
-	for this report, you can list some you have identified and intend to use.
-	No need to give any details.     
-	
+	\section{Methods, Tools and Frameworks} \label{Methods}
+	     
 	\subsection{Methods}
 	
-A primarily text based user interface was selected, long with an aim to wrap the text-based system in a graphical user interface. The user’s responses would be processed using a natural language processing library called Spacy. From the responses provided by the user, the knowledge engine would determine what steps are next based on rules built into the system and which of those match the user’s responses.
+A primarily text based user interface was selected, along with an aim to wrap the text-based system in a graphical user interface. The user’s responses would be processed using a natural language processing library called Spacy. From the responses provided by the user, the knowledge engine would determine what steps are next based on rules built into the system and which of those match the user’s responses.
 
 
-For the delay prediction we used a k-nearest-neighbour method and a neural network. 
+For the delay prediction we used a K-Nearest-Neighbour (KNN) method and a neural network. 
 	
 	\subsection{Languages, Packages, Tools}
 	
@@ -204,7 +200,7 @@ For the delay prediction we used a k-nearest-neighbour method and a neural netwo
     \item Pandas - Pandas is a data analysis library that we used to help round some timing to better work with the train data.
 	\item Selenium - Was a web-scraping library that we used to extract data from websites to feed back to the user 
 	\item Numpy - Was used for most of the arrays in the delay prediction, and the matrix transformations required.
-	\item Matplot - Was used for the graph plotting so that we could visualise how the two delay prediction methods were working and compare them
+	\item Matplot - Was used for the graph plotting so that we could visualise how the two delay prediction methods were working and compare them.
 \end{itemize}
 	For the database, we selected SQL Express. Because a member of our group had used this a lot on their placement year so was familiar with MYSQL.	   
 	
@@ -214,29 +210,28 @@ For the delay prediction we used a k-nearest-neighbour method and a neural netwo
 	
 	\subsection{The Architecture of the chatbot}
 	
-	In an early group meeting we decided to conduct the work for this project modularly. This meant creating contracts with one another on what work would be completed by each member, by when and detailing exactly what we expected from each piece of work. This meant we could work separately, which was necessary as much of this work was completed away from university. It was decided that Dan would create a database, as well as writing predictive models, Brandon would write the knowledge-base and inferring engine, and Charlie would write the scraper and NLPU. Once all this work was completed, the group could come together and integrate the various pieces of work. 
+	In an early group meeting we decided to conduct the work for this project modularly. This meant creating contracts with one another on what work would be completed by each member, by when and detailing exactly what we expected from each piece of work. This meant we could work separately, which was necessary as much of this work was completed away from university. It was decided that Dan would create a database, as well as writing predictive models, Brandon would write the knowledge-base and inferring engine, and Charlotte would write the scraper and Natural Language Processing Unit (NLPU). Once all this work was completed, the group could come together and integrate the various pieces of work. 
 	
 	
-	The chatot is responsible for handling questions from a user and responding to these. It uses the NLPU to understand what a user has inputted as well as to see if all fields have been filled for a search. If all fields have not been inputted, the chatbot will reply to the user asking for the information it is missing. Once the NPLU has all the information it needs to make a search, it delivers this to the scraper or the prediction model depending on the task. If the task is for find the cheapest ticket, once this has been found the chatbot will relay this information to the user with a price and a link to buy the ticket. Similarly, for predicting train delays, once the predicted delay has been predicted, it is relayed through the chatbot to the user.
+	The chatot is responsible for handling questions from a user and responding to these. It uses the NLPU to understand what a user has inputted, as well as to see if all fields have been filled for a search. If all fields have not been inputted, the chatbot will reply to the user asking for the information it is missing. Once the NPLU has all the information it needs to make a search, it delivers this to the scraper, or the prediction model depending on the task. If the task is for find the cheapest ticket, once this has been found the chatbot will relay this information to the user with a price and a link to buy the ticket. Similarly, for predicting train delays, once the predicted delay has been predicted, it is relayed through the chatbot to the user.
 	
 	\subsection{User Interface} 
-	For the user interface, we decided to emulate a chat window similar to your typical messaging app, consisting of a chat log, chat line and send button. The chat log would display a history of all the messages sent between the user and the bot, whilst displaying who sent each message and the time sent. The chat line and send button would be the way the user interacts with the system. Responses to messages sent by the chatbot would be written in the chat line and then “sent” for processing when the return key, or the send button are pressed.	
+	For the user interface, we decided to emulate a chat window similar to your typical messaging app, consisting of a chat log, chat line and send button. The chat log would display a history of all the messages sent between the user and the chatbot, whilst displaying who sent each message and the time sent. The chat line and send button would be the way the user interacts with the system. Responses to messages sent by the chatbot would be written in the chat line and then “sent” for processing when the return key, or the send button are pressed.	
 	
 	
 	\subsection{Scraper}
 	The scraper will input all necessary fields in Trainline’s website. Trainline’s ticket search will fail if the train station is spelt wrong so the scraper needs to work with the NLPU to ensure stations are correctly spelt. Additionally, the website only handles specific date formats so the NLPU will need to format differing date formats into the accepted version.
 	
 	\subsection{NLP}
-	The NLPU shall be able to handle large queries. This means a user can input into the chatbot a sentence with lots of information in, and the NLPU shall be able to understand what the user is asking for. This may not be achievable for all structures of sentences due as that would be very complicated, but annexs \ref{appendix:ChatFlow} shows the structure of a sentence the NLP will be designed to work for. The NLPU shall also accept multiple date formats, time formats and understand words like ‘tomorrow’ and ‘today’.
+	The NLPU shall be able to handle large queries. This means a user can input into the chatbot a sentence with lots of information in, and the NLPU shall be able to understand what the user is asking for. This may not be achievable for all structures of sentences as that would be very complicated, but annexs \ref{appendix:ChatFlow} shows the structure of a sentence the NLP will be designed to work for. The NLPU shall also accept multiple date formats, time formats and understand words like ‘tomorrow’ and ‘today’.
 	
 	
-	\subsection{Knowledgebase}
-	
-	\subsection{Inferring Engine}
+	\subsection{Knowledgebase and Inferring Engine}
+	The knowledge base will handle getting all of the information it requires from the user through the use of the inferring engine. The knowledge base will get information from the user in the form of questions, and the inferring engine will use a set of conditions to determine which question needs to be asked and when. The set of conditions will evaluate which information has been obtained from the user, the validity of the information, and what information is missing.
 	
 	\subsection{Delay Prediction Models}
 	
-	For our prediction models we plan to use three. A Bayesian model that calculated the probability of the train being late to the second station given that the train is delayed to the first station. A neural network that uses the delay and the normal time a train takes between the stations to predict how late the train will be. And K nearest neighbour which predicts how late the train will be to the second station using similar data.
+	Three prediction models are planned to be tested. A Bayesian model that calculates the probability of the train being late to the second station, given that the train is delayed to the first station. A neural network that uses the delay and the normal time a train takes between the stations to predict how late the train will be. And KNN which predicts how late the train will be to the second station using similar data.
 	
 	\subsubsection{Bayesian}
 	
@@ -244,22 +239,22 @@ For the delay prediction we used a k-nearest-neighbour method and a neural netwo
 	\[P(A|B) = \frac{P(B|A) * P(A)}{P(B)}\]
 	
 	Additionally this can be expanded so that the probability of event B happening doesn't need to be known. 
-	The probability of event B happening is equal to the probability of event B happening given event A happened multiplied by the probability of event A occurring plus the probability of event B happening given that event A does not multiplied by the probability that event A does not happen.
+	The probability of event B happening is equal to the probability of event B happening, given event A happened multiplied by the probability of event A occurring, plus the probability of event B happening given that event A does not, multiplied by the probability that event A does not happen.
 	
 	\[P(B) = P(B|A) * P(A) + P(B|'A) * P('A)\]
 	
-	This means that you can calculate the probability of event A happening given that B happened from the probability of event A happening, the probability of  event B happening given event A happened and the probability of event B happening given that event A didnt happen.
+	This means that the probability of event A happening, given that B happened, can be calculated from the probability of event A happening, the probability of event B happening given event A happened, and the probability of event B happening given that event A didn't happen.
 	\[P(A|B) = \frac{P(B|A) * P(A)}{P(B|A) * P(A) + P(B|'A) * (1 - P(A))} \]	
 	
-	We can apply this to the prediction of trains being late by letting event A be the train being late to the second station and event B the train being late by delay or more to the first station.
+	This is applied to the prediction of trains being late by letting event A be the train being late to the second station, and the event B being the the train being delayed at the first station.
 	
 	\subsubsection{Neural Network}
 	
 	A neural network is a collection of layers of neurons, each neuron holds a value known as activation of that neuron. There can be an unlimited number of layers and neurons and they can be used to solve very complex problems such as object recognition.
 	
-	Each neuron is connected to all the neurons of the previous layer through numbers called weights (W) and a bias (b). The weights are organized in the form of a matrix of shape (no of units in current layer, no of units in previous layer). This means that to calculate a neuron on the next layer you need all the previous values.
+	Each neuron is connected to all the neurons of the previous layer through numbers called weights (W) and a bias (b). The weights are organized in the form of a matrix of the shape number of units in current layer by number of units in previous layer. This means that to calculate a neuron on the next layer, all the previous values are needed.
 	
-	If this is applied to our problem we chose to have two input nodes of the delay at the first station and the normal time taken between the stations. And we obviously have the output node for the prediction time that the train is late. So these two layers we cannot change, but any of the hidden layers can be altered to still produce a neural network to accomplish the same goal. This is shown in figure \ref{Img:NNDiagram} it shows all the neurons in the simple neural network we designed to solve the problem with two hidden layers of three neurons each.
+	If this is applied to the project there would be, two input nodes; one for the delay at the first station, and one for the normal time taken between the stations. And there is one output node for the prediction time that the train is late. These two layers cannot be changed change, but any of the hidden layers can be altered to still produce a neural network to accomplish the same goal. This is shown in figure \ref{Img:NNDiagram} it shows all the neurons in the simple neural network that has been designed to solve the problem with two hidden layers of three neurons each.
 	
 	\begin{figure}[!htb]
 		\begin{center}
@@ -269,7 +264,7 @@ For the delay prediction we used a k-nearest-neighbour method and a neural netwo
 		\end{center}
 	\end{figure}
 	
-	For the maths behind the forward and backward propagation, Wk\textsubscript{ij} refers to the weight of the connection from i’th neuron in k'th layer to j’th neuron in k-1 layer. The biases are organized in the shape of (no of units in current layer, 1) so Bk\textsubscript{i} corresponds to the bias of the i’th neuron in k'th layer. 
+	For the maths behind the forward and backward propagation, Wk\textsubscript{ij} refers to the weight of the connection from i’th neuron in k'th layer to j’th neuron in k-1 layer. The biases are organized in the shape of (no. of units in current layer, 1) so Bk\textsubscript{i} corresponds to the bias of the i’th neuron in k'th layer. 
 	
 	Each neurons value can be calculated by:
 	\[A1 = g(f(X1,X2)) = g(W1_{11}*X1 + W1_{12}*X2 + b1_{1})\]
@@ -282,7 +277,7 @@ For the delay prediction we used a k-nearest-neighbour method and a neural netwo
 	
 	\[Y = f(B1,B2,B3) = W3_{11}*B1 + W3_{12}*B2 + W3_{13}*B3 + b3_{1}\]
 	
-	Where $g(x)$ is the activation function. Being as this is a regression problem and not classification I will use $g(x) = max(0,x)$ more commonly called the ReLU. This returns 0 when $x$ is negative and $x$ when positive. Due to it’s low saturation region, it is highly trainable. 
+	Where $g(x)$ is the activation function. Being as this is a regression problem and not classification $g(x) = max(0,x)$ is used, and is more commonly called the ReLU. This returns 0 when $x$ is negative and $x$ when positive. Due to it’s low saturation region, it is highly trainable. 
 	
 	The equations above can be vectorised using the dot product of the matrices:
 	
@@ -305,9 +300,9 @@ For the delay prediction we used a k-nearest-neighbour method and a neural netwo
 	\[dW1 = \frac{1}{m} * (dA.W1^T) \]
 	\[db1 = \frac{1}{m} * \sum dA \]
 	
-	Where T is the true value, $m$ is the number of datapoints, $*$ is multiplication, $x.y$ is dot product of the matrices $x$ and $y$ and $x^T$ is the transpose of matrix $x$. We do not need gradients with respect to the input layer neurons because we are not going to change them.
+	Where T is the true value, $m$ is the number of datapoints, $*$ is multiplication, $x.y$ is dot product of the matrices $x$ and $y$ and $x^T$ is the transpose of matrix $x$. We do not need gradients with respect to the input layer neurons because they are not going to be changed.
 
-	Now using these gradients calculated we can modify our weights and bias getting us closer to the true result.
+	Now using these gradients calculated, weights can be modified, as well as bias, which gets a result closer to what the true result would be.
 	
 	\[W1 = W1 - lr * dW1\]
 	\[b1 = b1 - lr * db1\]
@@ -320,11 +315,11 @@ For the delay prediction we used a k-nearest-neighbour method and a neural netwo
 	
 	\subsubsection{K Nearest Neighbors}		
 	
-	For the K nearest neighbour model we have to use loads of data extracted from the database for each query. For this we will have to use a stored procedure.
+	For the K nearest neighbour model lots of data has been extracted from the database for each query. A stored procedure has been used for this.
 	
-	The amount the train was late to the first station is then compared to the amount of delay that the user had at the first station using a distance function, in our case we picked euclidean.
+	The amount the train was late to the first station in the historical data, is then compared to the amount of delay that the user had at the first station using a distance function; in this case euclidean distance is used.
 	
-	These distances are then sorted and you get the mean of the delay at the second station for the closest K nodes in the dataset. This is simple algorithm but heavily dependant on finding the correct K value. Too small and you wont get the correct number because it will be skewed by having not enough data, too large and the result will be skewed by nodes that are not close enough.
+	These distances are then sorted and you get the mean of the delay at the second station for the closest K nodes in the dataset. This is simple algorithm, but heavily dependant on finding the correct K value. Too small, and the correct number will not be found  it will be skewed as there isn't enough data, or it is too large and the result will be skewed by nodes that are not close enough.
 	
 	%\subsection{Conversation Control}
 	

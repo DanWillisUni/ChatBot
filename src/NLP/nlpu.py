@@ -3,11 +3,11 @@ from datetime import datetime, timedelta
 import spacy
 from spacy import displacy
 import json
+import pandas as pd
 import dateparser
 
-
 nlp = spacy.load('en_core_web_sm')
-with open("stemming/stems.json", "r") as read_file:
+with open("../stemming/stems.json", "r") as read_file:
     stems = json.load(read_file)
 
 
@@ -23,10 +23,15 @@ def load_stations():
 
 station_map = load_stations()
 
+matching_stations_cache = {}
 
 # use fuzzywuzzy to find closest match to inputted station
 def get_matching_stations(station_text):
-    return process.extract(station_text, station_map.keys(), limit=50)
+    try:
+        return matching_stations_cache[station_text.lower()]
+    except KeyError:
+        matching_stations_cache[station_text.lower()] = process.extract(station_text, station_map.keys(), limit=50)
+        return matching_stations_cache[station_text.lower()]
 
 
 def extract_station_name(token):
@@ -39,6 +44,7 @@ def extract_station_name(token):
     return name
 
 
+# TODO might need to wrap in a try block
 def extract_journey_time(token):
     # let dateparser do the heavy lifting.
     # just keep adding tokens until it fails
@@ -69,18 +75,21 @@ units = [
 
 
 def extract_NUM(token):
-    ntoken = token.doc[token.i - 1]
-    if ntoken.dep_ == 'nummod':
-        try:
-            return units.index(ntoken.text)
-        except ValueError:
-            return int(ntoken.text)
-    return 1
+    try:
+        ntoken = token.doc[token.i - 1]
+        if ntoken.dep_ == 'nummod':
+            try:
+                return units.index(ntoken.text)
+            except ValueError:
+                return int(ntoken.text)
+        return 1
+    except IndexError:
+        return 1
 
 
 def cheapest_ticket_query(query):
     doc = nlp(query)
-    response = {'query type': 'unknown', 'from': None, 'to': None, 'arrive': False, 'time': datetime.now(), 'type': 'single', 'adult': 1, 'child': 0, 'return_time': None}
+    response = {'query type': 'unknown', 'from': None, 'to': None, 'arrive': False, 'time': pd.Timestamp(datetime.now()).ceil("15min").to_pydatetime(), 'type': 'single', 'adult': 1, 'child': 0, 'return_time': None}
 
     for token in doc:
         if stems.get("booking_tickets").count(token.lemma_) > 0:
