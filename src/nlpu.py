@@ -7,13 +7,13 @@ import pandas as pd
 import dateparser
 
 nlp = spacy.load('en_core_web_sm')
-with open("../stemming/stems.json", "r") as read_file:
+with open("stemming/stems.json", "r") as read_file:
     stems = json.load(read_file)
 
 
 def load_stations():
     data = {}
-    with open('../../resources/stations.csv') as fp:
+    with open('../resources/stations.csv') as fp:
         fp.readline()  # throw away first line
         for line in fp:
             fields = line.split(',')

@@ -1,5 +1,5 @@
 from experta import *
-from src.NLP.nlpu import *
+from src.nlpu import *
 from scraper import *
 
 
