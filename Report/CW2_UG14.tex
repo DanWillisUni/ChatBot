@@ -147,6 +147,8 @@ Once the individual work was complete the final risk was that our work would not
 				\ganttlink{elem2}{elem4}
 			\end{ganttchart}
 	\end{figure}
+
+\clearpage
 	\section{Related Work} \label {RelatedWork}
 		
 	\subsection{TFL chatbot}
@@ -178,6 +180,7 @@ Once the individual work was complete the final risk was that our work would not
 	
 	Its natural language processing is near perfect and in real time from audio which is incredible. It really understands what you are saying so long as it is a command. Overall, a very useful product to have around, but not the best chatbot.	
 	
+	\clearpage
 	\section{Methods, Tools and Frameworks} \label{Methods}
 	     
 	\subsection{Methods}
@@ -206,6 +209,7 @@ For the delay prediction we used a K-Nearest-Neighbour (KNN) method and a neural
 	
 	%\subsection{Development Framework}	
 	
+	\clearpage
 	\section{Design of the Chatbot}	 \label {Design}
 	
 	\subsection{The Architecture of the chatbot}
@@ -335,11 +339,11 @@ For the delay prediction we used a K-Nearest-Neighbour (KNN) method and a neural
 			%\end{tabular} 
 		%\label{TableCC}
 		%\end{table}
-	
+	\clearpage
 	\section{Implementation} \label{Implementation}
 	
 	\subsection{Scraper}
-	The implementation of the scraper has been designed to complete the task of finding a cheapest ticket for a train booking. Trainline’s website \citet{trainline} was chosen to be scraped, this was because when inspecting the page when a search was completed there was a clear tag which indicated the cheapest ticket which could then be used to return to the user. The package `selenium’ \citet{selenium} was used to webscrape as it was found to be the most useful for what was trying to be achieved. The TrainLine class has many functions which find different elements within TrainLine’s page, which are then filled once the chatbot has retrieved information from the user. 
+	The implementation of the scraper has been designed to complete the task of finding the cheapest ticket for a train booking. Trainline’s website \citet{trainline} was chosen to be scraped, this was because when inspecting the page when a search was completed there was a clear tag which indicated the cheapest ticket which could then be used to return to the user. The package `selenium’ \citet{selenium} was used to webscrape as it was found to be the most useful for what was trying to be achieved. The TrainLine class has many functions which find different elements within TrainLine’s page, which are then filled once the chatbot has retrieved information from the user. 
 	
 	The scraper clears all field boxes before entering data. This is because if a field was pre-filled by the website, i.e. defaulting to today's date, when the scraper tried to enter the date which has been specified by the user, it cannot do so as it is already full and throws an error. The scraper uses selenium to find specific elements within the page that will be filled with the users query. For example if a user wants a single ticket, it is capable of choosing between the radio buttons for a `single’ or `return’ journey. This is done by using TrainLine’s element ID’s, for example the radio button for a single tickets element ID is `single’, and therefore can be found and clicked. 
 	
@@ -379,43 +383,40 @@ For the delay prediction we used a K-Nearest-Neighbour (KNN) method and a neural
 	Next I calculated the probability of B given not A (the probability the train was late to the first station by delay given it was on time to the second station). To do this I extracted the frequencies of delays at the first station if the train arrived on-time or early to the second station. From here I summed all the frequencies that the train was late to the first station by at least the delay, then it was just a case of doing the calculation and returning the result as a probability.
 
 	\subsubsection{Neural Network}
+	
+	\begin{figure}[!htb]
+		\centering
+		\includegraphics{Resources/PartTwo/FullTrainingData_20220128_124029_.png}
+		\caption{Neural network learning over one million iterations}
+		\label{Img:NNTrainA}
+	\end{figure}
+	
+	\begin{figure}[!htb]
+		\centering
+		\includegraphics{Resources/PartTwo/LearningGraphs/ActualRun/20220128_020003_1000_1.png}
+		\caption{Neural network learning over first hundred thousand iterations}
+		\label{Img:NNTrainB}
+	\end{figure}
+	
+	\begin{figure}[!htb]
+		\centering
+		\includegraphics{Resources/PartTwo/LearningGraphs/ActualRun/20220128_122722_1000_1.png}
+		\caption{Neural network learning over last hundred thousand iterations}
+		\label{Img:NNTrainC}
+	\end{figure}
+	
 	Interestingly there are python libraries that will essentially build and train a neural network for you with limited input other than the shape and the training data. However we decided against using this as we felt it would be a hollow victory and not in the spirt of the coursework.
 	
 	 Therefore we thought that the best way to implement all the weights and values being stored was through dictionaries with string keys eg: "W1" with multidimensional arrays as the value.
 
 	 This meant that I could implement a solution which has the capacity to expand the number of layers and neurons per layer easily with simple for loops, making the solution highly customizable.
 
-	 To keep track of how well the network was learning we would test every single data point through it every 1000 iterations and get the root mean squared error (RMSE) for them all. This was then plotted on a graph seen in figure \ref{Img:NNTrainA}. This shows how quickly it could correct itself at the start and then converge to 0 with a shape similar to $y=x^{-1}$ graph. This was the shape that we expected to see.
-
-	 \begin{figure}[!htb]
-	 	\centering
-	 		\includegraphics{Resources/PartTwo/FullTrainingData_20220128_124029_.png}
-	 		\caption{Neural network learning over one million iterations}
-	 		\label{Img:NNTrainA}
-	 \end{figure}
- 
- \begin{figure}[!htb]
- 	\centering
- 	\includegraphics{Resources/PartTwo/LearningGraphs/ActualRun/20220128_020003_1000_1.png}
- 	\caption{Neural network learning over first hundred thousand iterations}
- 	\label{Img:NNTrainB}
- \end{figure}
-
-\begin{figure}[!htb]
-	\centering
-	\includegraphics{Resources/PartTwo/LearningGraphs/ActualRun/20220128_122722_1000_1.png}
-	\caption{Neural network learning over last hundred thousand iterations}
-	\label{Img:NNTrainC}
-\end{figure}
+	 To keep track of how well the network was learning we would test every single data point through it every 1000 iterations and get the root mean squared error (RMSE) for them all. This was then plotted on a graph seen in figure \ref{Img:NNTrainA}. This shows how quickly it could correct itself at the start and then converge to 0 with a shape similar to $y=x^{-1}$ graph. This was the shape that we expected to see.	 
 
  	We would also graph every hundred thousand iterations as seen in figure \ref{Img:NNTrainB} and figure \ref{Img:NNTrainC} to be able to see more clearly that is learning still. However this quickly has a very small range on the Y axis showing it is learning slower.
-
+	\clearpage
 	\subsubsection{K Nearest Neighbour}
-	Once you have the data for the KNN it is a very simple algorithm but still heavily depends on the correct K value. So to find the best K value we set up a test to run one thousand iterations of selecting random data points from the data. Then for each piece of data I would create a KNN object with a different value of K ranging 1 to 100 (inclusive). Get a prediction from each object and compare it to the target outcome. From this I calculated the root mean square error for each value of K over the iterations.
-
-	The results plotted on a graph is in figure \ref{Img:KSearch} and the top ranking results are included in the table in figure \ref{Img:KSearchRaw}.
-	The shape of the graph is exactly what I expected to see with very few neighbours having a very high RMSE and then having a dip where the ideal K value is with the RMSE gradually increasing again as the more neighbours are used.
-
+	
 	\begin{figure}[!htb]
 		\centering
 		\begin{minipage}{.8\textwidth}
@@ -431,34 +432,31 @@ For the delay prediction we used a K-Nearest-Neighbour (KNN) method and a neural
 			\label{Img:KSearchRaw}
 		\end{minipage}
 	\end{figure}
+	
+	Once you have the data for the KNN it is a very simple algorithm but still heavily depends on the correct K value. So to find the best K value we set up a test to run one thousand iterations of selecting random data points from the data. Then for each piece of data I would create a KNN object with a different value of K ranging 1 to 100 (inclusive). Then it made a prediction from each object and compare it to the target outcome. From this I calculated the root mean square error for each value of K over the iterations.
+
+	The results plotted on a graph is in figure \ref{Img:KSearch} and the top ranking results are included in the table in figure \ref{Img:KSearchRaw}.
+	The shape of the graph is exactly what I expected to see with very few neighbours having a very high RMSE and then having a dip where the ideal K value is with the RMSE gradually increasing again as the more neighbours are used.
 
 	From these results I concluded that 9 was the best value for K not only because it ranks at the top but because 10 and 8 rank 3rd and 4th in the list. However any value from 5 - 15 would still be accurate.
+	\clearpage
 	\subsubsection{Comparison}
-	We didn't think that the Bayesian model was very good as it is a classification model not a regression model, therefore not particularly useful to the user as they would want to know their expected time of arrival.
 	
 	\begin{figure}[!htb]
 		\begin{center}
 			\includegraphics{Resources/PartTwo/Comparison_20220128_124029.png}
-		\caption{Comparison of neural network and K nearest neighbour for 1000 routes}
+			\caption{Comparison of neural network and K nearest neighbour for 1000 routes}
 			\label{Img:NNKNNComp}
 		\end{center}
 	\end{figure}
-	
-	In figure \ref{Img:NNKNNComp} we compare the neural network and k nearest neighbours over one million iterations of training the neural network.
-	
-	This was accomplished by randomly selecting a thousand data sets, running these datasets through both the models and comparing the predictions to the targets. Then train the neural network on the same dataset for a hundred thousand iterations and repeat.
-	
-	As you can see the K nearest neighbour algorithm is consistently better than the neural network despite the improvements made so we decided to use that as our final predictive model.
-	
-	Interestingly though when using 100 trains instead of 1000 the neural network learnt far faster and quickly overtook the k nearest neighbour as seen in figure \ref{Img:NNKNNCompB} and 
-	
-	\begin{figure}[!htb]
-		\begin{center}
-			\includegraphics{Resources/PartTwo/Comparison_20220116_050242.png}
-			\caption{Comparison of neural network and K nearest neighbour for 100 trains}
-			\label{Img:NNKNNCompB}
-		\end{center}
-	\end{figure}
+
+\begin{figure}[!htb]
+	\begin{center}
+		\includegraphics{Resources/PartTwo/Comparison_20220116_050242.png}
+		\caption{Comparison of neural network and K nearest neighbour for 100 trains}
+		\label{Img:NNKNNCompB}
+	\end{center}
+\end{figure}
 
 \begin{figure}[!htb]
 	\centering
@@ -466,6 +464,16 @@ For the delay prediction we used a K-Nearest-Neighbour (KNN) method and a neural
 	\caption{Neural network learning over two million iterations}
 	\label{Img:NNTrainD}
 \end{figure}
+	
+	We didn't think that the Bayesian model was very good as it is a classification model not a regression model, therefore not particularly useful to the user as they would want to know their expected time of arrival.
+	
+	In figure \ref{Img:NNKNNComp} we compare the neural network and k nearest neighbours over one million iterations of training the neural network.
+	
+	This was accomplished by randomly selecting a thousand data sets, running these datasets through both the models and comparing the predictions to the targets. Then train the neural network on the same dataset for a hundred thousand iterations and repeat.
+	
+	As you can see the K nearest neighbour algorithm is consistently better than the neural network despite the improvements made so we decided to use that as our final predictive model.
+	
+	Interestingly though when using 100 trains instead of 1000 the neural network learnt far faster and quickly overtook the k nearest neighbour as seen in figure \ref{Img:NNKNNCompB} and figure \ref{Img:NNTrainD}.
 	
 	\clearpage
 	\section{Testing} \label{Testing}
@@ -504,15 +512,16 @@ For the delay prediction we used a K-Nearest-Neighbour (KNN) method and a neural
 	
 	The chatbot will ask very specific questions especially if the user states that the data was incorrect. This enables the user to respond correctly as they are unambiguous.
 	
-	In order to make itself as clear as possible the chatbot will use previous collected information in order to tailor the question making it as clear as possible in what it is asking for as seen in \ref{Img:Userbility}
+	In order to make itself as clear as possible, the chatbot will use previous collected information in order to tailor the question, making it as clear as possible in what it is asking for as seen in figure \ref{Img:Userbility}.
 	
+	\clearpage
 	\section{Evaluation and Conclusion}\label {Evaluation}
 	The scope of this project is huge and open ended, and therefore an endless amount of additions could be made to the project to make it faster and smarter. However, for the time that the group had to work on it, we are extremely happy. The chabot can handle full sentences, as well as prompting the user for any missing information. The information given to the chatbot is validated, and when appropriate the chatbot will make an attempt at what it thinks the user meant, or provide options the user can select from. The scraper is successful in finding a user the cheapest ticket for the parameters it has been given, however there is a significant delay when loading Trainline’s website, which could be mitigated if we had been granted access to National Rails API. Additionally, delays are predicted with reasonable accuracy, but with more time could be improved further. 
 	
 	
 	In conclusion, work was completed to a high standard and as a group we are pleased with what we have produced. The individual parts of this project were challenging, as was working as a group remotely. There were a few setbacks during the course of the project due to illness and extenuating circumstances. Despite this we have created a piece of work we are all proud of, and that we believe meets the required specification. 
 	
-	
+	\clearpage
 	\bibliographystyle{agsm}
 	%\bibliographystyle{apalike}
 	% you should use your own bibtex file to replace the following example_ref bib file.
