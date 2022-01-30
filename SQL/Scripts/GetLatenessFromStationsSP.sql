@@ -7,7 +7,7 @@ GO
 -- Create date: 
 -- Description:	
 -- =============================================
-ALTER PROCEDURE GetLatenessFromStations
+CREATE PROCEDURE GetLatenessFromStations
 	-- Add the parameters for the stored procedure here
 	@FromStation varchar(7) = '', 
 	@ToStation varchar(7) = '',

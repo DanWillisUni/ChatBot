@@ -339,6 +339,8 @@ ASALocalRun/
 /resources/PartTwo/KNNGraphs/
 /resources/PartTwo/NNGraphs/
 #KResults_*
+/src/venv/
+/src/__pycache__/
 
 #chromedriver
 chromedriver

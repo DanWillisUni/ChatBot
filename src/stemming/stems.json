@@ -2,7 +2,8 @@
   "booking_tickets": [
     "book",
     "ticket",
-    "cheap"
+    "cheap",
+    "buy"
   ],
 
   "prediction": [

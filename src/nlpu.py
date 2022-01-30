@@ -3,29 +3,38 @@ from datetime import datetime, timedelta
 import spacy
 from spacy import displacy
 import json
+import pandas as pd
+import dateparser
+from os.path import dirname
 
+project_root = dirname(dirname(__file__))
 
-nlp = spacy.load('en_core_web_sm')
-with open("stemming/stems.json", "r") as read_file:
+nlp = spacy.load("en_core_web_sm")
+with open(project_root + "/src/stemming/stems.json", "r") as read_file:
     stems = json.load(read_file)
 
 
 def load_stations():
     data = {}
-    with open('../../resources/stations.csv') as fp:
+    with open(project_root + '/resources/stations.csv') as fp:
         fp.readline()  # throw away first line
         for line in fp:
             fields = line.split(',')
-            data[fields[0].lower()] = fields[3].lower()
+            data[fields[0].lower()] = fields[4].replace("\n","")
     return data
 
 
 station_map = load_stations()
 
+matching_stations_cache = {}
+
 # use fuzzywuzzy to find closest match to inputted station
 def get_matching_stations(station_text):
-    return process.extract(station_text, station_map.keys())
-
+    try:
+        return matching_stations_cache[station_text.lower()]
+    except KeyError:
+        matching_stations_cache[station_text.lower()] = process.extract(station_text, station_map.keys(), limit=50)
+        return matching_stations_cache[station_text.lower()]
 
 def extract_station_name(token):
     ntoken = token.doc[token.i + 1]
@@ -37,27 +46,25 @@ def extract_station_name(token):
     return name
 
 
+# TODO might need to wrap in a try block
 def extract_journey_time(token):
-    # expecting VERB (by)? NUM (on)? NUM
+    # let dateparser do the heavy lifting.
+    # just keep adding tokens until it fails
+    maxtoken = len(token.doc)
+    if token.i == maxtoken - 1:
+        return None
     ntoken = token.doc[token.i + 1]
-    if ntoken.dep_ == 'prep':
-        ntoken = token.doc[ntoken.i + 1]
-
-    time_str = ntoken.text
-
-    ntoken = token.doc[ntoken.i + 1]
-    if ntoken.dep_ == 'prep':
-        ntoken = token.doc[ntoken.i + 1]
-
-    try:
-        tempus = datetime.strptime(f'{time_str} {ntoken.text}', '%H:%M %d/%m/%Y')
-    except ValueError:
-        try:
-            tempus = datetime.strptime(f'{time_str} {ntoken.text}', '%H:%M %d/%m/%y')
-        except ValueError:
-            tempus = None
-
-    return tempus
+    date_str = ntoken.text
+    last_tempus = None
+    while True:
+        tempus = dateparser.parse(date_str)
+        if tempus is None and last_tempus is not None:
+            return last_tempus
+        last_tempus = tempus
+        if ntoken.i == maxtoken - 1:
+            return last_tempus
+        ntoken = ntoken.doc[ntoken.i + 1]
+        date_str += ' ' + ntoken.text
 
 
 units = [
@@ -70,25 +77,28 @@ units = [
 
 
 def extract_NUM(token):
-    ntoken = token.doc[token.i - 1]
-    if ntoken.dep_ == 'nummod':
-        try:
-            return units.index(ntoken.text)
-        except ValueError:
-            return int(ntoken.text)
-    return 1
+    try:
+        ntoken = token.doc[token.i - 1]
+        if ntoken.dep_ == 'nummod':
+            try:
+                return units.index(ntoken.text)
+            except ValueError:
+                return int(ntoken.text)
+        return 1
+    except IndexError:
+        return 1
 
 
 def cheapest_ticket_query(query):
     doc = nlp(query)
-    response = {'query type': 'unknown', 'from': None, 'to': None, 'arrive': True, 'time': datetime.now(), 'type': 'single', 'adult': 1, 'child': 0, 'return_time': None}
+    response = {'query type': 'unknown', 'from': None, 'to': None, 'arrive': False, 'time': pd.Timestamp(datetime.now()).ceil("15min").to_pydatetime(), 'type': 'single', 'adult': 1, 'child': 0, 'return_time': None}
 
     for token in doc:
         if stems.get("booking_tickets").count(token.lemma_) > 0:
             response["query type"] = "cheapest"
         elif token.pos_ == 'VERB':
-            if stems.get("leaving").count(token.lemma_) > 0 or stems.get("leaving").count(token.lemma_) > 0:
-                response['arrive'] = False
+            if stems.get("arrive").count(token.lemma_) > 0 :
+                response['arrive'] = True
             response['time'] = extract_journey_time(token)
         elif token.lemma_.lower() == 'return':
             response['type'] = 'return'
@@ -136,8 +146,12 @@ def parse_query(query):
 if __name__ == "__main__":
     queries = [
         "What is the cheapest single ticket for four adults and 2 children from Milton Keynes Central to Norwich, arriving at 13:00 on 15/1/2022",
-        
-        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 on 14/02/20",
+
+        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 on 14/02/20 for 2 adults and one child",
+        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 today",
+        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 6pm tomorrow",
+        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 5am on 14th feb",
+        "I'd like to book a return ticket from London Liverpool Street to South Woodham Ferrers leaving at 17:00 on february 14th",
 
         "What will the delay be at Southampton if the train was delayed 5 minutes from Weymouth?",
 
@@ -145,11 +159,15 @@ if __name__ == "__main__":
 
         "What is the predicted delay at Southampton if my train was 3 minutes late from Weymouth?",
 
-        "What is the cheapest single ticket for six adults and one child from Milton Keynes Central to Norwich, arriving for 11:00 on 30/1/2022"
+        "What is the cheapest single ticket for six adults and one child from Milton Keynes Central to Norwich, arriving for 11:00 on 30/1/2022",
+
+        "What is the cheapest single ticket for six adults and one child from Milton Keynes Central to Norwich, arriving for 11:00 next week"
     ]
-    #displacy.serve(nlp(queries[2]), style="dep", port=16000)
+    displacy.serve(nlp(queries[1]), style="dep", port=16000)
 
 
     for query in queries:
         response = parse_query(query)
         print(response)
+
+    print(get_matching_stations("london"))
