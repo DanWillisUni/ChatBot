@@ -21,14 +21,15 @@ class MyTestCase(unittest.TestCase):
     # test probability helper
     def test_probability_from_frequency(self):
         test_cases = [
-            [["0,10", "1,10", "2,5", "3,5", "4,5", "5,5"], 2, 0.5]
+            [["0,10", "1,10", "2,5", "3,5", "4,5", "5,5"], 2, 0.5],
+            [["0,10", "1,10", "2,0", "3,0", "4,0", "5,0"], 2, 0],
+            [["0,0", "1,0", "2,5", "3,5", "4,5", "5,5"], 2, 1],
+            [["0,30", "1,30", "2,5", "3,5", "4,5", "5,5"], 2, 0.25],
+            [["0,4", "1,3", "2,6", "3,5", "4,5", "5,5"], 2, 0.75]
         ]
         for i in test_cases:
             result = ph.probability_from_frequency(i[0], i[1])
             self.assertEqual(i[2], result)
-
-    def test_get_q(self):
-        self.assertEqual(True, True)
 
     def test_get_outliers_min(self):
         self.assertEqual(True, True)
@@ -44,12 +45,6 @@ class MyTestCase(unittest.TestCase):
         for i in test_cases:
             result = b.bayes_theorem(i[0], i[1], i[2])
             self.assertEqual(i[3], result)
-
-    def test_knn(self):
-        self.assertEqual(True, True)
-
-    def test_nn(self):
-        self.assertEqual(True, True)
 
 
 if __name__ == '__main__':
