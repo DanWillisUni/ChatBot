@@ -2,3 +2,4 @@ fuzzywuzzy
 selenium
 spacy
 dateparser
+pytest

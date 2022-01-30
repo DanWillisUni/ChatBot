@@ -23,5 +23,11 @@ Install chromedriver to resources folder
 5. If not executable 'chmod +x ChatBot/resources/chromedriver'
 6. OSX may need further entitlements
 
+## en_core_web
+1. en_core_web_sm must be installed using:
+   1. python -m spacy download en_core_web_sm
+
+
 ##Download requirements
 1. pip install -r requirements.txt
+

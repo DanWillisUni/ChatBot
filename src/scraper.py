@@ -15,15 +15,21 @@ class Ticket:
     ARRIVE_BEFORE = 1
     DEPART_AFTER = 2
 
+USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36'
 
 class TheTrainLine:
 
     # provide apis to TheTrainLine website
     def __init__(self):
-        option = webdriver.ChromeOptions()
-        option.add_argument('--headless')
+        options = webdriver.ChromeOptions()
+        # make scraper headless, so user does not see it
+        options.add_argument('--headless')
+        options.add_argument('--incognito')
+        # user agent needed so chrome allows us to scrape headlessly
+        options.add_argument(f'user-agent={USER_AGENT}')
         service = Service('../resources/chromedriver')
-        self.driver = webdriver.Chrome(service=service)
+        self.driver = webdriver.Chrome(service=service, options=options)
+        #self.driver = webdriver.Chrome(service=service)
         self.driver.get("https://www.thetrainline.com")
 
 
@@ -36,6 +42,7 @@ class TheTrainLine:
         self.driver.quit()
         sleep(1)
 
+    # round the time inputted by a user to a 15 minute interval as this is how they are inputted on TrainLine
     @staticmethod
     def round_to_15(tempus):
         mins = ((tempus.minute + 7) // 15) * 15
@@ -52,7 +59,6 @@ class TheTrainLine:
             inbound_time = TheTrainLine.round_to_15(inbound_time)  # only accepts 15-minute intervals
 
         # what is the starting station
-
         from_box = self.driver.find_element(By.ID, 'from.search')
         from_box.send_keys(Keys.SHIFT, Keys.ARROW_UP)
         from_box.send_keys(Keys.DELETE)
@@ -64,12 +70,15 @@ class TheTrainLine:
         to_box.send_keys(Keys.DELETE)
         to_box.send_keys(to_station)
 
+        # choose single
         if ticket_type == Ticket.SINGLE:
             button = self.driver.find_element(By.ID, 'single')
+        # choose return
         else:
             button = self.driver.find_element(By.ID, 'return')
         button.click()
 
+        # clear date box and enter outbound date
         outbound_element = self.driver.find_element(By.ID, 'page.journeySearchForm.outbound.title')
         outbound_element.send_keys(Keys.SHIFT, Keys.ARROW_UP)
         outbound_element.send_keys(Keys.DELETE)
@@ -80,7 +89,6 @@ class TheTrainLine:
         out_leave_or_arrive = Select(self.driver.find_element(By.XPATH, "/html/body/div[2]/div/div[2]/main/div[2]/div["
                                                                         "4]/div/div/div[1]/section/form/div["
                                                                         "3]/fieldset[1]/div[3]/div/select"))
-
         if outward_time_type == Ticket.DEPART_AFTER:
             out_leave_or_arrive.select_by_value('departAfter')
         else:
@@ -99,7 +107,7 @@ class TheTrainLine:
         out_min.select_by_value(outward_time.strftime('%M'))
 
         if inbound_time:
-            # inbound date
+            # enter inbound date
             inbound_element = self.driver.find_element(By.ID, 'page.journeySearchForm.inbound.title')
             inbound_element.send_keys(Keys.SHIFT, Keys.ARROW_UP)
             inbound_element.send_keys(Keys.DELETE)
@@ -135,21 +143,22 @@ class TheTrainLine:
             self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div[2]/main/div[2]/div[4]/div/div/div['
                                                '1]/section/form/div[4]/div/div/div/div[1]/div/div/select'))
         adults_element.select_by_value(str(adults))
-
         children_element = Select(
             self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div[2]/main/div[2]/div[4]/div/div/div['
                                                '1]/section/form/div[4]/div/div/div/div[2]/div[1]/div/select'))
         children_element.select_by_value(str(children))
-
         self.driver.find_element(By.XPATH,
                                  '/html/body/div[2]/div/div[2]/main/div[2]/div[4]/div/div/div[1]/section/form/div['
                                  '4]/div/div/button').click()
 
-        sleep(0.5)  # sleep to make sure all data has been entered
+        # sleep to make sure all data has been entered
+        sleep(0.5)
+        # submit travel details to find cheapest price
         self.driver.find_element(By.XPATH,
                                  '/html/body/div[2]/div/div[2]/main/div[2]/div[4]/div/div/div[1]/section/form/div['
-                                 '5]/button').click()  # submit travel details to find cheapest price
+                                 '5]/button').click()
 
+        # wait for page to load fully before looking for cheapest ticket label
         WebDriverWait(self.driver, 10).until(
             ec.presence_of_element_located((By.CSS_SELECTOR, "[aria-label='the cheapest fare']")))
         # driver.find_element(By.CLASS_NAME, '_hsf37jx').click()  # if popup
