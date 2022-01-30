@@ -22,12 +22,9 @@ class TheTrainLine:
 
     # provide apis to TheTrainLine website
     def __init__(self):
-        option = webdriver.ChromeOptions()
-        option.add_argument('--headless')
         service = Service('../resources/chromedriver')
         self.driver = webdriver.Chrome(service=service)
         self.driver.get("https://www.thetrainline.com")
-
 
         # wait for accept cookies popup and click on accept
         WebDriverWait(self.driver, 10).until(ec.presence_of_element_located((By.ID, "onetrust-accept-btn-handler")))
@@ -188,6 +185,9 @@ if __name__ == '__main__':
     print(f"Cheapest ticket: £{cost}")
     print(f"Buy ticket: {url}")
 
-
+    cost, url = trainline.get_ticket("Norwich", "Southampton", adults=2, children=0, outward_time_type=Ticket.DEPART_AFTER,
+                                     outward_time=datetime.now() + timedelta(days=4), ticket_type=Ticket.SINGLE)
+    print(f"Cheapest ticket: £{cost}")
+    print(f"Buy ticket: {url}")
 
     del trainline
