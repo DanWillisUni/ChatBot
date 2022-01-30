@@ -9,6 +9,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from os.path import dirname
 
+from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
+
+
+
 project_root = dirname(dirname(__file__))
 
 class Ticket:
@@ -22,10 +27,11 @@ class TheTrainLine:
 
     # provide apis to TheTrainLine website
     def __init__(self):
-        option = webdriver.ChromeOptions()
-        option.add_argument('--headless')
-        service = Service('../resources/chromedriver')
-        self.driver = webdriver.Chrome(service=service)
+        #option = webdriver.ChromeOptions()
+        #option.add_argument('--headless')
+        #service = Service('../resources/chromedriver')
+        #self.driver = webdriver.Chrome(service=service)
+        self.driver = webdriver.Chrome(ChromeDriverManager().install())
         self.driver.get("https://www.thetrainline.com")
 
 

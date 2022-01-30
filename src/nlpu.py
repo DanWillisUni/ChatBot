@@ -20,7 +20,7 @@ def load_stations():
         fp.readline()  # throw away first line
         for line in fp:
             fields = line.split(',')
-            data[fields[0].lower()] = fields[4]
+            data[fields[0].lower()] = fields[4].replace("\n","")
     return data
 
 
