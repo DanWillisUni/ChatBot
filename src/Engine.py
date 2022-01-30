@@ -519,6 +519,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda current_station: get_matching_stations(current_station)[0][-1] == 100),
           TEST(lambda target_station: get_matching_stations(target_station)[0][-1] == 100),
           TEST(lambda current_station, target_station: current_station.lower() != target_station.lower()),
+          TEST(lambda current_station, target_station: verify_station_order(station_map[current_station.lower()], station_map[target_station.lower()]) == True)
           )
     def delay_send_delay_prediction(self, current_delay, current_station, target_station):
         predicted_delay = predict(station_map[current_station.lower()], station_map[target_station.lower()], current_delay)
