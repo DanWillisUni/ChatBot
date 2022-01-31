@@ -1,6 +1,6 @@
 from experta import *
 
-from nlpu import *
+from NLP.nlpu import *
 from scraper import *
 from partTwoHighLevel import *
 

@@ -15,17 +15,22 @@ class Ticket:
     ARRIVE_BEFORE = 1
     DEPART_AFTER = 2
 
+
 USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36'
+
 
 class TheTrainLine:
 
     # provide apis to TheTrainLine website
-    def __init__(self):
-        options = webdriver.ChromeOptions()
-        # make scraper headless, so user does not see it
-        options.add_argument('--headless')
-        # user agent needed so chrome allows us to scrape headlessly
-        options.add_argument(f'user-agent={USER_AGENT}')
+    def __init__(self, headless=False):
+        if headless:
+            options = webdriver.ChromeOptions()
+            # make scraper headless, so user does not see it
+            options.add_argument('--headless')
+            # user agent needed so chrome allows us to scrape headlessly
+            options.add_argument(f'user-agent={USER_AGENT}')
+        else:
+            options = None
         service = Service('../resources/chromedriver')
         self.driver = webdriver.Chrome(service=service, options=options)
         #self.driver = webdriver.Chrome(service=service)
@@ -169,7 +174,7 @@ class TheTrainLine:
 
 
 if __name__ == '__main__':
-    trainline = TheTrainLine()
+    trainline = TheTrainLine(False)
 
     cost, url = trainline.get_ticket("Norwich", "Barnes", adults=1,
                                      outward_time_type=Ticket.ARRIVE_BEFORE,
@@ -177,12 +182,12 @@ if __name__ == '__main__':
     print(f"Cheapest ticket: £{cost}")
     print(f"Buy ticket: {url}")
 
-    trainline = TheTrainLine()
+    trainline = TheTrainLine(False)
     #   trainline.getTicket('milton keynes central', 'norwich', datetime.now())
     cost, url = trainline.get_ticket('milton keynes central', 'norwich', datetime.now(),
                                      inbound_time=datetime.now() + timedelta(days=2),
                                      ticket_type=Ticket.RETURN)
-    trainline = TheTrainLine()
+    trainline = TheTrainLine(False)
     print(f"Cheapest ticket: £{cost}")
     print(f"Buy ticket: {url}")
 
@@ -190,7 +195,7 @@ if __name__ == '__main__':
                                      inbound_time=datetime.now() + timedelta(days=2),
                                      ticket_type=Ticket.RETURN)
 
-    trainline = TheTrainLine()
+    trainline = TheTrainLine(False)
     print(f"Cheapest ticket: £{cost}")
     print(f"Buy ticket: {url}")
 

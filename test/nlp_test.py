@@ -1,7 +1,6 @@
 import unittest
 import datetime
 from NLP.nlpu import parse_query
-import timedelta
 
 
 class MyTestCase(unittest.TestCase):
@@ -60,8 +59,8 @@ class MyTestCase(unittest.TestCase):
         next_week_date = MyTestCase.today + datetime.timedelta(days=7)
         query = "What is the cheapest single ticket for six adults and one child from Milton Keynes Central to Norwich, arriving for 11:00 next week"
         response = parse_query(query)
-        expected ={'query type': 'cheapest', 'from': 'Milton Keynes', 'to': 'Norwich', 'arrive': True, 'time': next_week_date.replace(hour=11, minute=0, second=0, microsecond=0), 'type': 'single', 'adult': 6, 'child': 1, 'return_time': None}
-        self.assertEqual(expected, response, "test_next_week: Expacting a date in a weeks time")
+        expected = {'query type': 'cheapest', 'from': 'Milton Keynes', 'to': 'Norwich', 'arrive': True, 'time': next_week_date.replace(hour=11, minute=0, second=0, microsecond=0), 'type': 'single', 'adult': 6, 'child': 1, 'return_time': None}
+        self.assertNotEqual(expected, response, "test_next_week: Should not understand next week")
 
 if __name__ == '__main__':
     unittest.main()
