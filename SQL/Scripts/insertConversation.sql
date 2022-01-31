@@ -7,7 +7,7 @@ GO
 -- Create date: 
 -- Description:	
 -- =============================================
-ALTER PROCEDURE insertIntoConversation
+Create PROCEDURE insertIntoConversation
 	-- Add the parameters for the stored procedure here
 	@message VARCHAR(1000) = '',
 	@userID VARCHAR(50) = '',
@@ -20,13 +20,14 @@ INSERT INTO [dbo].[Conversation]
            ([userID]
            ,[message]
            ,[fromUser]
-           ,[isText]
            ,[dateTimeID])
      VALUES
            (@userID
-           ,@message
+           ,(CASE 
+				WHEN @message = '' THEN null
+				ELSE @message
+			END)
            ,@isFromUser
-           ,@isText
            ,GETDATE())
 
 END
