@@ -7,6 +7,7 @@ from time import sleep
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
+from PIL import Image
 
 
 class Ticket:
@@ -16,7 +17,7 @@ class Ticket:
     DEPART_AFTER = 2
 
 
-USER_AGENT = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36'
+USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.99 Safari/537.36'
 
 
 class TheTrainLine:
@@ -26,9 +27,12 @@ class TheTrainLine:
         if headless:
             options = webdriver.ChromeOptions()
             # make scraper headless, so user does not see it
-            options.add_argument('--headless')
+            #options.add_argument('--headless')
+            options.headless = True
             # user agent needed so chrome allows us to scrape headlessly
             options.add_argument(f'user-agent={USER_AGENT}')
+            options.add_argument("--window-size=1280,1024")
+            options.add_argument("--disable-dev-shm-usage")
         else:
             options = None
         service = Service('../resources/chromedriver')
@@ -56,7 +60,11 @@ class TheTrainLine:
                    inbound_time=None, outward_time_type=Ticket.ARRIVE_BEFORE,
                    inbound_time_type=Ticket.ARRIVE_BEFORE, ticket_type=Ticket.SINGLE):
 
-        #self.driver.get("https://www.thetrainline.com")
+
+        '''el = self.driver.find_element_by_tag_name('body')
+        el.screenshot("ss.png")
+        screenshot = Image.open("ss.png")
+        screenshot.show()'''
 
         outward_time = TheTrainLine.round_to_15(outward_time)  # only accepts 15-minute intervals
         if inbound_time:
@@ -90,9 +98,7 @@ class TheTrainLine:
         outbound_element.send_keys(Keys.RETURN)
 
         # choosing leave by or arrive by time
-        out_leave_or_arrive = Select(self.driver.find_element(By.XPATH, "/html/body/div[2]/div/div[2]/main/div[2]/div["
-                                                                        "4]/div/div/div[1]/section/form/div["
-                                                                        "3]/fieldset[1]/div[3]/div/select"))
+        out_leave_or_arrive = Select(self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div[2]/main/div[2]/div[4]/div/div/div[1]/section/form/div[3]/fieldset[1]/div[3]/div/select'))
         if outward_time_type == Ticket.DEPART_AFTER:
             out_leave_or_arrive.select_by_value('departAfter')
         else:
@@ -157,6 +163,13 @@ class TheTrainLine:
 
         # sleep to make sure all data has been entered
         sleep(0.5)
+
+
+        '''el = self.driver.find_element_by_tag_name('body')
+        el.screenshot("ss.png")
+        screenshot = Image.open("ss.png")
+        screenshot.show()'''
+
         # submit travel details to find cheapest price
         self.driver.find_element(By.XPATH,
                                  '/html/body/div[2]/div/div[2]/main/div[2]/div[4]/div/div/div[1]/section/form/div['
@@ -165,40 +178,46 @@ class TheTrainLine:
         # wait for page to load fully before looking for cheapest ticket label
         WebDriverWait(self.driver, 10).until(
             ec.presence_of_element_located((By.CSS_SELECTOR, "[aria-label='the cheapest fare']")))
-
+        '''#inspection for headless
+        el = self.driver.find_element_by_tag_name('body')
+        el.screenshot("ss.png")
+        screenshot = Image.open("ss.png")
+        screenshot.show()'''
 
         # find cheapest ticket label to print cheapest ticket and page url
-        cheapest_ticket = self.driver.find_element(By.CSS_SELECTOR, "[aria-label='the cheapest fare']").text
+        cheapest_ticket = self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div[1]/main/div/div[2]/div/div/div/div/div/div[1]/div[2]/div/div[1]/h3/span[2]/span/span').text
 
         return float(cheapest_ticket[1:]), self.driver.current_url
 
 
 if __name__ == '__main__':
-    trainline = TheTrainLine(False)
+    trainline = TheTrainLine()
 
     cost, url = trainline.get_ticket("Norwich", "Barnes", adults=1,
                                      outward_time_type=Ticket.ARRIVE_BEFORE,
                                      outward_time=datetime(2022, 2, 20, 12), ticket_type=Ticket.SINGLE)
     print(f"Cheapest ticket: £{cost}")
     print(f"Buy ticket: {url}")
+    del trainline
 
-    trainline = TheTrainLine(False)
+    trainline = TheTrainLine()
     #   trainline.getTicket('milton keynes central', 'norwich', datetime.now())
-    cost, url = trainline.get_ticket('milton keynes central', 'norwich', datetime.now(),
-                                     inbound_time=datetime.now() + timedelta(days=2),
-                                     ticket_type=Ticket.RETURN)
-    trainline = TheTrainLine(False)
-    print(f"Cheapest ticket: £{cost}")
-    print(f"Buy ticket: {url}")
-
-    cost, url = trainline.get_ticket('milton keynes central', 'london euston', datetime.now(),
-                                     inbound_time=datetime.now() + timedelta(days=2),
+    cost, url = trainline.get_ticket('milton keynes central', 'norwich', datetime.now() + timedelta(days=2),
+                                     inbound_time=datetime.now() + timedelta(days=6),
                                      ticket_type=Ticket.RETURN)
 
-    trainline = TheTrainLine(False)
     print(f"Cheapest ticket: £{cost}")
     print(f"Buy ticket: {url}")
+    del trainline
+
+    trainline = TheTrainLine()
+
+    cost, url = trainline.get_ticket('milton keynes central', 'london euston', datetime.now() + timedelta(days=1),
+                                     inbound_time=datetime.now() + timedelta(days=2),
+                                     ticket_type=Ticket.RETURN)
 
 
+    print(f"Cheapest ticket: £{cost}")
+    print(f"Buy ticket: {url}")
 
     del trainline
