@@ -7,7 +7,7 @@ GO
 -- Create date: 
 -- Description:	
 -- =============================================
-ALTER PROCEDURE GetLatenessOfBoth
+CREATE PROCEDURE GetLatenessOfBoth
 	-- Add the parameters for the stored procedure here
 	@FROM varchar(7) = '', 
 	@TO varchar(7) = ''

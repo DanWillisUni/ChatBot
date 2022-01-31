@@ -1,5 +1,11 @@
-fuzzywuzzy
-selenium
-spacy
+fuzzywuzzy~=0.18.0
+selenium~=4.1.0
+spacy~=3.2.1
+
+experta~=1.9.4
+PyQt5~=5.15.6
+numpy~=1.22.0
+
 dateparser
 pytest
+https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.2.0/en_core_web_sm-3.2.0.tar.gz
