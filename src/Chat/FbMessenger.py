@@ -1,7 +1,7 @@
-#Python libraries that we need to import for our bot
 import random
 from flask import Flask, request
 from pymessenger.bot import Bot
+import PartTwo.Helpers.SPHelper as sph
 
 app = Flask(__name__)
 ACCESS_TOKEN = 'EAAKW2aZA6DXYBANXdMmzcBmf5BTL0pOIfpQAVrC15ZB3WfQjHPyZCr0wSgnbCTXsUueA9O1yFTP0tHUITRBw3WbfP3Nf7FsCXmuwLNdLrmAgpjZBXAKXPk3RkaKqtqNvJCqN6blDbE03Jdow4hBHvxgpcEZCAl5WSxZCUHoL4PVQpCa3x95ogY'
@@ -25,26 +25,29 @@ def receive_message():
                 #Facebook Messenger ID for user so we know where to send response back to
                 recipient_id = message['sender']['id']
                 if message['message'].get('text'):
-                    print(message['message'].get('text'))
-                    response_sent_text = get_message()
+                    user_message = message['message'].get('text')
+                    sph.insertIntoConversation(user_message, recipient_id, True)
+                    response_sent_text = get_message(user_message)
+                    sph.insertIntoConversation(response_sent_text, recipient_id, False)
                     send_message(recipient_id, response_sent_text)
                 #if user sends us a GIF, photo,video, or any other non-text item
                 if message['message'].get('attachments'):
-                    response_sent_nontext = get_message()
+                    sph.insertIntoConversation("", recipient_id, True)
+                    response_sent_nontext = "Sorry I cannot understand messages that are not text"
+                    sph.insertIntoConversation(response_sent_nontext, recipient_id, False)
                     send_message(recipient_id, response_sent_nontext)
     return "Message Processed"
 
 def verify_fb_token(token_sent):
     if token_sent == VERIFY_TOKEN:
         val = request.args.get("hub.challenge")
-        print(val)
         return val
     return 'Invalid verification token'
 
 
 #chooses a random message to send to the user
-def get_message():
-    sample_responses = ["Dan","Charlie","Brandon"]
+def get_message(user_message):
+    sample_responses = ["Dan", "Charlie", "Brandon"]
     # return selected item to the user
     return random.choice(sample_responses)
 
@@ -53,6 +56,7 @@ def send_message(recipient_id, response):
     #sends user the text message provided via input response parameter
     bot.send_text_message(recipient_id, response)
     return "success"
+
 
 if __name__ == "__main__":
     app.run()

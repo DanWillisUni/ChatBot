@@ -41,11 +41,10 @@ def getProbabilityOfLate(delay, from_station_tpl, to_station_tpl):
     :return:
     Probability of being late to the second station
     """
-    conn_str = appSettings.get_conn_str()  # get the connection string
-    frequencies = sph.get_all_data_on_station(conn_str, to_station_tpl)  # get all the frequenceis of the train lateness to the second station
+    frequencies = sph.get_all_data_on_station(to_station_tpl)  # get all the frequenceis of the train lateness to the second station
     p_a = ph.probability_from_frequency(frequencies, 1)  # get the probability of the train being late to the second station
-    frequencies = sph.get_lateness_from_stations(conn_str, to_station_tpl, from_station_tpl, 1, 1500)  # get every time the train was late to the to station
+    frequencies = sph.get_lateness_from_stations(to_station_tpl, from_station_tpl, 1, 1500)  # get every time the train was late to the to station
     p_b_given_a = ph.probability_from_frequency(frequencies, delay)  # get the probability of the train being late to the first station by delay given that it was late to the second
-    frequencies = sph.get_lateness_from_stations(conn_str, to_station_tpl, from_station_tpl, -1500, 0)  # get every time the train was ontime to the to station
+    frequencies = sph.get_lateness_from_stations(to_station_tpl, from_station_tpl, -1500, 0)  # get every time the train was ontime to the to station
     p_b_given_not_a = ph.probability_from_frequency(frequencies, delay)  # get the probability of the train being late to the first station by delay given that it was not late to the second
     return bayes_theorem(p_a, p_b_given_a, p_b_given_not_a)  # calcualte the probability

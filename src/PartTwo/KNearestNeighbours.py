@@ -66,8 +66,7 @@ class KNearestNeighbour:
         :return:
         The prediction
         """
-        conn_str = appSettings.get_conn_str()  # get the connection string
-        all = sph.get_lateness_of_both(conn_str, from_station_tpl, to_station_tpl)  # get all the data about the two stations
+        all = sph.get_lateness_of_both(from_station_tpl, to_station_tpl)  # get all the data about the two stations
         if len(all) == 0:  # if there is no data
             return delay  # return the delay
         else:
@@ -122,14 +121,13 @@ def get_knn_data(max_count, remove_outliers):
     :return:
     All the data for the KNN
     """
-    conn_str = appSettings.get_conn_str()  # get the database connectionString
     rids = fit.get_rid_data(max_count)  # get all the RIDs inside the maxCount
     input_arr = []
     target_arr = []
     test_for_outliers = []
     for rid in rids:  # for each RID
         rid = rid.replace(" ', ", "")[1:]
-        rid_data = sph.get_lateness_from_rid(conn_str, rid)  # get all the data from the RID
+        rid_data = sph.get_lateness_from_rid(rid)  # get all the data from the RID
         for a in range(len(rid_data)):  #for all the data in the rid data
             name_a = rid_data[a].split(",")[0].replace(" ", "").replace("'", "")  #get the station name
             delay_a = int(rid_data[a].split(",")[1])  #get the delay at station A

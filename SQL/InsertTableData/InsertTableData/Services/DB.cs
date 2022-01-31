@@ -16,9 +16,17 @@ namespace InsertTableData.Services
         public void insertData(List<InputFile> input)
         {
             connection.Open();
-            foreach (InputFile s in input)
+            for (int i = 0; i < input.Count; i += 10000)
             {
-                string query = "INSERT INTO dbo.nrch_livst_a51 (rid,tpl,pta,ptd,wta,wtp,wtd,arr_et,arr_wet,arr_atRemoved,pass_et,pass_wet,pass_atRemoved,dep_et,dep_wet,dep_atRemoved,arr_at,pass_at,dep_at,cr_code,lr_code) Values (" + s.ToString() +")";
+                string query = "INSERT INTO dbo.nrch_livst_a51 (rid,tpl,pta,ptd,wta,wtp,wtd,arr_et,arr_wet,arr_atRemoved,pass_et,pass_wet,pass_atRemoved,dep_et,dep_wet,dep_atRemoved,arr_at,pass_at,dep_at,cr_code,lr_code) Values (" + input[i].ToString() + ")\n";
+                for (int j = 1; j < 10000; j++)
+                {
+                    if (i + j >= input.Count)
+                    {
+                        break;
+                    }
+                    query += "INSERT INTO dbo.nrch_livst_a51 (rid,tpl,pta,ptd,wta,wtp,wtd,arr_et,arr_wet,arr_atRemoved,pass_et,pass_wet,pass_atRemoved,dep_et,dep_wet,dep_atRemoved,arr_at,pass_at,dep_at,cr_code,lr_code) Values (" + input[i+j].ToString() + ")\n";
+                }
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     command.ExecuteNonQuery();
@@ -29,9 +37,18 @@ namespace InsertTableData.Services
         public void insetStations(List<Station> input)
         {
             connection.Open();
-            foreach (Station s in input)
+            for (int i = 0; i<input.Count; i+=1000)
             {
-                string query = "INSERT [dbo].[Stations] ([name], [longname_name_alias], [alpha3], [tiploc], [column5]) Values (" + s.ToString() + ")";
+                string query = "INSERT [dbo].[Stations] ([name], [longname_name_alias], [alpha3], [tiploc], [db_name]) Values (" + input[i].ToString() + ")\n";
+                for (int j = 1; j < 1000; j++)
+                {
+                    if (i+j >= input.Count)
+                    {
+                        break;
+                    }
+                    query += "INSERT [dbo].[Stations] ([name], [longname_name_alias], [alpha3], [tiploc], [db_name]) Values (" + input[i+j].ToString() + ")\n";
+                }
+
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     command.ExecuteNonQuery();

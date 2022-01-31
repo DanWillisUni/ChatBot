@@ -289,7 +289,7 @@ def get_station_compare():
             name_a = all_stations[a]  # set the name of station A to the corresponding station in the loop
             for b in range(a + 1, len(all_stations)):  # for each station that hasn't been done
                 name_b = all_stations[b]  # set the name of station B to the corresponding station in the loop
-                normal_distance = sph.compare_stations(appSettings.get_conn_str(), name_a, name_b)  # get the normal time between station A and B
+                normal_distance = sph.compare_stations(name_a, name_b)  # get the normal time between station A and B
                 if normal_distance != 'None':  # if not Null
                     comparing_stations[get_station_compare_index(station_dic, name_a, name_b)] = int(normal_distance)  # set the index to normal distance
                     comparing_stations[get_station_compare_index(station_dic, name_b, name_a)] = 0 - int(normal_distance)  # set the mirrored index to the negative of the normal distance
@@ -312,7 +312,6 @@ def get_nn_data(max_data_size, remove_outliers):
     InputVectors [-1,2]
     Targets array
     """
-    conn_str = appSettings.get_conn_str()  # get the connection string
     comparing_stations, station_dic = get_station_compare()  # get the comparing stations and station dictionary
     rids = fit.get_rid_data(max_data_size)  # get the top RIDs
     inputs = np.empty(shape=[0], dtype=int)  # make empty array for the input vectors
@@ -320,7 +319,7 @@ def get_nn_data(max_data_size, remove_outliers):
     test_for_outliers = []  # make empty array to test for outliers
     for rid in rids:  # for each RID
         rid = rid.replace(" ', ", "")[1:]  # get the rid with no quotes
-        rid_data = sph.get_lateness_from_rid(conn_str, rid)  # get all delay times to all the stations from that specific RID
+        rid_data = sph.get_lateness_from_rid(rid)  # get all delay times to all the stations from that specific RID
         for a in range(len(rid_data)):  # for all the data on the rid
             name_a = rid_data[a].split(",")[0].replace(" ", "").replace("'", "")  # set the station A name
             delay_a = int(rid_data[a].split(",")[1])  # set the amount that the train was late to station A

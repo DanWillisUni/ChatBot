@@ -63,11 +63,12 @@ def compare_and_train(iteration_count, data_limit, training_iterations, compare_
     plt.savefig("FullTrainingData_" + datetime.now().strftime("%Y%m%d_%H%M%S_") + ".png")
     plt.close()
 
+
 def verify_station_order(from_station, to_station):
     all_stations = fit.get_all_stations()
     if from_station in all_stations:
         if to_station in all_stations:
-            normal_distance = sph.compare_stations(appSettings.get_conn_str(),from_station,to_station)
+            normal_distance = sph.compare_stations(from_station, to_station)
             if normal_distance != 'None':  # if not Null
                 if int(normal_distance) > 0:
                     return True
