@@ -24,7 +24,6 @@ class TheTrainLine:
         options = webdriver.ChromeOptions()
         # make scraper headless, so user does not see it
         options.add_argument('--headless')
-        options.add_argument('--incognito')
         # user agent needed so chrome allows us to scrape headlessly
         options.add_argument(f'user-agent={USER_AGENT}')
         service = Service('../resources/chromedriver')
@@ -161,7 +160,7 @@ class TheTrainLine:
         # wait for page to load fully before looking for cheapest ticket label
         WebDriverWait(self.driver, 10).until(
             ec.presence_of_element_located((By.CSS_SELECTOR, "[aria-label='the cheapest fare']")))
-        # driver.find_element(By.CLASS_NAME, '_hsf37jx').click()  # if popup
+
 
         # find cheapest ticket label to print cheapest ticket and page url
         cheapest_ticket = self.driver.find_element(By.CSS_SELECTOR, "[aria-label='the cheapest fare']").text

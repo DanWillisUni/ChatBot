@@ -63,24 +63,5 @@ class MyTestCase(unittest.TestCase):
         expected ={'query type': 'cheapest', 'from': 'Milton Keynes', 'to': 'Norwich', 'arrive': True, 'time': next_week_date.replace(hour=11, minute=0, second=0, microsecond=0), 'type': 'single', 'adult': 6, 'child': 1, 'return_time': None}
         self.assertEqual(expected, response, "test_next_week: Expacting a date in a weeks time")
 
-
-
-
-
-
-"""
-    def test_queries(self):
-
-        tests = [
-            
-            ["What is the predicted delay at Southampton if my train was 3 minutes late from Weymouth?", "{'query type': 'prediction', 'from': 'Weymouth', 'to': 'Southampton', 'delay': 3}"],
-            ["What is the cheapest single ticket for six adults and one child from Milton Keynes Central to Norwich, arriving for 11:00 on 30/1/2022", "{'query type': 'cheapest', 'from': 'Milton Keynes', 'to': 'Norwich', 'arrive': True, 'time': None, 'type': 'single', 'adult': 6, 'child': 1, 'return_time': None}"],
-            ["What is the cheapest single ticket for six adults and one child from Milton Keynes Central to Norwich, arriving for 11:00 next week", "{'query type': 'cheapest', 'from': 'Milton Keynes', 'to': 'Norwich', 'arrive': True, 'time': None, 'type': 'single', 'adult': 6, 'child': 1, 'return_time': None}"]
-                 ]
-
-        for i in tests :
-            attempt = parse_query(i[0])
-            self.assertEqual(i[1], attempt.)
-"""
 if __name__ == '__main__':
     unittest.main()
