@@ -12,6 +12,8 @@ from os.path import dirname
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 
+#from selenium.webdriver import DesiredCapabilities
+#from selenium.webdriver.chrome.options import Options
 
 
 project_root = dirname(dirname(__file__))
@@ -24,16 +26,19 @@ class Ticket:
 
 
 class TheTrainLine:
-
     # provide apis to TheTrainLine website
     def __init__(self):
-        #option = webdriver.ChromeOptions()
-        #option.add_argument('--headless')
-        #service = Service('../resources/chromedriver')
-        #self.driver = webdriver.Chrome(service=service)
-        self.driver = webdriver.Chrome(ChromeDriverManager().install())
-        self.driver.get("https://www.thetrainline.com")
+        #chrome_options = Options()
+        #chrome_options.add_argument("--headless")
+        #chrome_options.add_argument(f'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36')  # add to
 
+        #capabilities = DesiredCapabilities.CHROME.copy()
+        #capabilities['acceptSslCerts'] = True
+        #capabilities['acceptInsecureCerts'] = True
+
+        #self.driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=ChromeDriverManager().install(), desired_capabilities=capabilities)
+        self.driver = webdriver.Chrome(executable_path=ChromeDriverManager().install())
+        self.driver.get("https://www.thetrainline.com")
 
         # wait for accept cookies popup and click on accept
         WebDriverWait(self.driver, 10).until(ec.presence_of_element_located((By.ID, "onetrust-accept-btn-handler")))
@@ -162,6 +167,8 @@ class TheTrainLine:
             ec.presence_of_element_located((By.CSS_SELECTOR, "[aria-label='the cheapest fare']")))
         # driver.find_element(By.CLASS_NAME, '_hsf37jx').click()  # if popup
 
+        print(self.driver.page_source)
+
         # find cheapest ticket label to print cheapest ticket and page url
         cheapest_ticket = self.driver.find_element(By.CSS_SELECTOR, "[aria-label='the cheapest fare']").text
 
@@ -177,7 +184,7 @@ if __name__ == '__main__':
     print(f"Cheapest ticket: £{cost}")
     print(f"Buy ticket: {url}")
 
-    trainline = TheTrainLine()
+    '''trainline = TheTrainLine()
     #   trainline.getTicket('milton keynes central', 'norwich', datetime.now())
     cost, url = trainline.get_ticket('milton keynes central', 'norwich', datetime.now(),
                                      inbound_time=datetime.now() + timedelta(days=2),
@@ -192,7 +199,7 @@ if __name__ == '__main__':
 
     trainline = TheTrainLine()
     print(f"Cheapest ticket: £{cost}")
-    print(f"Buy ticket: {url}")
+    print(f"Buy ticket: {url}")'''
 
 
 
