@@ -9,6 +9,14 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from PIL import Image
 
+from selenium import webdriver
+from webdriver_manager.firefox import GeckoDriverManager
+
+from selenium.webdriver import DesiredCapabilities
+from selenium.webdriver.firefox.options import Options
+
+
+project_root = dirname(dirname(__file__))
 
 class Ticket:
     SINGLE = 1
@@ -21,25 +29,20 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTM
 
 
 class TheTrainLine:
-
     # provide apis to TheTrainLine website
-    def __init__(self, headless=False):
-        if headless:
-            options = webdriver.ChromeOptions()
-            # make scraper headless, so user does not see it
-            #options.add_argument('--headless')
-            options.headless = True
-            # user agent needed so chrome allows us to scrape headlessly
-            options.add_argument(f'user-agent={USER_AGENT}')
-            options.add_argument("--window-size=1280,1024")
-            options.add_argument("--disable-dev-shm-usage")
-        else:
-            options = None
-        service = Service('../resources/chromedriver')
-        self.driver = webdriver.Chrome(service=service, options=options)
-        #self.driver = webdriver.Chrome(service=service)
-        self.driver.get("https://www.thetrainline.com")
 
+    def __init__(self):
+        _options = Options()
+        _options.add_argument('--headless')
+        _options.add_argument(f'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36')  # add to
+
+        capabilities = DesiredCapabilities.FIREFOX.copy()
+        capabilities['acceptSslCerts'] = True
+        capabilities['acceptInsecureCerts'] = True
+
+        self.driver = webdriver.Firefox(options=_options, executable_path=GeckoDriverManager().install(), desired_capabilities=capabilities)
+        #self.driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
+        self.driver.get("https://www.thetrainline.com")
 
         # wait for accept cookies popup and click on accept
         WebDriverWait(self.driver, 10).until(ec.presence_of_element_located((By.ID, "onetrust-accept-btn-handler")))
@@ -184,6 +187,8 @@ class TheTrainLine:
         screenshot = Image.open("ss.png")
         screenshot.show()'''
 
+        #print(self.driver.page_source)
+
         # find cheapest ticket label to print cheapest ticket and page url
         cheapest_ticket = self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div[1]/main/div/div[2]/div/div/div/div/div/div[1]/div[2]/div/div[1]/h3/span[2]/span/span').text
 
@@ -200,7 +205,7 @@ if __name__ == '__main__':
     print(f"Buy ticket: {url}")
     del trainline
 
-    trainline = TheTrainLine()
+    '''trainline = TheTrainLine()
     #   trainline.getTicket('milton keynes central', 'norwich', datetime.now())
     cost, url = trainline.get_ticket('milton keynes central', 'norwich', datetime.now() + timedelta(days=2),
                                      inbound_time=datetime.now() + timedelta(days=6),
@@ -218,6 +223,6 @@ if __name__ == '__main__':
 
 
     print(f"Cheapest ticket: £{cost}")
-    print(f"Buy ticket: {url}")
+    print(f"Buy ticket: {url}")'''
 
     del trainline
