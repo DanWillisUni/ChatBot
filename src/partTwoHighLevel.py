@@ -6,7 +6,6 @@ import PartTwo.Helpers.Fitness as fit
 import PartTwo.NeuralNetwork as nn
 import PartTwo.KNearestNeighbours as knn
 import PartTwo.Helpers.SPHelper as sph
-import appSettings
 
 
 def compare_nn_and_knn(iteration_count, data_limit):

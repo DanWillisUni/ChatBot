@@ -224,7 +224,6 @@ if __name__ == '__main__':
                                      inbound_time=datetime.now() + timedelta(days=2),
                                      ticket_type=Ticket.RETURN)
 
-
     print(f"Cheapest ticket: £{cost}")
     print(f"Buy ticket: {url}")
 

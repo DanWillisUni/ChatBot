@@ -1,6 +1,3 @@
-import math
-import pandas
-
 
 def probability_from_frequency(f, min):
     """
