@@ -10,10 +10,10 @@ from selenium.webdriver.support import expected_conditions as ec
 from os.path import dirname
 
 from selenium import webdriver
-from webdriver_manager.chrome import ChromeDriverManager
+from webdriver_manager.firefox import GeckoDriverManager
 
-#from selenium.webdriver import DesiredCapabilities
-#from selenium.webdriver.chrome.options import Options
+from selenium.webdriver import DesiredCapabilities
+from selenium.webdriver.firefox.options import Options
 
 
 project_root = dirname(dirname(__file__))
@@ -28,16 +28,16 @@ class Ticket:
 class TheTrainLine:
     # provide apis to TheTrainLine website
     def __init__(self):
-        #chrome_options = Options()
-        #chrome_options.add_argument("--headless")
-        #chrome_options.add_argument(f'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36')  # add to
+        _options = Options()
+        _options.add_argument('--headless')
+        _options.add_argument(f'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36')  # add to
 
-        #capabilities = DesiredCapabilities.CHROME.copy()
-        #capabilities['acceptSslCerts'] = True
-        #capabilities['acceptInsecureCerts'] = True
+        capabilities = DesiredCapabilities.FIREFOX.copy()
+        capabilities['acceptSslCerts'] = True
+        capabilities['acceptInsecureCerts'] = True
 
-        #self.driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=ChromeDriverManager().install(), desired_capabilities=capabilities)
-        self.driver = webdriver.Chrome(executable_path=ChromeDriverManager().install())
+        self.driver = webdriver.Firefox(options=_options, executable_path=GeckoDriverManager().install(), desired_capabilities=capabilities)
+        #self.driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
         self.driver.get("https://www.thetrainline.com")
 
         # wait for accept cookies popup and click on accept
@@ -167,7 +167,7 @@ class TheTrainLine:
             ec.presence_of_element_located((By.CSS_SELECTOR, "[aria-label='the cheapest fare']")))
         # driver.find_element(By.CLASS_NAME, '_hsf37jx').click()  # if popup
 
-        print(self.driver.page_source)
+        #print(self.driver.page_source)
 
         # find cheapest ticket label to print cheapest ticket and page url
         cheapest_ticket = self.driver.find_element(By.CSS_SELECTOR, "[aria-label='the cheapest fare']").text
