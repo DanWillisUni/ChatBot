@@ -14,6 +14,7 @@ from webdriver_manager.firefox import GeckoDriverManager
 
 from selenium.webdriver import DesiredCapabilities
 from selenium.webdriver.firefox.options import Options
+from os.path import dirname
 
 
 project_root = dirname(dirname(__file__))
@@ -187,10 +188,12 @@ class TheTrainLine:
         screenshot = Image.open("ss.png")
         screenshot.show()'''
 
-        #print(self.driver.page_source)
-
-        # find cheapest ticket label to print cheapest ticket and page url
-        cheapest_ticket = self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div[1]/main/div/div[2]/div/div/div/div/div/div[1]/div[2]/div/div[1]/h3/span[2]/span/span').text
+        if ticket_type == Ticket.SINGLE:
+            cheapest_ticket = self.driver.find_element(By.CSS_SELECTOR, "[aria-label='the cheapest fare']").text
+        else:
+            # find cheapest ticket label to print cheapest ticket and page url
+            sleep(1)
+            cheapest_ticket = self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div[1]/main/div/div[2]/div/div/div/div/div/div[1]/div[2]/div/div[1]/h3/span[2]/span/span').text
 
         return float(cheapest_ticket[1:]), self.driver.current_url
 
@@ -205,7 +208,7 @@ if __name__ == '__main__':
     print(f"Buy ticket: {url}")
     del trainline
 
-    '''trainline = TheTrainLine()
+    trainline = TheTrainLine()
     #   trainline.getTicket('milton keynes central', 'norwich', datetime.now())
     cost, url = trainline.get_ticket('milton keynes central', 'norwich', datetime.now() + timedelta(days=2),
                                      inbound_time=datetime.now() + timedelta(days=6),
@@ -223,6 +226,6 @@ if __name__ == '__main__':
 
 
     print(f"Cheapest ticket: £{cost}")
-    print(f"Buy ticket: {url}")'''
+    print(f"Buy ticket: {url}")
 
     del trainline
