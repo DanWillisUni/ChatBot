@@ -91,6 +91,7 @@ class TheTrainLine:
             button = self.driver.find_element(By.ID, 'single')
         # choose return
         else:
+            sleep(0.2)
             button = self.driver.find_element(By.ID, 'return')
         button.click()
 
