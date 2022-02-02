@@ -27,7 +27,7 @@ def receive_message():
                 if message['message'].get('text'):
                     user_message = message['message'].get('text')
                     sph.insertIntoConversation(user_message, recipient_id, True)
-                    response_sent_text = get_message(user_message)
+                    response_sent_text = get_message(recipient_id, user_message)
                     sph.insertIntoConversation(response_sent_text, recipient_id, False)
                     send_message(recipient_id, response_sent_text)
                 #if user sends us a GIF, photo,video, or any other non-text item
@@ -45,8 +45,7 @@ def verify_fb_token(token_sent):
     return 'Invalid verification token'
 
 
-#chooses a random message to send to the user
-def get_message(user_message):
+def get_message(user_id, user_message):
     sample_responses = ["Dan", "Charlie", "Brandon"]
     # return selected item to the user
     return random.choice(sample_responses)

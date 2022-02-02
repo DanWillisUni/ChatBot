@@ -182,7 +182,7 @@ def get_k(max_data_size, max_k, iterations):
             print(str(int(float(i / iterations) * 100)) + "%")  #print the percentage of the way through
     # recording results
     now = datetime.now()#get the time now
-    with open(appSettings.getPathToKNNFigures() + "KResults" + now.strftime("_%Y%m%d_%H%M%S") + ".csv", 'w') as f:  # open the file in the write mode
+    with open(appSettings.get_path_to_knn_figures() + "KResults" + now.strftime("_%Y%m%d_%H%M%S") + ".csv", 'w') as f:  # open the file in the write mode
         for k in range(0, max_k):
             se_arr[k] = math.sqrt(se_arr[k] / iterations)  # set the value to the mean squared value
             f.write(str(k + 1) + "," + str(se_arr[k]) + "\n")  # write to the file
@@ -191,7 +191,7 @@ def get_k(max_data_size, max_k, iterations):
     plt.plot(se_arr)
     plt.xlabel("K")
     plt.ylabel("Root Mean Squared Errors")
-    plt.savefig(appSettings.getPathToKNNFigures() + "searchingForK" + now.strftime("_%Y%m%d_%H%M%S") + ".png")
+    plt.savefig(appSettings.get_path_to_knn_figures() + "searchingForK" + now.strftime("_%Y%m%d_%H%M%S") + ".png")
     plt.close()
 
 def get_knn():

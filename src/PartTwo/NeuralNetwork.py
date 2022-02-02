@@ -33,8 +33,8 @@ class NeuralNetwork:
         layer_string = ""
         for layer in self.layer_sizes:
             layer_string += "_" + str(layer)  # builds the string of layer sizes
-        if exists(appSettings.getNNCurrentSavePath() + layer_string + ".txt"):  # checks if the file with appropriate layers exists
-            with open(appSettings.getNNCurrentSavePath() + layer_string + ".txt", "r") as f:  # open the file
+        if exists(appSettings.get_nn_save_path() + layer_string + ".txt"):  # checks if the file with appropriate layers exists
+            with open(appSettings.get_nn_save_path() + layer_string + ".txt", "r") as f:  # open the file
                 content = f.read()
                 cont_split = content.split(";")  # split into the key value pairs
                 for kvp in cont_split:
@@ -151,7 +151,7 @@ class NeuralNetwork:
         layers_string = ""
         for layer in self.layer_sizes:
             layers_string += "_" + str(layer)
-        with open(appSettings.getNNCurrentSavePath() + layers_string + ".txt", 'w') as f:  # open the file
+        with open(appSettings.get_nn_save_path() + layers_string + ".txt", 'w') as f:  # open the file
             for k, v in self.params.items():  # for each key value pair
                 f.write(str(k) + ":" + np.array_str(v) + ";\n")  # write key value pair to file split by :
 
@@ -219,7 +219,7 @@ class NeuralNetwork:
             plt.grid(True)
             plt.xlabel("Iterations (thousands)")
             plt.ylabel("Root Mean square error in all training instances")
-            plt.savefig(appSettings.getPathToNNFigures() + datetime.now().strftime("%Y%m%d_%H%M%S_") + str(
+            plt.savefig(appSettings.get_path_to_nn_figures() + datetime.now().strftime("%Y%m%d_%H%M%S_") + str(
                 max_data_size) + "_" + str(int((i + 100) / 100)) + ".png")
             plt.close()
         # printing the elapsed times
@@ -279,8 +279,8 @@ def get_station_compare():
     station_dic = {}  # initialise blank dictionary as station dictionary
     for i in range(len(all_stations)):  # for all stations
         station_dic[all_stations[i]] = i  # assign each station an id and add it to the dictionary
-    if exists(appSettings.getStationComparePath()):  # if the text file exists
-        with open(appSettings.getStationComparePath(), "r") as f:  # open the text file
+    if exists(appSettings.get_station_compare_path()):  # if the text file exists
+        with open(appSettings.get_station_compare_path(), "r") as f:  # open the text file
             content = f.read()  # read the file
             comparing_stations = content.splitlines()  # split lines into comparing stations
     else:
@@ -293,7 +293,7 @@ def get_station_compare():
                 if normal_distance != 'None':  # if not Null
                     comparing_stations[get_station_compare_index(station_dic, name_a, name_b)] = int(normal_distance)  # set the index to normal distance
                     comparing_stations[get_station_compare_index(station_dic, name_b, name_a)] = 0 - int(normal_distance)  # set the mirrored index to the negative of the normal distance
-        with open(appSettings.getStationComparePath(), 'w') as f:  # open the file
+        with open(appSettings.get_station_compare_path(), 'w') as f:  # open the file
             for item in comparing_stations:  # for each item in the array
                 f.write("%s\n" % item)  # write a new item on each line
     return comparing_stations, station_dic
