@@ -49,6 +49,8 @@ class KEngine(KnowledgeEngine):
             self.declare(Fact(ticket_type=data["type"]))
             self.declare(Fact(adult_count=str(data["adult"])))
             self.declare(Fact(children_count=str(data["child"])))
+            self.declare(Fact(leave_time_type=Ticket.DEPART_AFTER if data['arrive'] == False else Ticket.ARRIVE_BEFORE))
+            self.declare(Fact(return_time_type=Ticket.DEPART_AFTER if data['arrive'] == False else Ticket.ARRIVE_BEFORE))
 
             if data["return_time"] is not None:
                 self.declare(Fact(return_time=data["return_time"]))
