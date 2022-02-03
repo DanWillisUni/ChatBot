@@ -14,7 +14,7 @@ def get_all_stations():
     r = []
     conn_str = appSettings.get_conn_str()  # get the connection string
     query = "SELECT distinct (tpl) FROM nrch_livst_a51 where pta is not null or ptd is not null or arr_at is not null or dep_at is not null"  #set the query
-    result = db.run_query(conn_str, query)  # run the query on the database
+    result = db.run_query(conn_str, query,True)  # run the query on the database
     for i in result:  # for all the station rows
         r.append(i.split(",")[0].replace(" ", "").replace("'", ""))  # format the string to get
     return r
@@ -49,7 +49,7 @@ def get_rid_data(max_count):
     """
     conn_str = appSettings.get_conn_str()  # get the connection string
     query = 'SELECT distinct rid from nrch_livst_a51'  # set the query
-    rids = db.run_query(conn_str, query)  #execute the query
+    rids = db.run_query(conn_str, query,True)  #execute the query
     if len(rids) > max_count:  #if the array is longer than the
         rids = rids[:max_count]  # limit else it takes 4 hours just to load the data
     return rids

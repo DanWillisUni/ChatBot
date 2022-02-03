@@ -13,7 +13,7 @@ def get_all_data_on_station(station):
     """
     conn_str = appSettings.get_conn_str()
     query = "EXEC GetAllInfoOnStationTimes @station = '" + station + "'"  # sets the query string
-    result = db.run_query(conn_str, query)  # execute the stored procedure
+    result = db.run_query(conn_str, query,True)  # execute the stored procedure
     return result
 
 
@@ -34,7 +34,7 @@ def get_lateness_from_stations(from_station, to_station, range_start, range_end)
     """
     conn_str = appSettings.get_conn_str()
     query = "EXEC GetLatenessFromStations @FromStation = '" + from_station + "',@ToStation = '" + to_station + "',@LateByRangeStart = " + str(range_start) + ",@LateByRangeEnd = " + str(range_end)  # generate query
-    result = db.run_query(conn_str, query)  #run the query
+    result = db.run_query(conn_str, query,True)  #run the query
     return result
 
 
@@ -51,7 +51,7 @@ def get_lateness_of_both(from_station, to_station):
     """
     conn_str = appSettings.get_conn_str()
     query = "EXEC GetLatenessOfBoth @FROM = '" + from_station + "',@TO = '" + to_station + "'"  # generate the query string
-    result = db.run_query(conn_str, query)  # run the query on the database
+    result = db.run_query(conn_str, query,True)  # run the query on the database
     return result
 
 
@@ -69,7 +69,7 @@ def compare_stations(a, b):
     """
     conn_str = appSettings.get_conn_str()
     query = "EXEC CompareStations @A = '" + a + "',@B = '" + b + "'"  # generate the query
-    result = db.run_query(conn_str, query)  # run the query
+    result = db.run_query(conn_str, query,True)  # run the query
     return result[0][:-2]
 
 
@@ -85,11 +85,22 @@ def get_lateness_from_rid(rid):
     """
     conn_str = appSettings.get_conn_str()
     query = "EXEC GetLatenessFromRID @rid = '" + rid + "'"  # get the query string
-    result = db.run_query(conn_str, query)  # run the query
+    result = db.run_query(conn_str, query,True)  # run the query
     return result
 
 
 def insertIntoConversation(message,userID,isHuman):
     conn_str = appSettings.get_conn_str()
-    query = "EXEC insertIntoConversation @message= '"+message+"', @userID = '"+userID+"',@isFromUser = "+int(isHuman)  # get the query string
-    db.run_query(conn_str, query)  # run the query
+    query = "INSERT INTO [AIChatBot].[dbo].[Conversation_Record] ([userID],[message],[fromUser],[dateTimeID]) VALUES ('" + str(userID) + "',(CASE WHEN '" + message + "' = '' THEN null ELSE '" + message + "' END) ," + str(int(isHuman)) + ",GETDATE())"  # get the query string
+    db.run_query(conn_str, query,False)  # run the query
+
+
+def get_last_user_id():
+    conn_str = appSettings.get_conn_str()
+    query = "SELECT TOP(1) [userID] FROM [dbo].[Conversation_Record] WHERE [fromUser] = 1 ORDER BY [dateTimeID] desc"
+    return int(db.run_query(conn_str, query,True)[0].replace(", ","").replace("'",""))  # run the query
+
+def get_last_message(user_id):
+    conn_str = appSettings.get_conn_str()
+    query = "SELECT TOP(1) message FROM Conversation_Record WHERE userID = '" + str(user_id) + "' AND [fromUser] = 1 ORDER BY [dateTimeID] desc"
+    return db.run_query(conn_str, query,True)[0].replace(", ", "").replace("'", "") # run the query

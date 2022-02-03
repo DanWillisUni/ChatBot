@@ -1,6 +1,9 @@
 import random
 from flask import Flask, request
 from pymessenger.bot import Bot
+from time import sleep
+
+
 import PartTwo.Helpers.SPHelper as sph
 
 app = Flask(__name__)
@@ -16,25 +19,19 @@ def receive_message():
         return verify_fb_token(token_sent)
     #if the request was not get, it must be POST and we can just proceed with sending a message back to user
     else:
-        # get whatever message a user sent the bot
-       output = request.get_json()
+       output = request.get_json()  # get whatever message a user sent the bot
        for event in output['entry']:
           messaging = event['messaging']
           for message in messaging:
             if message.get('message'):
-                #Facebook Messenger ID for user so we know where to send response back to
-                recipient_id = message['sender']['id']
+                recipient_id = message['sender']['id'] #Facebook Messenger ID for user so we know where to send response back to
                 if message['message'].get('text'):
                     user_message = message['message'].get('text')
                     sph.insertIntoConversation(user_message, recipient_id, True)
-                    response_sent_text = get_message(recipient_id, user_message)
-                    sph.insertIntoConversation(response_sent_text, recipient_id, False)
-                    send_message(recipient_id, response_sent_text)
                 #if user sends us a GIF, photo,video, or any other non-text item
-                if message['message'].get('attachments'):
+                elif message['message'].get('attachments'):
                     sph.insertIntoConversation("", recipient_id, True)
                     response_sent_nontext = "Sorry I cannot understand messages that are not text"
-                    sph.insertIntoConversation(response_sent_nontext, recipient_id, False)
                     send_message(recipient_id, response_sent_nontext)
     return "Message Processed"
 
@@ -45,16 +42,23 @@ def verify_fb_token(token_sent):
     return 'Invalid verification token'
 
 
-def get_message(user_id, user_message):
-    sample_responses = ["Dan", "Charlie", "Brandon"]
-    # return selected item to the user
-    return random.choice(sample_responses)
-
 #uses PyMessenger to send response to user
-def send_message(recipient_id, response):
-    #sends user the text message provided via input response parameter
-    bot.send_text_message(recipient_id, response)
+def send_message(recipient_id, message):
+    sph.insertIntoConversation(message, recipient_id, False)
+    bot.send_text_message(recipient_id, message)
     return "success"
+
+
+def input_func(prompt):
+    recipient_id = sph.get_last_user_id()
+    send_message(recipient_id, prompt)
+    last_responce = sph.get_last_message(recipient_id)
+    new_last_response = last_responce
+    #wait here till next message recieved then return
+    while last_responce == new_last_response:
+        sleep(1)
+        new_last_response = sph.get_last_message(recipient_id)
+    return new_last_response
 
 
 if __name__ == "__main__":
