@@ -1,5 +1,3 @@
-import asyncio
-import aiohttp
 from experta import *
 
 from NLP.nlpu import *
@@ -264,7 +262,7 @@ class KEngine(KnowledgeEngine):
           NOT(Fact(return_time=W()))
           )
     def ask_return_time(self, origin_station):
-        self.declare(Fact(return_time=extract_journey_time(nlp("leaving at " + fbm.input_func("When would you like return to %s? " % (origin_station)))[0])))
+        self.declare(Fact(return_time=extract_journey_time(nlp("leaving at " + fbm.input_func("When would you like return to {0}? ".format(origin_station)))[0])))
 
     @Rule(Fact(state="booking"),
           Fact(origin_station=MATCH.origin_station),
@@ -527,7 +525,7 @@ class KEngine(KnowledgeEngine):
     def delay_send_delay_prediction(self, current_delay, current_station, target_station):
         predicted_delay = predict(station_map[current_station.lower()], station_map[target_station.lower()], current_delay)
 
-        fbm.send_message(sph.get_last_user_id(), "Predicted delay at %s from %s when you are currently delayed by %s will be %s" % (target_station, current_station, str(current_delay) + " minutes", str(predicted_delay) + " minutes"))
+        fbm.send_message(sph.get_last_user_id(), "Predicted delay at {0} from {1} when you are currently delayed by {2} will be {3}".format(target_station, current_station, str(current_delay) + " minutes", str(predicted_delay) + " minutes"))
 
     def run_confirmation(self, origin_station, destination_station, ticket_type, leave_time, return_time, adult_count,
                          children_count, leave_time_type, return_time_type):
@@ -547,10 +545,15 @@ class KEngine(KnowledgeEngine):
             "by " if return_time_type == Ticket.ARRIVE_BEFORE else "at ") + format_tempus(
             return_time) if ticket_type == "return" else ""
 
-        fbm.send_message(sph.get_last_user_id(), "Awesome! I'm going to look for %s from %s to %s %s %s %s" % (
-            ticket_string, origin_station, destination_station,
-            "arriving by" if leave_time_type == Ticket.ARRIVE_BEFORE else "leaving at", format_tempus(leave_time),
-            return_string))
+        bot_message = "Awesome! I'm going to look for {0} from {1} to {2} {3} {4} {5}".format(
+            ticket_string,
+            origin_station,
+            destination_station,
+            "arriving by" if leave_time_type == Ticket.ARRIVE_BEFORE else "leaving at",
+            format_tempus(leave_time),
+            return_string)
+        print(bot_message)
+        fbm.send_message(sph.get_last_user_id(), bot_message)
 
         correct = fbm.input_func("Is that all correct? ")
 

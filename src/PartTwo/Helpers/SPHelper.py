@@ -91,8 +91,10 @@ def get_lateness_from_rid(rid):
 
 def insertIntoConversation(message,userID,isHuman):
     conn_str = appSettings.get_conn_str()
+    message = message.replace("'","''")
     query = "INSERT INTO [AIChatBot].[dbo].[Conversation_Record] ([userID],[message],[fromUser],[dateTimeID]) VALUES ('" + str(userID) + "',(CASE WHEN '" + message + "' = '' THEN null ELSE '" + message + "' END) ," + str(int(isHuman)) + ",GETDATE())"  # get the query string
-    db.run_query(conn_str, query,False)  # run the query
+    print(query)
+    db.run_query(conn_str, query, False)  # run the query
 
 
 def get_last_user_id():
