@@ -35,3 +35,11 @@ For Windows:}
 ##Download requirements
 1. pip install -r requirements.txt
 
+
+#To run
+In CMD run: ngrok http 5000
+Start the FbMessenger.py
+Send your first message in the chat
+Start Engine.py
+
+
