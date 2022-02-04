@@ -4,7 +4,7 @@ import appSettings
 import PartTwo.Helpers.DB as db
 
 
-def get_all_stations():
+def get_all_stations(with_where):
     """
     Select all the stations from the database
 

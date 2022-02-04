@@ -89,20 +89,45 @@ def get_lateness_from_rid(rid):
     return result
 
 
-def insertIntoConversation(message,userID,isHuman):
-    conn_str = appSettings.get_conn_str()
-    message = message.replace("'","''")
-    query = "INSERT INTO [AIChatBot].[dbo].[Conversation_Record] ([userID],[message],[fromUser],[dateTimeID]) VALUES ('" + str(userID) + "',(CASE WHEN '" + message + "' = '' THEN null ELSE '" + message + "' END) ," + str(int(isHuman)) + ",GETDATE())"  # get the query string
-    print(query)
+def insert_into_conversation(message, user_id, is_human):
+    """
+    Insert the message into the Conversation_Record table
+
+    :param message:
+    message to log
+    :param user_id:
+    Facebook recipient ID
+    :param is_human:
+    Boolean True if the message is from the user, False when from the bot
+    """
+    conn_str = appSettings.get_conn_str()  # get the connection string
+    message = message.replace("'", "''")  # replace single quotes with two single quotes in the message so that they are counted as a string
+    query = "INSERT INTO [AIChatBot].[dbo].[Conversation_Record] ([userID],[message],[fromUser],[dateTimeID]) VALUES ('" + str(user_id) + "',(CASE WHEN '" + message + "' = '' THEN null ELSE '" + message + "' END) ," + str(int(is_human)) + ",GETDATE())"  # get the query string
     db.run_query(conn_str, query, False)  # run the query
 
 
 def get_last_user_id():
-    conn_str = appSettings.get_conn_str()
-    query = "SELECT TOP(1) [userID] FROM [dbo].[Conversation_Record] WHERE [fromUser] = 1 ORDER BY [dateTimeID] desc"
-    return int(db.run_query(conn_str, query,True)[0].replace(", ","").replace("'",""))  # run the query
+    """
+    Get the user id of the last message to come in
+
+    :return:
+    String array of the result rows
+    """
+    conn_str = appSettings.get_conn_str()  # get the connection string of the database
+    query = "SELECT TOP(1) [userID] FROM [dbo].[Conversation_Record] WHERE [fromUser] = 1 ORDER BY [dateTimeID] desc"  # set the query string
+    return int(db.run_query(conn_str, query, True)[0].replace(", ", "").replace("'", ""))  # run the query
+
 
 def get_last_message(user_id):
-    conn_str = appSettings.get_conn_str()
-    query = "SELECT TOP(1) message FROM Conversation_Record WHERE userID = '" + str(user_id) + "' AND [fromUser] = 1 ORDER BY [dateTimeID] desc"
-    return db.run_query(conn_str, query,True)[0].replace(", ", "").replace("'", "") # run the query
+    """
+    Get the last message the user sent
+
+    :param user_id:
+    User id of the user
+
+    :return:
+    String of the last message the user sent to the bot
+    """
+    conn_str = appSettings.get_conn_str()  # get the connection string
+    query = "SELECT TOP(1) message FROM Conversation_Record WHERE userID = '" + str(user_id) + "' AND [fromUser] = 1 AND message IS NOT NULL ORDER BY [dateTimeID] desc"  # set the query string
+    return db.run_query(conn_str, query, True)[0].replace(", ", "").replace("'", "")  # run the query
