@@ -14,19 +14,6 @@ Use the following commands in terminal
 1. import spacy
 2. python -m spacy download en
 
-Hopefully can remove this after charlies headless {
-##Download chromedriver 
-Install chromedriver to resources folder
-1. Open https://sites.google.com/chromium.org/driver/downloads
-2. Download chromedriver with the appropriate version of chrome used on your machine
-3. Move chromedriver into the resources folder
-For MAC:
-4. Make sure chromedriver is executable 'ls -l ChatBot/resrouces/chromedriver'
-5. If not executable 'chmod +x ChatBot/resources/chromedriver'
-6. OSX may need further entitlements
-For Windows:}
-
-
 ## en_core_web
 1. en_core_web_sm must be installed using:
    1. python -m spacy download en_core_web_sm
@@ -35,11 +22,13 @@ For Windows:}
 ##Download requirements
 1. pip install -r requirements.txt
 
+Must have Firefox downloaded and installed on the computer
 
-#To run
-In CMD run: ngrok http 5000
-Start the FbMessenger.py
-Send your first message in the chat
-Start Engine.py
+##To run
+1. In CMD run: ngrok http 5000
+2. Edit the callback URL for the facebook page to the https tunneled by ngrok
+3. Start the FbMessenger.py
+4. Send your first message in the chat
+5. Start Engine.py
 
 
