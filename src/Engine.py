@@ -169,7 +169,7 @@ class KEngine(KnowledgeEngine):
           NOT(Fact(leave_time=W())),
           )
     def ask_leave_time(self, origin_station):
-        self.declare(Fact(leave_time=extract_journey_time(nlp("leaving at " + input("When would you like to leave %s? " % (origin_station)))[0])))
+        self.declare(Fact(leave_time=extract_journey_time(nlp("leaving at " + input("Can you give me a time for the outbound journey? (I will clarify arrive by or depart at in a later question)"))[0])))
 
     @Rule(Fact(state="booking"),
           Fact(origin_station=MATCH.origin_station),
