@@ -12,11 +12,20 @@ def helper_print(message):
     elif appSettings.get_API() == "console":
         print(message)
 
-def helper_input(prompt):
+def helper_input(engine,prompt):
+    user_message = ""
     if appSettings.get_API() == "fb":
-        return fbm.input_func(prompt)
+        user_message = fbm.input_func(prompt)
     #elif appSettings.get_API() == "api":
 
     elif appSettings.get_API() == "console":
-        return input(prompt)
+        user_message = input(prompt)
+
+    if user_message == "RESET":
+        engine.reset()
+        engine.run()
+    elif user_message == "QUIT":
+        engine.reset()
+    else:
+        return user_message
 

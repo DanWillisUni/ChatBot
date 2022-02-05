@@ -32,17 +32,18 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTM
 class TheTrainLine:
     # provide apis to TheTrainLine website
 
-    def __init__(self):
-        _options = Options()
-        _options.add_argument('--headless')
-        _options.add_argument(f'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36')  # add to
+    def __init__(self, headless=True):
+        if headless:
+            _options = Options()
+            _options.add_argument('--headless')
+            _options.add_argument(f'user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36')  # add to
 
-        capabilities = DesiredCapabilities.FIREFOX.copy()
-        capabilities['acceptSslCerts'] = True
-        capabilities['acceptInsecureCerts'] = True
-
-        self.driver = webdriver.Firefox(options=_options, executable_path=GeckoDriverManager().install(), desired_capabilities=capabilities)
-        #self.driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
+            capabilities = DesiredCapabilities.FIREFOX.copy()
+            capabilities['acceptSslCerts'] = True
+            capabilities['acceptInsecureCerts'] = True
+            self.driver = webdriver.Firefox(options=_options, executable_path=GeckoDriverManager().install(), desired_capabilities=capabilities)
+        else:
+            self.driver = webdriver.Firefox(executable_path=GeckoDriverManager().install())
         self.driver.get("https://www.thetrainline.com")
 
         # wait for accept cookies popup and click on accept
@@ -91,7 +92,7 @@ class TheTrainLine:
             button = self.driver.find_element(By.ID, 'single')
         # choose return
         else:
-            sleep(0.2)
+            sleep(1)
             button = self.driver.find_element(By.ID, 'return')
         button.click()
 
@@ -179,10 +180,9 @@ class TheTrainLine:
         self.driver.find_element(By.XPATH,
                                  '/html/body/div[2]/div/div[2]/main/div[2]/div[4]/div/div/div[1]/section/form/div['
                                  '5]/button').click()
-
+        sleep(1)
         # wait for page to load fully before looking for cheapest ticket label
-        WebDriverWait(self.driver, 10).until(
-            ec.presence_of_element_located((By.CSS_SELECTOR, "[aria-label='the cheapest fare']")))
+
         '''#inspection for headless
         el = self.driver.find_element_by_tag_name('body')
         el.screenshot("ss.png")
@@ -190,10 +190,16 @@ class TheTrainLine:
         screenshot.show()'''
 
         if ticket_type == Ticket.SINGLE:
+            WebDriverWait(self.driver, 10).until(
+                ec.presence_of_element_located((By.CSS_SELECTOR,"[aria-label='the cheapest fare']")))
+            sleep(0.5)
             cheapest_ticket = self.driver.find_element(By.CSS_SELECTOR, "[aria-label='the cheapest fare']").text
         else:
             # find cheapest ticket label to print cheapest ticket and page url
-            sleep(1)
+            WebDriverWait(self.driver, 10).until(
+                ec.presence_of_element_located((By.ID,
+                                                '/html/body/div[2]/div/div[1]/main/div/div[2]/div/div/div/div/div/div[1]/div[2]/div/div[1]/h3/span[2]/span/span')))
+            sleep(0.5)
             cheapest_ticket = self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div[1]/main/div/div[2]/div/div/div/div/div/div[1]/div[2]/div/div[1]/h3/span[2]/span/span').text
 
         return float(cheapest_ticket[1:]), self.driver.current_url
