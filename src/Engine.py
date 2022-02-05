@@ -3,7 +3,7 @@ from experta import *
 from NLP.nlpu import *
 from scraper import *
 from partTwoHighLevel import *
-import Chat.FbMessenger as fbm
+import Chat.Helper as h
 
 # Knowledge Engine
 class KEngine(KnowledgeEngine):
@@ -33,11 +33,11 @@ class KEngine(KnowledgeEngine):
     def ask_how_can_help(self):
         self.declare(Fact(now=pd.Timestamp(datetime.now()).ceil("1min").to_pydatetime()))
 
-        q = fbm.input_func("How can I help you? ")
+        q = h.helper_input("How can I help you? ")
         data = parse_query(q)
 
         while data["query type"] == "unknown":
-            data = parse_query(fbm.input_func("I didn't understand, if you want to book a ticket, use words like \"book\" or \"ticket\". If you'd like to predict a delay, use words like \"delay\" or \"predict\". "))
+            data = parse_query(h.helper_input("I didn't understand, if you want to book a ticket, use words like \"book\" or \"ticket\". If you'd like to predict a delay, use words like \"delay\" or \"predict\". "))
 
         if data["query type"] == "cheapest":
             if data["from"] is not None:
@@ -68,7 +68,7 @@ class KEngine(KnowledgeEngine):
 
     @Rule(Fact(state="booking"), NOT(Fact(origin_station=W())))
     def ask_origin_station(self):
-        self.declare(Fact(origin_station=fbm.input_func("Where are you travelling from? ")))
+        self.declare(Fact(origin_station=h.helper_input("Where are you travelling from? ")))
 
     @Rule(Fact(state="booking"), Fact(origin_station=MATCH.origin_station), TEST(lambda origin_station: get_matching_stations(origin_station)[0][-1] != 100))
     def check_origin_station(self, origin_station):
@@ -76,7 +76,7 @@ class KEngine(KnowledgeEngine):
 
     @Rule(Fact(state="booking"), NOT(Fact(destination_station=W())))
     def ask_destination_station(self):
-        self.declare(Fact(destination_station=fbm.input_func("Where would you like to go? ")))
+        self.declare(Fact(destination_station=h.helper_input("Where would you like to go? ")))
 
     @Rule(Fact(state="booking"), Fact(destination_station=MATCH.destination_station), TEST(lambda destination_station: get_matching_stations(destination_station)[0][-1] != 100))
     def check_destination_station(self, destination_station):
@@ -94,7 +94,7 @@ class KEngine(KnowledgeEngine):
                 found += 1
 
         if found == 1:
-            confirmation = fbm.input_func("Did you mean " + str(stations[0][0]) + "? ")
+            confirmation = h.helper_input("Did you mean " + str(stations[0][0]) + "? ")
 
             if confirmation.lower() == "yes":  # TODO Add support for more answers
                 if leaving:
@@ -102,18 +102,18 @@ class KEngine(KnowledgeEngine):
                 else:
                     self.modify(self.facts[self.__find_fact("destination_station")], destination_station=stations[0][0])
             elif confirmation.lower() == "no":  # TODO Add support for more variations of no
-                self.__validate_station(fbm.input_func("Can you double check the name of the station and tell me again? "), leaving)
+                self.__validate_station(h.helper_input("Can you double check the name of the station and tell me again? "), leaving)
             else:
-                self.__validate_station(fbm.input_func("I didn't understand what you said, please could you double check the name of the station and tell me again? "), leaving)
+                self.__validate_station(h.helper_input("I didn't understand what you said, please could you double check the name of the station and tell me again? "), leaving)
 
             return
 
         elif found == 0:
-            self.__validate_station(fbm.input_func("I'm not sure what station you meant. Can you double check the name of the station you are " + ("travelling from" if leaving else "going to") + " and tell me again? "), leaving)
+            self.__validate_station(h.helper_input("I'm not sure what station you meant. Can you double check the name of the station you are " + ("travelling from" if leaving else "going to") + " and tell me again? "), leaving)
 
             return
         else:
-            list_response = fbm.input_func(message + "\n")
+            list_response = h.helper_input(message + "\n")
 
             if list_response.isnumeric() and stations[int(list_response) - 1][0] is not None:
                 if leaving:
@@ -143,12 +143,12 @@ class KEngine(KnowledgeEngine):
 
     @Rule(Fact(state="booking"), NOT(Fact(ticket_type=W())), Fact(origin_station=MATCH.origin_station), TEST(lambda origin_station: get_matching_stations(origin_station)[0][-1] == 100))
     def ask_ticket_type(self):
-        self.declare(Fact(ticket_type=fbm.input_func("Would you like a single, or a return ticket? ")))
+        self.declare(Fact(ticket_type=h.helper_input("Would you like a single, or a return ticket? ")))
 
     @Rule(Fact(state="booking"), Fact(ticket_type=MATCH.ticket_type),
           TEST(lambda ticket_type: ticket_type != "return" and ticket_type != "single"))
     def check_ticket_type(self):
-        self.__validate_ticket_type(fbm.input_func("I didn't understand, did you want a single, or a return ticket? "))
+        self.__validate_ticket_type(h.helper_input("I didn't understand, did you want a single, or a return ticket? "))
 
     def __validate_ticket_type(self, ticket_type):
         response = nlp(ticket_type)
@@ -161,7 +161,7 @@ class KEngine(KnowledgeEngine):
                 self.modify(self.facts[self.__find_fact("ticket_type")], ticket_type="single")
                 return
 
-        self.__validate_ticket_type(fbm.input_func("I didn't understand, did you want a single, or a return ticket? "))
+        self.__validate_ticket_type(h.helper_input("I didn't understand, did you want a single, or a return ticket? "))
 
     @Rule(Fact(state="booking"),
           Fact(origin_station=MATCH.origin_station),
@@ -169,7 +169,7 @@ class KEngine(KnowledgeEngine):
           NOT(Fact(leave_time=W())),
           )
     def ask_leave_time(self, origin_station):
-        self.declare(Fact(leave_time=extract_journey_time(nlp("leaving at " + fbm.input_func("When would you like to leave %s? " % (origin_station)))[0])))
+        self.declare(Fact(leave_time=extract_journey_time(nlp("leaving at " + h.helper_input("When would you like to leave %s? " % (origin_station)))[0])))
 
     @Rule(Fact(state="booking"),
           Fact(origin_station=MATCH.origin_station),
@@ -178,7 +178,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda leave_time: validate_ticket_time(format_tempus(leave_time)) == False)
           )
     def check_leave_time(self):
-        self.__validate_ticket_time(fbm.input_func("I couldn't understand the time you wanted to leave. I'm looking for something like 18:00 21/01/2021, please tell me again? "), True)
+        self.__validate_ticket_time(h.helper_input("I couldn't understand the time you wanted to leave. I'm looking for something like 18:00 21/01/2021, please tell me again? "), True)
 
     @Rule(Fact(state="booking"),
           Fact(origin_station=MATCH.origin_station),
@@ -193,7 +193,7 @@ class KEngine(KnowledgeEngine):
           NOT(Fact(leave_time_type=W()))
           )
     def ask_leave_time_type(self, origin_station, destination_station, leave_time):
-        leave_time_type = fbm.input_func("For your outbound journey from " + origin_station + " to " + destination_station + ", would you like to arrive by, or depart at " + format_tempus(leave_time) + "? ")
+        leave_time_type = h.helper_input("For your outbound journey from " + origin_station + " to " + destination_station + ", would you like to arrive by, or depart at " + format_tempus(leave_time) + "? ")
 
         failures = 0
 
@@ -201,11 +201,11 @@ class KEngine(KnowledgeEngine):
             failures = failures + 1
 
             if failures > 3:
-                leave_time_type = fbm.input_func(
+                leave_time_type = h.helper_input(
                     "I didn't understand. For your outbound journey from " + origin_station + " to " + destination_station + ", would you like to arrive by, or depart at " + format_tempus(
                         leave_time) + "? (I'm looking for \"arrive by\" or \"depart at\") ")
             else:
-                leave_time_type = fbm.input_func("I didn't understand. For your outbound journey from " + origin_station + " to " + destination_station + ", would you like to arrive by, or depart at " + format_tempus(leave_time) + "? ")
+                leave_time_type = h.helper_input("I didn't understand. For your outbound journey from " + origin_station + " to " + destination_station + ", would you like to arrive by, or depart at " + format_tempus(leave_time) + "? ")
 
         if leave_time_type.lower() == "arrive by":
             self.declare(Fact(leave_time_type=Ticket.ARRIVE_BEFORE))
@@ -231,7 +231,7 @@ class KEngine(KnowledgeEngine):
           NOT(Fact(return_time_type=W()))
           )
     def ask_return_time_type(self, origin_station, destination_station, return_time):
-        return_time_type = fbm.input_func(
+        return_time_type = h.helper_input(
             "For your return journey from " + destination_station + " to " + origin_station + ", would you like to arrive by, or depart at " + format_tempus(
                 return_time) + "? ")
 
@@ -241,11 +241,11 @@ class KEngine(KnowledgeEngine):
             failures = failures + 1
 
             if failures > 3:
-                return_time_type = fbm.input_func(
+                return_time_type = h.helper_input(
                     "I didn't understand. For your return journey from " + destination_station + " to " + origin_station + ", would you like to arrive by, or depart at " + format_tempus(
                 return_time) + "? (I'm looking for \"arrive by\" or \"depart at\") ")
             else:
-                return_time_type = fbm.input_func(
+                return_time_type = h.helper_input(
                     "I didn't understand. For your return journey from " + destination_station + " to " + origin_station + ", would you like to arrive by, or depart at " + format_tempus(
                         return_time) + "? ")
 
@@ -262,7 +262,7 @@ class KEngine(KnowledgeEngine):
           NOT(Fact(return_time=W()))
           )
     def ask_return_time(self, origin_station):
-        self.declare(Fact(return_time=extract_journey_time(nlp("leaving at " + fbm.input_func("When would you like return to {0}? ".format(origin_station)))[0])))
+        self.declare(Fact(return_time=extract_journey_time(nlp("leaving at " + h.helper_input("When would you like return to {0}? ".format(origin_station)))[0])))
 
     @Rule(Fact(state="booking"),
           Fact(origin_station=MATCH.origin_station),
@@ -273,7 +273,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda return_time: validate_ticket_time(format_tempus(return_time)) == False)
           )
     def check_return_time(self):
-        self.__validate_ticket_time(fbm.input_func("I couldn't understand the time you wanted to return. I'm looking for something like 18:00 21/01/2021, please tell me again? "), False)
+        self.__validate_ticket_time(h.helper_input("I couldn't understand the time you wanted to return. I'm looking for something like 18:00 21/01/2021, please tell me again? "), False)
 
     def __validate_ticket_time(self, time, leaving):
         extracted_time = extract_journey_time(nlp("leaving at " + time)[0])
@@ -284,23 +284,23 @@ class KEngine(KnowledgeEngine):
             else:
                 self.modify(self.facts[self.__find_fact("return_time")], return_time=extracted_time)
         else:
-            self.__validate_ticket_time(fbm.input_func("I couldn't understand when you wanted to " + ("leave" if leaving else "return") + ". I'm looking for something like 18:00 21/01/2021, please tell me again? "), leaving)
+            self.__validate_ticket_time(h.helper_input("I couldn't understand when you wanted to " + ("leave" if leaving else "return") + ". I'm looking for something like 18:00 21/01/2021, please tell me again? "), leaving)
 
     @Rule(Fact(state="booking"), NOT(Fact(adult_count=W())))
     def ask_adults_count(self):
-        response = fbm.input_func("How many adults are traveling? ")
+        response = h.helper_input("How many adults are traveling? ")
 
         while not response.isnumeric():
-            response = fbm.input_func("I didn't understand, please give me a number, such as: 2, or 3")
+            response = h.helper_input("I didn't understand, please give me a number, such as: 2, or 3")
 
         self.declare(Fact(adult_count=response))
 
     @Rule(Fact(state="booking"), NOT(Fact(children_count=W())))
     def ask_children_count(self):
-        response = fbm.input_func("How many children are traveling? ")
+        response = h.helper_input("How many children are traveling? ")
 
         while not response.isnumeric():
-            response = fbm.input_func("I didn't understand, please give me a number, such as: 2, or 3")
+            response = h.helper_input("I didn't understand, please give me a number, such as: 2, or 3")
 
         self.declare(Fact(children_count=response))
 
@@ -314,7 +314,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda leave_time, return_time: return_time <= leave_time)
           )
     def check_return_after_leave(self):
-        fbm.send_message(sph.get_last_user_id(), "Your inbound trip should be after your outbound trip")
+        h.helper_print("Your inbound trip should be after your outbound trip")
 
         self.retract(self.facts[self.__find_fact("leave_time")])
         self.retract(self.facts[self.__find_fact("return_time")])
@@ -326,7 +326,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda return_time, now: return_time < now)
           )
     def check_return_in_future(self):
-        fbm.send_message(sph.get_last_user_id(), "Your inbound trip should be in the future")
+        h.helper_print("Your inbound trip should be in the future")
 
         self.retract(self.facts[self.__find_fact("return_time")])
 
@@ -337,7 +337,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda leave_time, now: leave_time < now)
           )
     def check_leave_in_future(self):
-        fbm.send_message(sph.get_last_user_id(), "Your outbound trip should be in the future")
+        h.helper_print("Your outbound trip should be in the future")
 
         self.retract(self.facts[self.__find_fact("leave_time")])
 
@@ -349,7 +349,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda origin_station, destination_station: origin_station.lower() == destination_station.lower())
           )
     def check_origin_equals_destination(self):
-        fbm.send_message(sph.get_last_user_id(), "You can't go to the same station you left from")
+        h.helper_print("You can't go to the same station you left from")
 
         self.retract(self.facts[self.__find_fact("origin_station")])
         self.retract(self.facts[self.__find_fact("destination_station")])
@@ -360,7 +360,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda adult_count, children_count: (int(adult_count) + int(children_count)) < 1)
           )
     def check_total_tickets_above_one(self):
-        fbm.send_message(sph.get_last_user_id(), "The sum of adult and children tickets must be at least 1")
+        h.helper_print("The sum of adult and children tickets must be at least 1")
 
         self.retract(self.facts[self.__find_fact("children_count")])
         self.retract(self.facts[self.__find_fact("adult_count")])
@@ -415,11 +415,11 @@ class KEngine(KnowledgeEngine):
 
     @Rule(Fact(state="delay"), NOT(Fact(current_delay=W())))
     def delay_ask_delay(self):
-        self.declare(Fact(current_delay=extract_NUM(nlp(fbm.input_func("How much is your train delayed so far by? "))[1])))
+        self.declare(Fact(current_delay=extract_NUM(nlp(h.helper_input("How much is your train delayed so far by? "))[1])))
 
     @Rule(Fact(state="delay"), NOT(Fact(current_station=W())))
     def delay_ask_current_station(self):
-        self.declare(Fact(current_station=fbm.input_func("What station are you currently at? ")))
+        self.declare(Fact(current_station=h.helper_input("What station are you currently at? ")))
 
     @Rule(Fact(state="delay"), Fact(current_station=MATCH.current_station),
           TEST(lambda current_station: get_matching_stations(current_station)[0][-1] != 100))
@@ -428,7 +428,7 @@ class KEngine(KnowledgeEngine):
 
     @Rule(Fact(state="delay"), NOT(Fact(target_station=W())))
     def delay_ask_target_station(self):
-        self.declare(Fact(target_station=fbm.input_func("What station would you like the delay to be predicted at? ")))
+        self.declare(Fact(target_station=h.helper_input("What station would you like the delay to be predicted at? ")))
 
     @Rule(Fact(state="delay"), Fact(target_station=MATCH.target_station),
           TEST(lambda target_station: get_matching_stations(target_station)[0][-1] != 100))
@@ -447,7 +447,7 @@ class KEngine(KnowledgeEngine):
                 found += 1
 
         if found == 1:
-            confirmation = fbm.input_func("Did you mean " + str(stations[0][0]) + "? ")
+            confirmation = h.helper_input("Did you mean " + str(stations[0][0]) + "? ")
 
             if confirmation.lower() == "yes":  # TODO Add support for more answers
                 if current:
@@ -455,18 +455,18 @@ class KEngine(KnowledgeEngine):
                 else:
                     self.modify(self.facts[self.__find_fact("target_station")], target_station=stations[0][0])
             elif confirmation.lower() == "no":  # TODO Add support for more variations of no
-                self.__delay_validate_station(fbm.input_func("Can you double check the name of the station and tell me again? "), current)
+                self.__delay_validate_station(h.helper_input("Can you double check the name of the station and tell me again? "), current)
             else:
-                self.__delay_validate_station(fbm.input_func("I didn't understand what you said, please could you double check the name of the station and tell me again? "), current)
+                self.__delay_validate_station(h.helper_input("I didn't understand what you said, please could you double check the name of the station and tell me again? "), current)
 
             return
 
         elif found == 0:
-            self.__delay_validate_station(fbm.input_func("I'm not sure what station you meant. Can you double check the name of the station you " + ("are currently at" if current else "want the delay to be predicted at") + " and tell me again? "), current)
+            self.__delay_validate_station(h.helper_input("I'm not sure what station you meant. Can you double check the name of the station you " + ("are currently at" if current else "want the delay to be predicted at") + " and tell me again? "), current)
 
             return
         else:
-            list_response = fbm.input_func(message + "\n")
+            list_response = h.helper_input(message + "\n")
 
             if list_response.isnumeric() and stations[int(list_response) - 1][0] is not None:
                 if current:
@@ -495,7 +495,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda current_station, target_station: current_station.lower() == target_station.lower())
           )
     def delay_check_origin_equals_destination(self):
-        fbm.send_message(sph.get_last_user_id(), "You can't predict the delay to and from the same station")
+        h.helper_print("You can't predict the delay to and from the same station")
 
         self.retract(self.facts[self.__find_fact("current_station")])
         self.retract(self.facts[self.__find_fact("target_station")])
@@ -509,7 +509,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda current_station, target_station: verify_station_order(station_map[current_station.lower()], station_map[target_station.lower()]) == False)
           )
     def delay_check_station_order(self):
-        fbm.send_message(sph.get_last_user_id(), "The stations you have chosen are either not on the same line, or are in the wrong order")
+        h.helper_print("The stations you have chosen are either not on the same line, or are in the wrong order")
 
         self.retract(self.facts[self.__find_fact("current_station")])
         self.retract(self.facts[self.__find_fact("target_station")])
@@ -525,7 +525,7 @@ class KEngine(KnowledgeEngine):
     def delay_send_delay_prediction(self, current_delay, current_station, target_station):
         predicted_delay = predict(station_map[current_station.lower()], station_map[target_station.lower()], current_delay)
 
-        fbm.send_message(sph.get_last_user_id(), "Predicted delay at {0} from {1} when you are currently delayed by {2} will be {3}".format(target_station, current_station, str(current_delay) + " minutes", str(predicted_delay) + " minutes"))
+        h.helper_print("Predicted delay at {0} from {1} when you are currently delayed by {2} will be {3}".format(target_station, current_station, str(current_delay) + " minutes", str(predicted_delay) + " minutes"))
 
     def run_confirmation(self, origin_station, destination_station, ticket_type, leave_time, return_time, adult_count,
                          children_count, leave_time_type, return_time_type):
@@ -552,13 +552,13 @@ class KEngine(KnowledgeEngine):
             "arriving by" if leave_time_type == Ticket.ARRIVE_BEFORE else "leaving at",
             format_tempus(leave_time),
             return_string)
-        print(bot_message)
-        fbm.send_message(sph.get_last_user_id(), bot_message)
+        #print(bot_message)
+        h.helper_print(bot_message)
 
-        correct = fbm.input_func("Is that all correct? ")
+        correct = h.helper_input("Is that all correct? ")
 
         if correct.lower() == "no":  # TODO Add support for more variations of no
-            fbm.send_message(sph.get_last_user_id(), "Sorry about that! I'm going to ask you the questions again to make sure I get it right this time!")
+            h.helper_print("Sorry about that! I'm going to ask you the questions again to make sure I get it right this time!")
 
             try:
                 self.retract(self.facts[self.__find_fact("origin_station")])
@@ -606,7 +606,7 @@ class KEngine(KnowledgeEngine):
                 pass
         else:
             if correct.lower() != "yes":
-                fbm.send_message(sph.get_last_user_id(), "I'm not sure what you meant. So I'm going to assume everything is alright!")
+                h.helper_print("I'm not sure what you meant. So I'm going to assume everything is alright!")
 
             if correct.lower() == "yes":  # TODO Add support for more answers
                 trainline = TheTrainLine()
@@ -627,7 +627,7 @@ class KEngine(KnowledgeEngine):
                                               children=children_num,
                                               outward_time_type=leave_time_type,
                                               ticket_type=Ticket.SINGLE)
-                fbm.send_message(sph.get_last_user_id(), f"The cheapest ticket will cost £{cost} and can be purchased here: {url}")
+                h.helper_print(f"The cheapest ticket will cost £{cost} and can be purchased here: {url}")
 
 
 def validate_ticket_time(time):

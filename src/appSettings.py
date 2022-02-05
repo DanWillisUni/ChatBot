@@ -19,3 +19,9 @@ def get_path_to_knn_figures():
 
 def get_path_to_nn_figures():
     return "../resources/PartTwo/NNGraphs/"
+
+
+def get_API():
+    #return "fb"
+    #return "api"
+    return "console"
