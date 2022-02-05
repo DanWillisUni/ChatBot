@@ -528,7 +528,7 @@ class KEngine(KnowledgeEngine):
     def delay_send_delay_prediction(self, current_delay, current_station, target_station):
         predicted_delay = predict(station_map[current_station.lower()], station_map[target_station.lower()], current_delay)
 
-        h.helper_print("Predicted delay at {0} from {1} when you are currently delayed by {2} will be {3}".format(target_station, current_station, str(current_delay) + " minutes", str(predicted_delay) + " minutes"))
+        h.helper_print("Predicted delay at {0} from {1} when you are currently delayed by {2} will be {3}".format(target_station, current_station, str(current_delay) + " minutes", str(math.ceil(predicted_delay)) + " minutes"))
 
     def run_confirmation(self, origin_station, destination_station, ticket_type, leave_time, return_time, adult_count,
                          children_count, leave_time_type, return_time_type):
