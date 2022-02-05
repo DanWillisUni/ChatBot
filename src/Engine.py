@@ -51,6 +51,8 @@ class KEngine(KnowledgeEngine):
             self.declare(Fact(ticket_type=data["type"]))
             self.declare(Fact(adult_count=str(data["adult"])))
             self.declare(Fact(children_count=str(data["child"])))
+            self.declare(Fact(leave_time_type=Ticket.DEPART_AFTER if data['arrive'] == False else Ticket.ARRIVE_BEFORE))
+            self.declare(Fact(return_time_type=Ticket.DEPART_AFTER if data['arrive'] == False else Ticket.ARRIVE_BEFORE))
 
             if data["return_time"] is not None:
                 self.declare(Fact(return_time=data["return_time"]))
@@ -169,7 +171,7 @@ class KEngine(KnowledgeEngine):
           NOT(Fact(leave_time=W())),
           )
     def ask_leave_time(self, origin_station):
-        self.declare(Fact(leave_time=extract_journey_time(nlp("leaving at " + h.helper_input("When would you like to leave %s? " % (origin_station)))[0])))
+        self.declare(Fact(leave_time=extract_journey_time(nlp("leaving at " + h.helper_input("Can you give me a time for the outbound journey? (I will clarify arrive by or depart at in a later question)"))[0])))
 
     @Rule(Fact(state="booking"),
           Fact(origin_station=MATCH.origin_station),
@@ -521,6 +523,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda current_station: get_matching_stations(current_station)[0][-1] == 100),
           TEST(lambda target_station: get_matching_stations(target_station)[0][-1] == 100),
           TEST(lambda current_station, target_station: current_station.lower() != target_station.lower()),
+          TEST(lambda current_station, target_station: verify_station_order(station_map[current_station.lower()], station_map[target_station.lower()]) == True)
           )
     def delay_send_delay_prediction(self, current_delay, current_station, target_station):
         predicted_delay = predict(station_map[current_station.lower()], station_map[target_station.lower()], current_delay)
