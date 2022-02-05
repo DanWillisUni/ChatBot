@@ -1,6 +1,6 @@
 import pyodbc
 
-def run_query(conn_str, query):
+def run_query(conn_str, query, isSelect):
     """
     Run sql query and return the results as a string array
 
@@ -16,11 +16,13 @@ def run_query(conn_str, query):
     cnxn = pyodbc.connect(r'Driver={SQL Server};' + conn_str)  # get connection
     cursor = cnxn.cursor()
     cursor.execute(query)  # execute the query
-    while 1:  # while true
-        row = cursor.fetchone()  # fetch the next row of the results
-        if not row:  # if the next line isnt a row
-            break  # break the while loop
-        r.append(converter(row.__str__()))  # add the row to the results string array
+    if isSelect:
+        while 1:  # while true
+            row = cursor.fetchone()  # fetch the next row of the results
+            if not row:  # if the next line isnt a row
+                break  # break the while loop
+            r.append(converter(row.__str__()))  # add the row to the results string array
+    cnxn.commit()
     cnxn.close()  # close the connection
     return r
 
