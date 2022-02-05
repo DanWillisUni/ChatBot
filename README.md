@@ -14,7 +14,7 @@ Use the following commands in terminal
 1. import spacy
 2. python -m spacy download en
 
-## en_core_web
+##en_core_web
 1. en_core_web_sm must be installed using:
    1. python -m spacy download en_core_web_sm
 
