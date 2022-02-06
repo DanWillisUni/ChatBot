@@ -197,8 +197,7 @@ class TheTrainLine:
         else:
             # find cheapest ticket label to print cheapest ticket and page url
             WebDriverWait(self.driver, 10).until(
-                ec.presence_of_element_located((By.ID,
-                                                '/html/body/div[2]/div/div[1]/main/div/div[2]/div/div/div/div/div/div[1]/div[2]/div/div[1]/h3/span[2]/span/span')))
+                ec.presence_of_element_located((By.XPATH,'/html/body/div[2]/div/div[1]/main/div/div[2]/div/div/div/div/div/div[1]/div[2]/div/div[1]/h3/span[2]/span/span')))
             sleep(0.5)
             cheapest_ticket = self.driver.find_element(By.XPATH, '/html/body/div[2]/div/div[1]/main/div/div[2]/div/div/div/div/div/div[1]/div[2]/div/div[1]/h3/span[2]/span/span').text
 
