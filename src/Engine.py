@@ -417,7 +417,14 @@ class KEngine(KnowledgeEngine):
 
     @Rule(Fact(state="delay"), NOT(Fact(current_delay=W())))
     def delay_ask_delay(self):
-        self.declare(Fact(current_delay=extract_NUM(nlp(h.helper_input(self,"How much is your train delayed so far by? "))[1])))
+        read_delay = input("How much is your train delayed so far by? ")
+        while len(read_delay.split()) == 0:
+            read_delay = input("How much is your train delayed so far by (I'm looking for something like \"6 minutes\")? ")
+
+            if len(read_delay.split()) == 1:
+                read_delay = read_delay + " minutes"
+
+        self.declare(Fact(current_delay=extract_NUM(nlp(read_delay)[1])))
 
     @Rule(Fact(state="delay"), NOT(Fact(current_station=W())))
     def delay_ask_current_station(self):
