@@ -177,7 +177,7 @@ class KEngine(KnowledgeEngine):
           Fact(origin_station=MATCH.origin_station),
           TEST(lambda origin_station: get_matching_stations(origin_station)[0][-1] == 100),
           Fact(leave_time=MATCH.leave_time),
-          TEST(lambda leave_time: validate_ticket_time(format_tempus(leave_time)) == False)
+          TEST(lambda leave_time: validate_ticket_time(leave_time) == False)
           )
     def check_leave_time(self):
         self.__validate_ticket_time(h.helper_input(self,"I couldn't understand the time you wanted to leave. I'm looking for something like 18:00 21/01/2021, please tell me again? "), True)
@@ -189,7 +189,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda destination_station: get_matching_stations(destination_station)[0][-1] == 100),
           TEST(lambda origin_station, destination_station: origin_station.lower() != destination_station.lower()),
           Fact(leave_time=MATCH.leave_time),
-          TEST(lambda leave_time: validate_ticket_time(format_tempus(leave_time)) == True),
+          TEST(lambda leave_time: validate_ticket_time(leave_time) == True),
           Fact(now=MATCH.now),
           TEST(lambda leave_time, now: leave_time > now),
           NOT(Fact(leave_time_type=W()))
@@ -224,8 +224,8 @@ class KEngine(KnowledgeEngine):
           TEST(lambda ticket_type: ticket_type == "return"),
           Fact(leave_time=MATCH.leave_time),
           Fact(return_time=MATCH.return_time),
-          TEST(lambda return_time: validate_ticket_time(format_tempus(return_time)) == True),
-          TEST(lambda leave_time: validate_ticket_time(format_tempus(leave_time)) == True),
+          TEST(lambda return_time: validate_ticket_time(return_time) == True),
+          TEST(lambda leave_time: validate_ticket_time(leave_time) == True),
           TEST(lambda leave_time, return_time: return_time > leave_time),
           Fact(now=MATCH.now),
           TEST(lambda return_time, now: return_time > now),
@@ -272,7 +272,7 @@ class KEngine(KnowledgeEngine):
           Fact(ticket_type=MATCH.ticket_type),
           TEST(lambda ticket_type: ticket_type == "return"),
           Fact(return_time=MATCH.return_time),
-          TEST(lambda return_time: validate_ticket_time(format_tempus(return_time)) == False)
+          TEST(lambda return_time: validate_ticket_time(return_time) == False)
           )
     def check_return_time(self):
         self.__validate_ticket_time(h.helper_input(self,"I couldn't understand the time you wanted to return. I'm looking for something like 18:00 21/01/2021, please tell me again? "), False)
@@ -311,8 +311,8 @@ class KEngine(KnowledgeEngine):
           TEST(lambda ticket_type: ticket_type == "return"),
           Fact(leave_time=MATCH.leave_time),
           Fact(return_time=MATCH.return_time),
-          TEST(lambda return_time: validate_ticket_time(format_tempus(return_time)) == True),
-          TEST(lambda leave_time: validate_ticket_time(format_tempus(leave_time)) == True),
+          TEST(lambda return_time: validate_ticket_time(return_time) == True),
+          TEST(lambda leave_time: validate_ticket_time(leave_time) == True),
           TEST(lambda leave_time, return_time: return_time <= leave_time)
           )
     def check_return_after_leave(self):
@@ -324,7 +324,7 @@ class KEngine(KnowledgeEngine):
     @Rule(Fact(state="booking"),
           Fact(return_time=MATCH.return_time),
           Fact(now=MATCH.now),
-          TEST(lambda return_time: validate_ticket_time(format_tempus(return_time)) == True),
+          TEST(lambda return_time: validate_ticket_time(return_time) == True),
           TEST(lambda return_time, now: return_time < now)
           )
     def check_return_in_future(self):
@@ -335,7 +335,7 @@ class KEngine(KnowledgeEngine):
     @Rule(Fact(state="booking"),
           Fact(leave_time=MATCH.leave_time),
           Fact(now=MATCH.now),
-          TEST(lambda leave_time: validate_ticket_time(format_tempus(leave_time)) == True),
+          TEST(lambda leave_time: validate_ticket_time(leave_time) == True),
           TEST(lambda leave_time, now: leave_time < now)
           )
     def check_leave_in_future(self):
@@ -376,7 +376,7 @@ class KEngine(KnowledgeEngine):
           Fact(ticket_type=MATCH.ticket_type),
           TEST(lambda ticket_type: ticket_type == "single"),
           Fact(leave_time=MATCH.leave_time),
-          TEST(lambda leave_time: validate_ticket_time(format_tempus(leave_time)) == True),
+          TEST(lambda leave_time: validate_ticket_time(leave_time) == True),
           Fact(now=MATCH.now),
           TEST(lambda leave_time, now: leave_time > now),
           Fact(adult_count=MATCH.adult_count),
@@ -398,8 +398,8 @@ class KEngine(KnowledgeEngine):
           TEST(lambda ticket_type: ticket_type == "return"),
           Fact(leave_time=MATCH.leave_time),
           Fact(return_time=MATCH.return_time),
-          TEST(lambda return_time: validate_ticket_time(format_tempus(return_time)) == True),
-          TEST(lambda leave_time: validate_ticket_time(format_tempus(leave_time)) == True),
+          TEST(lambda return_time: validate_ticket_time(return_time) == True),
+          TEST(lambda leave_time: validate_ticket_time(leave_time) == True),
           TEST(lambda leave_time, return_time: return_time > leave_time),
           Fact(now=MATCH.now),
           TEST(lambda return_time, now: return_time > now),
@@ -653,10 +653,13 @@ class KEngine(KnowledgeEngine):
                         h.helper_print("I'm not sure what you meant. But if you need anything else just launch the window again!")
 
 
-
-
 def validate_ticket_time(time):
-    extracted_time = extract_journey_time(nlp("leaving at " + time)[0])
+    try:
+        formatted_time = format_tempus(time)
+    except AttributeError:
+        return False
+    
+    extracted_time = extract_journey_time(nlp("leaving at " + formatted_time)[0])
 
     return extracted_time is not None
 
