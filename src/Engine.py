@@ -117,7 +117,7 @@ class KEngine(KnowledgeEngine):
         else:
             list_response = h.helper_input(self,message + "\n")
 
-            if list_response.isnumeric() and stations[int(list_response) - 1][0] is not None:
+            if list_response.isnumeric() and int(list_response) <= found and stations[int(list_response) - 1][0] is not None:
                 if leaving:
                     self.modify(self.facts[self.__find_fact("origin_station")], origin_station=stations[int(list_response) - 1][0])
                 else:
@@ -477,7 +477,7 @@ class KEngine(KnowledgeEngine):
         else:
             list_response = h.helper_input(self,message + "\n")
 
-            if list_response.isnumeric() and stations[int(list_response) - 1][0] is not None:
+            if list_response.isnumeric() and int(list_response) <= found and stations[int(list_response) - 1][0] is not None:
                 if current:
                     self.modify(self.facts[self.__find_fact("current_station")], current_station=stations[int(list_response) - 1][0])
                 else:
