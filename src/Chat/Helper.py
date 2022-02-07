@@ -17,7 +17,7 @@ def helper_input(engine,prompt):
     if appSettings.get_API() == "fb":
         user_message = fbm.input_func(prompt)
     #elif appSettings.get_API() == "api":
-    
+
     elif appSettings.get_API() == "console":
         user_message = input(prompt)
 
