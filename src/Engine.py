@@ -628,36 +628,36 @@ class KEngine(KnowledgeEngine):
             if correct.lower() != "yes":
                 h.helper_print("I'm not sure what you meant. So I'm going to assume everything is alright!")
 
-            if correct.lower() == "yes":  # TODO Add support for more answers
-                trainline = TheTrainLine(False)
-                cost, url = trainline.get_ticket(origin_station,
-                                                 destination_station,
-                                                 leave_time,
-                                                 adults=adult_num,
-                                                 children=children_num,
-                                                 inbound_time=return_time,
-                                                 outward_time_type=leave_time_type,
-                                                 inbound_time_type=return_time_type,
-                                                 ticket_type=Ticket.RETURN) \
-                    if ticket_type == "return" \
-                    else trainline.get_ticket(origin_station,
-                                              destination_station,
-                                              leave_time,
-                                              adults=adult_num,
-                                              children=children_num,
-                                              outward_time_type=leave_time_type,
-                                              ticket_type=Ticket.SINGLE)
-                h.helper_print(f"The cheapest ticket will cost £{cost} and can be purchased here: {url}")
+            trainline = TheTrainLine(False)
+            cost, url = trainline.get_ticket(origin_station,
+                                             destination_station,
+                                             leave_time,
+                                             adults=adult_num,
+                                             children=children_num,
+                                             inbound_time=return_time,
+                                             outward_time_type=leave_time_type,
+                                             inbound_time_type=return_time_type,
+                                             ticket_type=Ticket.RETURN) \
+                if ticket_type == "return" \
+                else trainline.get_ticket(origin_station,
+                                          destination_station,
+                                          leave_time,
+                                          adults=adult_num,
+                                          children=children_num,
+                                          outward_time_type=leave_time_type,
+                                          ticket_type=Ticket.SINGLE)
+            h.helper_print(f"The cheapest ticket will cost £{cost} and can be purchased here: {url}")
 
-                more = h.helper_input(self,"Can I help you with anything else? ")
-                if more.lower() == "yes":
-                    self.reset()
-                    self.run()
+            more = h.helper_input(self, "Can I help you with anything else? ")
+            if more.lower() == "yes":
+                self.reset()
+                self.run()
+            else:
+                if more.lower() == "no":
+                    h.helper_print("Thanks! Have a great day!")
                 else:
-                    if more.lower() == "no":
-                        h.helper_print("Thanks! Have a great day!")
-                    else:
-                        h.helper_print("I'm not sure what you meant. But if you need anything else just launch the window again!")
+                    h.helper_print(
+                        "I'm not sure what you meant. But if you need anything else just launch the window again!")
 
 
 def validate_ticket_time(time):
