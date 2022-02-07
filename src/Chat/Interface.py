@@ -2,11 +2,7 @@ from PyQt5.QtCore import QThread, QObject, pyqtSlot, pyqtSignal
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QTextEdit, QLineEdit, QGridLayout
 import datetime
 
-from src.Engine import KEngine
-
-from pymitter import EventEmitter
-
-eventEmitter = EventEmitter()
+from Engine import KEngine
 
 class EngineWorker(QObject):
 
