@@ -7,7 +7,7 @@ GO
 -- Create date: 
 -- Description:	
 -- =============================================
-Create PROCEDURE insertIntoConversation
+CREATE PROCEDURE insertIntoConversation
 	-- Add the parameters for the stored procedure here
 	@message VARCHAR(1000) = '',
 	@userID VARCHAR(50) = '',
@@ -16,7 +16,7 @@ AS
 BEGIN
 	SET NOCOUNT ON;
 	
-INSERT INTO [dbo].[Conversation]
+	INSERT INTO [AIChatBot].[dbo].[Conversation_Record]
            ([userID]
            ,[message]
            ,[fromUser]
@@ -28,7 +28,7 @@ INSERT INTO [dbo].[Conversation]
 				ELSE @message
 			END)
            ,@isFromUser
-           ,GETDATE())
-
+           ,GETDATE());
+	SELECT 0
 END
 GO

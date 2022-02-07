@@ -59,6 +59,7 @@
   "time": [
     "second",
     "minute",
-    "hour"
+    "hour",
+    "min"
   ]
 }
