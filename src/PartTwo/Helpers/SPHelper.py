@@ -129,5 +129,5 @@ def get_last_message(user_id):
     String of the last message the user sent to the bot
     """
     conn_str = appSettings.get_conn_str()  # get the connection string
-    query = "SELECT TOP(1) message FROM Conversation_Record WHERE userID = '" + str(user_id) + "' AND [fromUser] = 1 AND message IS NOT NULL ORDER BY [dateTimeID] desc"  # set the query string
-    return db.run_query(conn_str, query, True)[0].replace(", ", "").replace("'", "")  # run the query
+    query = "SELECT TOP(1) message, dateTimeID FROM Conversation_Record WHERE userID = '" + str(user_id) + "' AND [fromUser] = 1 AND message IS NOT NULL ORDER BY [dateTimeID] desc"  # set the query string
+    return db.run_query(conn_str, query, True)[0]  # run the query

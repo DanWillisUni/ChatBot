@@ -22,6 +22,6 @@ def get_path_to_nn_figures():
 
 
 def get_API():
-    #return "fb"
+    return "fb"
     #return "api"
-    return "console"
+    #return "console"

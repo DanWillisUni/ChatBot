@@ -85,7 +85,8 @@ def input_func(prompt):
     while last_responce == new_last_response:  # while the last response is the same as the last time
         sleep(1)  # sleep 1 second
         new_last_response = sph.get_last_message(recipient_id)  # get the last message the user sent
-    return new_last_response  # return the response to the prompt from the user
+    #print(new_last_response)
+    return new_last_response.split(",")[0].replace("'","")  # return the response to the prompt from the user
 
 
 if __name__ == "__main__":
