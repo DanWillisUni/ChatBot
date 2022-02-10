@@ -8,10 +8,26 @@ import Chat.Helper as h
 # Knowledge Engine
 class KEngine(KnowledgeEngine):
 
-    def __init__(self):
+    def __init__(self, ui):
         super().__init__()
-        self.reset()
-        self.run()
+        self.ui = ui
+        self.input_data = ""
+
+    def write(self, message):
+        self.ui.send_message("Bot", message)
+
+    def prompt(self, message):
+        self.write(message)
+        while True:
+            if self.input_data == "":
+                sleep(1)
+            else:
+                response = self.input_data
+                self.input_data = ""
+                return response
+
+    def set_input(self, i):
+        self.input_data = i
 
     @DefFacts()
     def _initial_action(self):
@@ -316,7 +332,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda leave_time, return_time: return_time <= leave_time)
           )
     def check_return_after_leave(self):
-        h.helper_print("Your inbound trip should be after your outbound trip")
+        h.helper_print(self, "Your inbound trip should be after your outbound trip")
 
         self.retract(self.facts[self.__find_fact("leave_time")])
         self.retract(self.facts[self.__find_fact("return_time")])
@@ -328,7 +344,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda return_time, now: return_time < now)
           )
     def check_return_in_future(self):
-        h.helper_print("Your inbound trip should be in the future")
+        h.helper_print(self, "Your inbound trip should be in the future")
 
         self.retract(self.facts[self.__find_fact("return_time")])
 
@@ -339,7 +355,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda leave_time, now: leave_time < now)
           )
     def check_leave_in_future(self):
-        h.helper_print("Your outbound trip should be in the future")
+        h.helper_print(self, "Your outbound trip should be in the future")
 
         self.retract(self.facts[self.__find_fact("leave_time")])
 
@@ -351,7 +367,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda origin_station, destination_station: origin_station.lower() == destination_station.lower())
           )
     def check_origin_equals_destination(self):
-        h.helper_print("You can't go to the same station you left from")
+        h.helper_print(self, "You can't go to the same station you left from")
 
         self.retract(self.facts[self.__find_fact("origin_station")])
         self.retract(self.facts[self.__find_fact("destination_station")])
@@ -362,7 +378,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda adult_count, children_count: (int(adult_count) + int(children_count)) < 1)
           )
     def check_total_tickets_above_one(self):
-        h.helper_print("The sum of adult and children tickets must be at least 1")
+        h.helper_print(self, "The sum of adult and children tickets must be at least 1")
 
         self.retract(self.facts[self.__find_fact("children_count")])
         self.retract(self.facts[self.__find_fact("adult_count")])
@@ -504,7 +520,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda current_station, target_station: current_station.lower() == target_station.lower())
           )
     def delay_check_origin_equals_destination(self):
-        h.helper_print("You can't predict the delay to and from the same station")
+        h.helper_print(self, "You can't predict the delay to and from the same station")
 
         self.retract(self.facts[self.__find_fact("current_station")])
         self.retract(self.facts[self.__find_fact("target_station")])
@@ -518,7 +534,7 @@ class KEngine(KnowledgeEngine):
           TEST(lambda current_station, target_station: verify_station_order(station_map[current_station.lower()], station_map[target_station.lower()]) == False)
           )
     def delay_check_station_order(self):
-        h.helper_print("The stations you have chosen are either not on the same line, or are in the wrong order")
+        h.helper_print(self, "The stations you have chosen are either not on the same line, or are in the wrong order")
 
         self.retract(self.facts[self.__find_fact("current_station")])
         self.retract(self.facts[self.__find_fact("target_station")])
@@ -535,7 +551,7 @@ class KEngine(KnowledgeEngine):
     def delay_send_delay_prediction(self, current_delay, current_station, target_station):
         predicted_delay = predict(station_map[current_station.lower()], station_map[target_station.lower()], current_delay)
 
-        h.helper_print("Predicted delay at {0} from {1} when you are currently delayed by {2} will be {3}".format(target_station, current_station, str(current_delay) + " minutes", str(math.ceil(predicted_delay)) + " minutes"))
+        h.helper_print(self, "Predicted delay at {0} from {1} when you are currently delayed by {2} will be {3}".format(target_station, current_station, str(current_delay) + " minutes", str(math.ceil(predicted_delay)) + " minutes"))
 
         more = h.helper_input(self,"Can I help you with anything else? ")
         if more.lower() == "yes":
@@ -543,9 +559,9 @@ class KEngine(KnowledgeEngine):
             self.run()
         else:
             if more.lower() == "no":
-                h.helper_print("Thanks! Have a great day!")
+                h.helper_print(self, "Thanks! Have a great day!")
             else:
-                h.helper_print("I'm not sure what you meant. But if you need anything else just launch the window again!")
+                h.helper_print(self, "I'm not sure what you meant. But if you need anything else just launch the window again!")
 
     def run_confirmation(self, origin_station, destination_station, ticket_type, leave_time, return_time, adult_count,
                          children_count, leave_time_type, return_time_type):
@@ -573,12 +589,12 @@ class KEngine(KnowledgeEngine):
             format_tempus(leave_time),
             return_string)
         #print(bot_message)
-        h.helper_print(bot_message)
+        h.helper_print(self, bot_message)
 
         correct = h.helper_input(self,"Is that all correct? ")
 
         if correct.lower() == "no":  # TODO Add support for more variations of no
-            h.helper_print("Sorry about that! I'm going to ask you the questions again to make sure I get it right this time!")
+            h.helper_print(self, "Sorry about that! I'm going to ask you the questions again to make sure I get it right this time!")
 
             try:
                 self.retract(self.facts[self.__find_fact("origin_station")])
@@ -626,7 +642,7 @@ class KEngine(KnowledgeEngine):
                 pass
         else:
             if correct.lower() != "yes":
-                h.helper_print("I'm not sure what you meant. So I'm going to assume everything is alright!")
+                h.helper_print(self, "I'm not sure what you meant. So I'm going to assume everything is alright!")
 
             trainline = TheTrainLine(False)
             cost, url = trainline.get_ticket(origin_station,
