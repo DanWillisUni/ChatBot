@@ -25,6 +25,7 @@ def helper_input(engine,prompt):
         engine.reset()
         engine.run()
     elif user_message == "QUIT":
+        helper_print("Glad I could help, bye for now")
         engine.reset()
     else:
         return user_message

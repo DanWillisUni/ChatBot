@@ -1,6 +1,7 @@
 import math
 import matplotlib.pyplot as plt
 from datetime import datetime
+import numpy as np
 
 import PartTwo.Helpers.Fitness as fit
 import PartTwo.NeuralNetwork as nn
@@ -129,6 +130,23 @@ def predict(from_station, to_station, delay):
     return delay_prediction  # return the prediction
 
 
+def get_correct_nn_size(max_neurons,training_iterations,max_data_size):
+    list_of_trained_nn = [0] * (max_neurons + 1)
+    for num_of_neurons in range (1,max_neurons +1):
+        current_nn = nn.get_nn(num_of_neurons)
+        end_sum_error = current_nn.start_training(max_data_size,training_iterations)[-1]
+        print("Trained: " + str(num_of_neurons) + " " + str(end_sum_error))
+        list_of_trained_nn[num_of_neurons] = end_sum_error
+    plt.plot(list_of_trained_nn)  # plot all the training errors in the nn
+    plt.yscale('linear')
+    plt.grid(True)
+    plt.xlabel("Neurons")
+    plt.ylabel("Root Mean square error in all training instances")
+    plt.savefig("GetNeurons_" + datetime.now().strftime("%Y%m%d_%H%M%S_") + ".png")
+    plt.close()
 
-# knn.getK(1000,100,1000) # ~12 hours
-# compare_and_train(20, 1000, 100000, 1000)  # one hour per iteration
+
+#knn.get_knn(1000,100,1000)  # ~12 hours
+#knn.get_k(1000,20,5000)  # ~11 hours
+#get_correct_nn_size(10,100000,1000)
+#compare_and_train(20, 1000, 100000, 1000)  # one hour per iteration

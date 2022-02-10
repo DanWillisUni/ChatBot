@@ -6,7 +6,7 @@ def get_conn_str():
 
 
 def get_nn_save_path():
-    return "../resources/PartTwo/currentSave"
+    return "../resources/PartTwo/FindingCorrectValue/currentSave"
 
 
 def get_station_compare_path():

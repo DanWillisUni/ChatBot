@@ -8,16 +8,6 @@ import PartTwo.Helpers.Fitness as f
 
 class MyTestCase(unittest.TestCase):
 
-    # test fitness
-    def test_get_all_stations(self):
-        self.assertEqual(True, True)
-
-    def test_sim_result(self):
-        self.assertEqual(True, True)
-
-    def test_get_rid_data(self):
-        self.assertEqual(True, True)
-
     # test probability helper
     def test_probability_from_frequency(self):
         test_cases = [
@@ -30,9 +20,6 @@ class MyTestCase(unittest.TestCase):
         for i in test_cases:
             result = ph.probability_from_frequency(i[0], i[1])
             self.assertEqual(i[2], result)
-
-    def test_get_outliers_min(self):
-        self.assertEqual(True, True)
 
     # test predicitons
     def test_bayes_calculation(self):

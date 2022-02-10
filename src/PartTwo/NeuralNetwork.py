@@ -326,8 +326,7 @@ def get_nn_data(max_data_size, remove_outliers):
             for b in range(a + 1, len(rid_data)):  # for all the data after station A
                 name_b = rid_data[b].split(",")[0].replace(" ", "").replace("'", "")  # set the name of station B
                 delay_b = int(rid_data[b].split(",")[1])  # set how much the train was late to station B
-                input = np.array([delay_a, int(comparing_stations[get_station_compare_index(station_dic, name_a,
-                                                                                          name_b)])])  # create the input array for the NN
+                input = np.array([delay_a, int(comparing_stations[get_station_compare_index(station_dic, name_a, name_b)])])  # create the input array for the NN
                 inputs = np.append(inputs, input)  # add the input array just created to all the inputs array
                 targets = np.append(targets, delay_b)  # add the delay to the second station to the target array
                 test_for_outliers.append(abs(delay_a - delay_b))  # add the difference between delay to station A and delay to station B into the array
@@ -362,14 +361,14 @@ def train_nn(max_data_size, iterations):
     return neural_network.start_training(max_data_size, iterations)
 
 
-def get_nn():
+def get_nn(x=3):
     """
     Gets the current NN
 
     :return:
     A NN object being loaded from a file or randomised
     """
-    return NeuralNetwork([2, 3, 3, 1])
+    return NeuralNetwork([2, x, 1])
 
 
 def relu(z):

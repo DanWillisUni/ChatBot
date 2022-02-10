@@ -1,3 +1,4 @@
+import numpy as np
 
 def probability_from_frequency(f, min):
     """
@@ -28,6 +29,6 @@ def get_outliers_min(arr):
     :return:
     Minimum number of an outlier
     """
-    q = arr.quartile([0.25, 0.75])  # get the quartiles
+    q = np.quantile(np.array(arr),[0.25, 0.75])  # get the quartiles
     iqr = q[1] - q[0]  # subtract the first from the third to get the interquartile range
     return q[1] + (1.5 * iqr)  # return the third quarter plus 1.5 of the interquartile range
